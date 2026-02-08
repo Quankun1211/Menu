@@ -1,0 +1,193 @@
+import { StyleSheet } from "react-native";
+
+export const OrderStyles = StyleSheet.create({
+    card: {
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 12,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  contentRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  infoCol: {
+    flex: 1,
+    paddingRight: 10,
+  },
+  statusRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+  dot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    marginRight: 6,
+  },
+  statusText: {
+    fontSize: 10,
+    fontWeight: 'bold',
+  },
+  orderCode: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#000',
+    marginBottom: 4,
+  },
+  subInfo: {
+    fontSize: 13,
+    color: '#777',
+    marginBottom: 12,
+  },
+  productImage: {
+    width: 100,
+    height: 100,
+    borderRadius: 12,
+    backgroundColor: '#f5f5f5',
+  },
+  buttonGroup: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  primaryBtn: {
+    backgroundColor: '#F26522',
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 20,
+  },
+  primaryBtnText: {
+    color: '#fff',
+    fontSize: 13,
+    fontWeight: 'bold',
+    marginRight: 4,
+  },
+  secondaryBtn: {
+    backgroundColor: '#FFF0E6',
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 20,
+    marginRight: 8,
+  },
+  secondaryBtnText: {
+    color: '#F26522',
+    fontSize: 13,
+    fontWeight: 'bold',
+  },
+  moreBtn: {
+    backgroundColor: '#F5F5F5',
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  detailBtn: {
+    backgroundColor: '#D3764C',
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 20,
+    marginRight: 8
+  },
+  detailBtnText: {
+    color: '#fff',
+    fontSize: 13,
+    fontWeight: '500',
+  },
+  detailBtnPending: {
+    backgroundColor: '#F5F5F5',
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 20,
+  },
+  detailBtnTextPending: {
+    color: '#555',
+    fontSize: 13,
+    fontWeight: '500',
+  },
+  tabBar: {
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#EEE',
+  },
+  tabItem: {
+    paddingHorizontal: 20,
+    paddingVertical: 15,
+    borderBottomWidth: 2,
+    borderBottomColor: 'transparent',
+  },
+  activeTabItem: {
+    borderBottomColor: '#F26522',
+  },
+  tabText: {
+    fontSize: 14,
+    color: '#777',
+    fontWeight: '500',
+  },
+  activeTabText: {
+    color: '#F26522',
+    fontWeight: 'bold',
+  },
+  footer: {
+    marginTop: 10,
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  footerText: {
+    letterSpacing: 2,
+    fontSize: 12,
+    color: '#DDD',
+    fontWeight: 'bold',
+  },
+  noteBox: {
+    backgroundColor: '#FFF9E6',
+    padding: 15,
+    borderRadius: 20,
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 10,
+    marginTop: 10,
+    marginBottom: 10,
+  },
+  noteText: {
+    flex: 1,
+    fontSize: 12,
+    color: '#856404',
+    lineHeight: 18,
+  },
+  emptyState: {
+    alignItems: 'center',
+    paddingVertical: 40,
+  },
+  iconCircle: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    borderWidth: 2,
+    borderColor: '#EEE',
+    borderStyle: 'dashed',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 15,
+  },
+  emptyText: {
+    letterSpacing: 2,
+    fontSize: 12,
+    color: '#DDD',
+    fontWeight: 'bold',
+  }
+})

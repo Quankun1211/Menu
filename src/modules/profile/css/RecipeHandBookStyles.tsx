@@ -1,0 +1,30 @@
+import { StyleSheet } from "react-native";
+
+export const RecipeHandBookStyles = StyleSheet.create({
+    container: { flex: 1, backgroundColor: '#FDFDFD' },
+  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 16, marginTop: 40 },
+  headerTitle: { fontSize: 18, fontWeight: 'bold' },
+  tabContainer: { flexDirection: 'row', backgroundColor: '#F0F0F0', margin: 16, borderRadius: 25, padding: 4 },
+  tab: { flex: 1, paddingVertical: 10, alignItems: 'center', borderRadius: 20 },
+  activeTab: { backgroundColor: '#D35400' },
+  tabText: { color: '#666', fontWeight: '500' },
+  activeTabText: { color: 'white' },
+  sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 16, borderLeftWidth: 4, borderLeftColor: '#D35400', paddingLeft: 10 },
+  sectionTitle: { fontSize: 18, fontWeight: 'bold' },
+  filterText: { color: '#4A614D', fontSize: 12, fontWeight: 'bold' },
+  recipeCard: { flexDirection: 'row', backgroundColor: 'white', borderRadius: 15, padding: 12, marginBottom: 16, elevation: 2, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.1, shadowRadius: 2 },
+  recipeImagePlaceholder: { width: 80, height: 80, borderRadius: 40, backgroundColor: '#DDD' },
+  recipeInfo: { flex: 1, marginLeft: 12, justifyContent: 'center' },
+  titleRow: { flexDirection: 'row', justifyContent: 'space-between' },
+  recipeTitle: { fontSize: 16, fontWeight: 'bold', flex: 1 },
+  metaRow: { flexDirection: 'row', alignItems: 'center', marginTop: 4 },
+  metaText: { fontSize: 12, color: '#888', marginLeft: 4 },
+  statusBadge: { alignSelf: 'flex-start', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 10, marginTop: 8 },
+  statusText: { fontSize: 10, fontWeight: 'bold' },
+  draftBox: { borderStyle: 'dashed', borderWidth: 1, borderColor: '#CCC', borderRadius: 15, padding: 20, alignItems: 'center', marginTop: 10 },
+  draftIconContainer: { width: 40, height: 40, borderRadius: 20, backgroundColor: '#E8F5E9', justifyContent: 'center', alignItems: 'center', marginBottom: 10 },
+  draftText: { color: '#666', fontSize: 13 },
+  continueText: { color: '#D35400', fontWeight: 'bold', marginTop: 5, textDecorationLine: 'underline' },
+  fab: { position: 'absolute', right: 20, bottom: 30, width: 60, height: 60, borderRadius: 30, justifyContent: 'center', alignItems: 'center', elevation: 5 },
+  bookmarkIcon: { position: 'absolute', right: 12, top: 30 }
+})

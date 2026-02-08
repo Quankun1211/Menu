@@ -1,0 +1,16 @@
+import { Stack, useLocalSearchParams, useNavigation } from "expo-router";
+
+export default function SearchTabs() {
+    return (
+        <Stack
+        screenOptions={{
+            headerShown: false
+        }}
+        >
+            <Stack.Screen 
+                name="SearchTabs" 
+                options={{ title: 'Chi tiết sản phẩm' }} 
+            />
+        </Stack>
+    )
+}

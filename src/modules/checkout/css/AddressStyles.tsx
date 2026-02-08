@@ -1,0 +1,48 @@
+import { StyleSheet } from "react-native";
+export const AddressStyles = StyleSheet.create({
+    addressItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding: 16,
+        borderRadius: 20,
+        backgroundColor: '#F8F9FA',
+        marginBottom: 12,
+        borderWidth: 1,
+        borderColor: 'transparent',
+    },
+    selectedItem: {
+        borderColor: '#F26522',
+        backgroundColor: '#FFF9F6',
+    },
+    addressInfo: { flex: 1 },
+    nameRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 4 },
+    nameText: { fontSize: 16, fontWeight: 'bold' },
+    phoneText: { fontSize: 14, color: '#666', marginBottom: 4 },
+    detailText: { fontSize: 13, color: '#888', lineHeight: 18 },
+    defaultBadge: {
+        backgroundColor: '#F26522',
+        paddingHorizontal: 8,
+        paddingVertical: 2,
+        borderRadius: 4,
+        marginLeft: 8,
+    },
+    defaultBadgeText: { color: '#fff', fontSize: 10, fontWeight: 'bold' },
+    addNewBtn: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: 16,
+        marginTop: 10,
+        borderWidth: 1,
+        borderColor: '#F26522',
+        borderStyle: 'dashed',
+        borderRadius: 20,
+    },
+    addNewText: { color: '#F26522', fontWeight: 'bold', marginLeft: 8 },
+    editButton: {
+        padding: 8,
+        marginLeft: 10,
+        borderRadius: 12,
+        backgroundColor: '#F0F0F0',
+    },
+})

@@ -1,20 +1,21 @@
-import Constants from 'expo-constants';
+import Constants from "expo-constants";
+
 interface Configuration {
-    tokenKey: string;
-    apiBaseUrl: string;
-    refreshTokenKey: string;
-    storageLocaleKey: string;
-    storageThemeKey: string;
-    keycloakUrl: string;
+  apiBaseUrl: string;
+  tokenKey: string;
+  refreshTokenKey: string;
+  storageLocaleKey: string;
+  storageThemeKey: string;
 }
+
+const extra = Constants.expoConfig?.extra ?? {};
 
 const env: Configuration = {
-    tokenKey: Constants.expoConfig?.extra?.VITE_TOKEN_KEY || "",
-    refreshTokenKey: Constants.expoConfig?.extra?.VITE_REFRESH_TOKEN_KEY || "",
-    apiBaseUrl: Constants.expoConfig?.extra?.VITE_BASE_URL || "",
-    storageLocaleKey: Constants.expoConfig?.extra?.VITE_LOCALE_KEY || "",
-    storageThemeKey: Constants.expoConfig?.extra?.VITE_THEME_KEY || "",
-    keycloakUrl: Constants.expoConfig?.extra?.VITE_KEYCLOAK_URL || ""
-}
+  apiBaseUrl: extra.API_BASE_URL ?? "",
+  tokenKey: extra.TOKEN_KEY ?? "token",
+  refreshTokenKey: extra.REFRESH_TOKEN_KEY ?? "refresh_token",
+  storageLocaleKey: extra.LOCALE_KEY ?? "locale",
+  storageThemeKey: extra.THEME_KEY ?? "theme",
+};
 
-export default env
+export default env;

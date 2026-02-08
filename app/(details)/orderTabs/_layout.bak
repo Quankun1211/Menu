@@ -1,0 +1,16 @@
+import { Stack } from "expo-router";
+
+export default function OrderTabsLayout() {
+  return (
+    <Stack
+      screenOptions={{
+        headerShown: false, 
+      }}
+    >
+      <Stack.Screen 
+        name="OrderTabs" 
+        options={{ title: 'Chi tiết sản phẩm' }} 
+      />
+    </Stack>
+  );
+}

@@ -18,3 +18,14 @@ export type PaginationResponse<T> = {
     meta: MetaResponse;
     data: T[];
 }
+export type SearchProductResponse = {
+  _id: string;
+  name: string;
+  price: number;
+  images: string;
+  categoryId: {
+    _id: string;
+    name: string;
+  };
+  soldCount: number;
+};

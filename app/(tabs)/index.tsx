@@ -1,16 +1,7 @@
-import { View, Text, Button } from "react-native";
-import { router } from "expo-router";
-
-export default function HomeScreen() {
+import HomePage from "@/modules/root/screens/HomePage";
+import { View, Text } from "react-native";
+export default function HomeScreen () {
   return (
-    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-      <Text style={{ fontSize: 24 }}>Home Screen</Text>
-
-      {/* Test logout */}
-      <Button
-        title="Go to Login"
-        onPress={() => router.replace("/(auth)/Login")}
-      />
-    </View>
-  );
+    <HomePage/>
+  )
 }

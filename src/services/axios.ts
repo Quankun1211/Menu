@@ -8,6 +8,7 @@ import {
   removeToken,
   removeRefreshToken,
 } from "../utils/token";
+import { useAuthStore } from "@/store/auth.store";
 import { router } from "expo-router";
 
 const api = axios.create({
@@ -19,7 +20,7 @@ const api = axios.create({
 
 api.interceptors.request.use(
   async (config: InternalAxiosRequestConfig) => {
-    const token = await getToken();
+    const token = useAuthStore.getState().token; 
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -43,7 +44,7 @@ api.interceptors.response.use(
       if (!refreshToken) {
         await removeToken();
         await removeRefreshToken();
-        router.replace("/(auth)/Login");
+        router.replace("/(auth)/login");
         return Promise.reject(error);
       }
 
@@ -63,7 +64,7 @@ api.interceptors.response.use(
       } catch (refreshError) {
         await removeToken();
         await removeRefreshToken();
-        router.replace("/(auth)/Login");
+        router.replace("/(auth)/login");
         return Promise.reject(refreshError);
       }
     }
