@@ -15,13 +15,11 @@ const PaymentPreview = () => {
     const { url: currentUrl } = navState;
     if (!currentUrl) return;
 
-    // Log để bạn dễ debug xem URL cuối cùng trả về là gì
     console.log("Navigating to:", currentUrl);
 
-    // Kiểm tra nếu URL chứa các từ khóa báo hiệu kết thúc thanh toán từ Backend của bạn
     const isReturn = currentUrl.includes('vnpay-return');
     const isSuccess = currentUrl.includes('vnp_ResponseCode=00');
-    const isCancel = currentUrl.includes('vnp_ResponseCode=24'); // Mã 24 là người dùng hủy
+    const isCancel = currentUrl.includes('vnp_ResponseCode=24'); 
 
     if (isReturn) {
       if (isSuccess) {
@@ -30,7 +28,6 @@ const PaymentPreview = () => {
           text1: 'Thanh toán thành công',
           text2: 'Đơn hàng của bạn đang được xử lý'
         });
-        // Dùng replace để khách không bấm back quay lại trang thanh toán được
         router.replace("/(tabs)/order");
       } else {
         const message = isCancel ? 'Bạn đã hủy thanh toán' : 'Giao dịch không thành công';
@@ -62,9 +59,7 @@ const PaymentPreview = () => {
         javaScriptEnabled={true}
         domStorageEnabled={true}
         startInLoadingState={true}
-        // Tránh việc bị cache trang cũ
         cacheEnabled={false}
-        // Cho phép các link ngân hàng mở app mobile ngân hàng nếu có
         originWhitelist={['*']}
       />
       

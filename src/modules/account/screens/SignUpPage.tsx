@@ -1,15 +1,16 @@
-import React, { useEffect } from 'react';
-import { View, Text, Pressable, KeyboardAvoidingView, Keyboard, TouchableWithoutFeedback, Platform, TouchableOpacity, Image, ScrollView } from 'react-native';
+import { Alert, Modal, View, Text, Pressable, KeyboardAvoidingView, Keyboard, TouchableWithoutFeedback, Platform, TouchableOpacity, Image, ScrollView } from 'react-native';
 import { SignUpStyle } from '../css/SignUpStyles';
 import { router } from "expo-router";
+import { Ionicons } from '@expo/vector-icons';
 import useRegister from '../hooks/useRegister';
 import { RegisterRequest } from '../types/api-request';
 import SignUpForm from '../components/SignUpForm';
+import { useState } from 'react';
 export default function SignUpPage() {
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [registeredEmail, setRegisteredEmail] = useState('');
   const { mutate: onRegister, isPending } = useRegister();
   const onFinish = (values: RegisterRequest) => {
-    console.log("Register payload:", values);
-
     onRegister(
       {
         email: values.email,
@@ -19,17 +20,23 @@ export default function SignUpPage() {
         name: values.name,
       },
       {
-        onSuccess: () => {
-          console.log("Register successfully");
+        onSuccess: (response) => {
+          setRegisteredEmail(values.email);
+          setShowSuccessModal(true);
         },
         onError: (error: any) => {
-          console.log(
-            "Register failed:",
-            error?.response?.data || error.message
-          );
+          const errorMsg = error?.response?.data?.error || "Đăng ký thất bại";
+          Alert.alert("Lỗi", errorMsg);
         },
       }
     );
+  };
+  const handleGoToVerify = () => {
+    setShowSuccessModal(false);
+    router.push({
+      pathname: "/(auth)/verify",
+      params: { email: registeredEmail }
+    });
   };
 
   return (
@@ -73,6 +80,29 @@ export default function SignUpPage() {
           <Text style={SignUpStyle.lastText}>Bằng cách đăng ký, bạn đồng ý với Điều khoản dịch vụ và Chính sách bảo mật của chúng tôi</Text>
         </ScrollView>
       </TouchableWithoutFeedback>
+
+      <Modal visible={showSuccessModal} transparent animationType="fade">
+        <View style={SignUpStyle.modalOverlay}>
+          <View style={SignUpStyle.modalContent}>
+            <View style={[SignUpStyle.iconContainer, { backgroundColor: '#E8F5E9' }]}>
+              <Ionicons name="mail-open" size={40} color="#2E7D32" />
+            </View>
+            
+            <Text style={SignUpStyle.modalTitle}>Kiểm tra Email</Text>
+            <Text style={{ textAlign: 'center', color: '#666', marginBottom: 20 }}>
+              Mã xác thực đã được gửi đến:{"\n"}
+              <Text style={{ fontWeight: 'bold', color: '#1A1A1A' }}>{registeredEmail}</Text>
+            </Text>
+
+            <TouchableOpacity 
+              style={[SignUpStyle.confirmButton, { backgroundColor: '#2E7D32', width: '100%' }]} 
+              onPress={handleGoToVerify}
+            >
+              <Text style={SignUpStyle.confirmButtonText}>Nhập mã ngay</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </KeyboardAvoidingView>
 
   );

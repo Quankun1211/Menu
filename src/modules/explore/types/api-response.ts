@@ -122,17 +122,15 @@ export interface RecipeDetailResponse {
   extraInfo: ExtraInfo[];
   createdAt: string;
   updatedAt: string;
+  isSaved: boolean;
   __v?: number;
 }
 
 
-// 1. Cập nhật chi tiết IngredientId để hỗ trợ cả 2 bảng
 export interface IngredientIdDetail {
     _id: string;
-    // Ingredient custom dùng 'customName', Product dùng 'name'
     name?: string; 
     customName?: string;
-    // Product dùng 'images', Ingredient dùng 'image'
     images?: string; 
     image?: string;
     price: number;
@@ -142,19 +140,17 @@ export interface IngredientIdDetail {
     updatedAt?: string;
     productId?: string;
     __v?: number;
-    // Các trường mở rộng của Product nếu cần
     stock?: number;
     categoryId?: string;
 }
 
-// 2. Cập nhật RecipeResponse để khớp với dữ liệu mảng recipes trong Menu
 export type RecipeResponse = {
     _id: string;
     name: string;
     slug: string;
     description: string;
     image: string;
-    category: string | CategoryRecipeResponse; // Trong JSON là ID string, nhưng có thể là object nếu populate
+    category: string | CategoryRecipeResponse;
     ingredients: IngredientResponse[];
     additionalIngredients: AdditionalIngredients[];
     instructions: Instructions[];
@@ -172,10 +168,10 @@ export type RecipeResponse = {
     isSystem: boolean;
     createdAt: string;
     updatedAt: string;
+    isSaved: boolean;
     __v?: number;
 }
 
-// 3. Interface chính MenuResponse
 export type MenuResponse = {
     _id: string;
     title: string;
@@ -184,7 +180,7 @@ export type MenuResponse = {
     image: string;
     category: CategoryMenuResponse;
     meta: MetaMenuResponse;
-    recipes: RecipeResponse[]; // Danh sách món ăn chi tiết
+    recipes: RecipeResponse[]; 
     cookTime: number;
     totalPrice: number;
     totalPriceInDB: number;

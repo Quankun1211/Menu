@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { 
   View, 
   Text, 
@@ -18,6 +18,9 @@ import { router } from 'expo-router';
 import useAddAddress from '../hooks/useAddAddress';
 import Toast from 'react-native-toast-message';
 import MapView, { Marker } from 'react-native-maps';
+import Constants from 'expo-constants';
+
+const GOONG_API_KEY = Constants.expoConfig?.extra?.apiGetMapKey;
 
 export default function AddAddressScreen() {
   const [name, setName] = useState('');
@@ -35,6 +38,7 @@ export default function AddAddressScreen() {
   const [loadingSearch, setLoadingSearch] = useState(false);
 
   const searchTimeout = useRef<any>(null);
+  const mapRef = useRef<MapView>(null);
 
   const isFormValid =
     name.trim() !== '' &&
@@ -96,34 +100,24 @@ export default function AddAddressScreen() {
       return;
     }
 
+    setLoadingSearch(true);
     try {
-      const res = await Location.reverseGeocodeAsync({
-        latitude: pickedLocation.latitude,
-        longitude: pickedLocation.longitude,
-      });
+      const res = await fetch(
+        `https://rsapi.goong.io/Geocode?latlng=${pickedLocation.latitude},${pickedLocation.longitude}&api_key=${GOONG_API_KEY}`
+      );
+      const data = await res.json();
 
-      if (res.length > 0) {
-        const i = res[0];
-        const parts = [
-          i.name,
-          i.street,
-          i.district,
-          i.city,
-          i.region,
-        ].filter(Boolean); 
-
-        if (parts.length > 0) {
-          setAddress(parts.join(', '));
-        } else {
-          setAddress(
-            `${pickedLocation.latitude.toFixed(6)}, ${pickedLocation.longitude.toFixed(6)}`
-          );
-        }
+      if (data.results && data.results.length > 0) {
+        setAddress(data.results[0].formatted_address);
+        setShowMap(false);
+      } else {
+        setAddress(`${pickedLocation.latitude.toFixed(6)}, ${pickedLocation.longitude.toFixed(6)}`);
+        setShowMap(false);
       }
-
-      setShowMap(false);
     } catch (e) {
-      Toast.show({ type: 'error', text1: 'Không lấy được địa chỉ' });
+      Toast.show({ type: 'error', text1: 'Không lấy được địa chỉ từ Goong' });
+    } finally {
+      setLoadingSearch(false);
     }
   };
 
@@ -134,7 +128,7 @@ export default function AddAddressScreen() {
       clearTimeout(searchTimeout.current);
     }
 
-    if (text.length < 2) { // Giảm xuống 2 ký tự để nhạy hơn
+    if (text.length < 2) {
       setSearchResults([]);
       setLoadingSearch(false);
       return;
@@ -143,33 +137,51 @@ export default function AddAddressScreen() {
     setLoadingSearch(true);
     searchTimeout.current = setTimeout(async () => {
       try {
-        // Tọa độ bao quanh Việt Nam để thu hẹp phạm vi tìm kiếm
-        const viewbox = '102.14,23.39,109.46,8.18'; 
-        
         const res = await fetch(
-          `https://nominatim.openstreetmap.org/search?` +
-            `q=${encodeURIComponent(text)}` +
-            `&format=json` +
-            `&limit=15` + // Tăng giới hạn lên 15 kết quả
-            `&countrycodes=vn` + // Chỉ tìm ở VN
-            `&viewbox=${viewbox}` + 
-            `&addressdetails=1` +
-            `&accept-language=vi`, // Ép trả về tiếng Việt
-          {
-            headers: {
-              'User-Agent': 'expo-app-contact-your-email@domain.com', // Nên để email để tránh bị block request
-            },
-          }
+          `https://rsapi.goong.io/Place/AutoComplete?api_key=${GOONG_API_KEY}&input=${encodeURIComponent(text)}`
         );
-
         const data = await res.json();
-        setSearchResults(data);
+        if (data.status === 'OK') {
+          setSearchResults(data.predictions);
+        }
       } catch (error) {
         console.error(error);
       } finally {
         setLoadingSearch(false);
       }
-    }, 500); // Giảm debounce xuống 500ms để cảm giác phản hồi nhanh hơn
+    }, 500);
+  };
+
+  const selectSearchResult = async (item: any) => {
+    setLoadingSearch(true);
+    try {
+      const res = await fetch(
+        `https://rsapi.goong.io/Place/Detail?place_id=${item.place_id}&api_key=${GOONG_API_KEY}`
+      );
+      const data = await res.json();
+      
+      if (data.status === 'OK') {
+        const location = data.result.geometry.location;
+        const newCoords = {
+          latitude: location.lat,
+          longitude: location.lng,
+        };
+        
+        setPickedLocation(newCoords);
+        setSearchText(item.description);
+        setSearchResults([]);
+
+        mapRef.current?.animateToRegion({
+          ...newCoords,
+          latitudeDelta: 0.005,
+          longitudeDelta: 0.005,
+        }, 1000);
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoadingSearch(false);
+    }
   };
 
   const clearSearch = () => {
@@ -230,7 +242,7 @@ export default function AddAddressScreen() {
               name="location-outline"
               size={20}
               color="#F26522"
-              style={{ marginTop: 2 }}
+              style={{ marginTop: 12 }}
             />
             <TextInput
               style={[CheckoutStyles.input, { textAlignVertical: 'top' }]}
@@ -295,7 +307,7 @@ export default function AddAddressScreen() {
               <Ionicons name="search-outline" size={18} color="#999" style={{ marginRight: 8 }} />
               <TextInput
                 style={{ flex: 1, height: 40 }}
-                placeholder="Tìm địa điểm (VD: Vincom, Bách Khoa...)"
+                placeholder="Tìm địa điểm ..."
                 value={searchText}
                 onChangeText={searchLocation}
               />
@@ -310,24 +322,25 @@ export default function AddAddressScreen() {
             </View>
 
             {searchResults.length > 0 && (
-              <View style={{ marginTop: 8, borderTopWidth: 1, borderTopColor: '#eee' }}>
-                {searchResults.map((item, index) => (
-                  <TouchableOpacity
-                    key={index}
-                    onPress={() => {
-                      setPickedLocation({
-                        latitude: parseFloat(item.lat),
-                        longitude: parseFloat(item.lon),
-                      });
-                      setSearchText(item.display_name);
-                      setAddress(item.display_name);
-                      setSearchResults([]);
-                    }}
-                    style={{ paddingVertical: 10, borderBottomWidth: index === searchResults.length - 1 ? 0 : 0.5, borderBottomColor: '#eee' }}
-                  >
-                    <Text numberOfLines={2} style={{ fontSize: 13 }}>{item.display_name}</Text>
-                  </TouchableOpacity>
-                ))}
+              <View style={{ marginTop: 8, borderTopWidth: 1, borderTopColor: '#eee', maxHeight: 300 }}>
+                <ScrollView keyboardShouldPersistTaps="handled">
+                  {searchResults.map((item, index) => (
+                    <TouchableOpacity
+                      key={index}
+                      onPress={() => selectSearchResult(item)}
+                      style={{ 
+                        paddingVertical: 12, 
+                        borderBottomWidth: index === searchResults.length - 1 ? 0 : 0.5, 
+                        borderBottomColor: '#eee',
+                        flexDirection: 'row',
+                        alignItems: 'center'
+                      }}
+                    >
+                      <Ionicons name="location-sharp" size={16} color="#F26522" style={{ marginRight: 8 }} />
+                      <Text numberOfLines={2} style={{ fontSize: 13, flex: 1 }}>{item.description}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
               </View>
             )}
           </View>
@@ -335,8 +348,9 @@ export default function AddAddressScreen() {
           <View style={{ flex: 1 }}>
             {pickedLocation && (
               <MapView
+                ref={mapRef}
                 style={{ flex: 1 }}
-                region={{
+                initialRegion={{
                   latitude: pickedLocation.latitude,
                   longitude: pickedLocation.longitude,
                   latitudeDelta: 0.01,

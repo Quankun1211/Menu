@@ -1,4 +1,5 @@
-import { StyleSheet } from "react-native";
+import { StyleSheet, Dimensions } from "react-native";
+const { width } = Dimensions.get('window');
 export const SignUpStyle = StyleSheet.create({
   container: {
     flexGrow: 1,
@@ -21,6 +22,7 @@ export const SignUpStyle = StyleSheet.create({
     padding: 20,
   },
   title: {
+    textAlign: "center",
     fontSize: 28,
     fontWeight: 'bold',
     color: '#1A1A1A',
@@ -124,6 +126,50 @@ export const SignUpStyle = StyleSheet.create({
     marginLeft: 15,
     marginBottom: 10,
   },
-
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    width: width * 0.85,
+    backgroundColor: 'white',
+    borderRadius: 24,
+    padding: 24,
+    alignItems: 'center',
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 5,
+    elevation: 8,
+  },
+  iconContainer: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  modalTitle: {
+    fontSize: 22,
+    fontWeight: '700',
+    color: '#1A1A1A',
+    marginBottom: 12,
+    textAlign: 'center',
+  },
+  confirmButton: {
+    paddingVertical: 14,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 10,
+  },
+  confirmButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: 'white',
+  },
 
 });

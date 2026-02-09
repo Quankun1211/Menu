@@ -35,3 +35,31 @@ export type MyCouponResponse = {
     couponId: PrivateCoupon,
     acquiredAt: Date
 }[]
+
+type IngredientUser = {
+    _id: string,
+    name: string,
+    quantity: string
+}
+type InstructionUser = {
+    _id: string,
+    step: number,
+    description: string
+}
+export type MyRecipeResponse = {
+    _id: string,
+    name: string,
+    image: string,
+    cookTime: number,
+    familyNotes: string
+}
+
+export type MyRecipeDetailResponse = {
+    _id: string,
+    name: string,
+    image: string,
+    cookTime: number,
+    instructions: InstructionUser[],
+    ingredients: IngredientUser[],
+    familyNotes: string
+}

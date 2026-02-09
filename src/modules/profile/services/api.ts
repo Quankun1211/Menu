@@ -1,6 +1,9 @@
 import { BackendResponse } from "@/libs/shared/types/backend-response";
 import api from "@/services/axios";
-import { MyCouponResponse, WalletResponse } from "../types/api-response";
+import { MyCouponResponse, MyRecipeDetailResponse, MyRecipeResponse, WalletResponse } from "../types/api-response";
+import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
+import { UpdateMyRecipeRequest } from "../types/api-request";
+import { RecipeResponse } from "@/modules/explore/types/api-response";
 
 export const onGetWallet = async (
 ): Promise<BackendResponse<WalletResponse>> => {
@@ -23,11 +26,49 @@ export const onGetCoupon = async (
 
 export const onCreateMyRecipe = async (
   formData: FormData
-): Promise<BackendResponse<any>> => {
+): Promise<BackendResponse<MyRecipeResponse>> => {
   const res = await api.post("/menu/recipe/create-my-recipes", formData, {
     headers: {
       "Content-Type": "multipart/form-data",
     },
   });
+  return res.data;
+};
+
+export const onGetMyRecipes = async (
+): Promise<BackendResponse<MyRecipeResponse[]>> => {
+  const res = await api.get("/menu/recipe/get-my-recipes");
+  return res.data;
+};
+
+export const onGetMyRecipesDetail = async (
+  recipeId: string
+): Promise<BackendResponse<MyRecipeDetailResponse>> => {
+  const res = await api.get(`/menu/recipe/get-my-recipe-detail/${recipeId}`);
+  return res.data;
+};
+
+export const onUpdateMyRecipe = async (
+  recipeId: string, 
+  formData: FormData 
+): Promise<BackendResponse<MyRecipeResponse>> => {
+  const res = await api.put(`/menu/recipe/update-my-recipe/${recipeId}`, formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+  return res.data;
+};
+
+export const onDeleteMyRecipe = async (
+  recipeId: string
+): Promise<BackendResponse<MyRecipeResponse>> => {
+  const res = await api.delete(`/menu/recipe/delete-my-recipe/${recipeId}`);
+  return res.data;
+};
+
+export const onGetMySavedRecipes = async (
+): Promise<BackendResponse<RecipeResponse[]>> => {
+  const res = await api.get("/menu/recipe/saved-list");
   return res.data;
 };

@@ -1,50 +1,69 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, FlatList, Image, ScrollView } from 'react-native';
-import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { View, Text, TouchableOpacity, ScrollView, Modal, Pressable, ActivityIndicator } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { RecipeHandBookStyles } from '../css/RecipeHandBookStyles';
-import {router} from "expo-router"
-const MY_RECIPES = [
-  { id: '1', title: 'Canh khổ qua cá thác lác', time: '35 ph', difficulty: 'Dễ', status: 'Đã đăng' },
-  { id: '2', title: 'Sườn rim mặn ngọt', time: '45 ph', difficulty: 'Trung bình', status: 'Chờ duyệt' },
-  { id: '3', title: 'Cá bống kho tiêu', time: '40 ph', difficulty: 'Trung bình', status: 'Đã đăng' },
-];
+import { router } from "expo-router";
+import useGetMyRecipe from '../hooks/useGetMyRecipe';
+import { MyRecipeResponse } from '../types/api-response';
+import useDeleteMyRecipe from '../hooks/useDeleteMyRecipe';
+import RenderMyRecipe from '../components/RenderMyRecipe';
+import RenderSavedRecipe from '../components/RenderSavedRecipe';
+import useGetSavedRecipe from '../hooks/useGetSavedRecipe';
 
-const SAVED_RECIPES = [
-  { id: '1', title: 'Cá bống kho tộ', time: '45 ph', difficulty: 'Trung bình', category: 'Món kho' },
-  { id: '2', title: 'Thịt kho tàu nước dừa', time: '60 ph', difficulty: 'Khó', category: 'Món kho' },
-];
 export default function RecipeHandbook() {
-  const [activeTab, setActiveTab] = useState('saved'); 
+  const [activeTab, setActiveTab] = useState('saved');
+  const [isMenuVisible, setMenuVisible] = useState(false);
+  const [selectedRecipe, setSelectedRecipe] = useState<MyRecipeResponse | null>(null);
 
-  const renderRecipeItem = (item: any) => (
-  <View style={RecipeHandBookStyles.recipeCard} key={item.id}> 
-    <View style={RecipeHandBookStyles.recipeImagePlaceholder} />
-    <View style={RecipeHandBookStyles.recipeInfo}>
-      <View style={RecipeHandBookStyles.titleRow}>
-        <Text style={RecipeHandBookStyles.recipeTitle}>{item.title}</Text>
-        <TouchableOpacity>
-            {activeTab === "mine" && 
-                <Ionicons name="ellipsis-vertical" size={18} color="#666" />
-            }
-        </TouchableOpacity>
-      </View>
-      <View style={RecipeHandBookStyles.metaRow}>
-        <Ionicons name="time-outline" size={14} color="#888" />
-        <Text style={RecipeHandBookStyles.metaText}>{item.time}</Text>
-        <MaterialCommunityIcons name="fire" size={14} color="#888" style={{ marginLeft: 10 }} />
-        <Text style={RecipeHandBookStyles.metaText}>{item.difficulty}</Text>
-      </View>
-      {item.status && (
-        <View style={[RecipeHandBookStyles.statusBadge, { backgroundColor: item.status === 'Đã đăng' ? '#E8F5E9' : '#FFF3E0' }]}>
-          <Text style={[RecipeHandBookStyles.statusText, { color: item.status === 'Đã đăng' ? '#4CAF50' : '#FF9800' }]}>{item.status}</Text>
-        </View>
-      )}
+  const { data: myRecipes, isPending: myRecipesPending } = useGetMyRecipe();
+  const { data: savedRecipes, isPending: savedRecipesPending } = useGetSavedRecipe();
+  const { mutate: deleteMyRecipe } = useDeleteMyRecipe();
+
+  const openMenu = (item: MyRecipeResponse) => {
+    setSelectedRecipe(item);
+    setMenuVisible(true);
+  };
+
+  const handleUpdateRecipe = () => {
+    setMenuVisible(false);
+    router.push({
+      pathname: "/(details)/exploreItemTabs/UpdateRecipeTabs" as any,
+      params: { recipeId: selectedRecipe?._id }
+    });
+  };
+
+  const handleDeleteRecipe = () => {
+    setMenuVisible(false);
+    if (selectedRecipe?._id) {
+      deleteMyRecipe(selectedRecipe._id);
+    }
+  };
+
+  const renderEmptyState = (type: 'saved' | 'mine') => (
+    <View style={{ alignItems: 'center', justifyContent: 'center', marginTop: 100, paddingHorizontal: 40 }}>
+      <Ionicons 
+        name={type === 'saved' ? "heart-dislike-outline" : "journal-outline"} 
+        size={80} 
+        color="#DDD" 
+      />
+      <Text style={{ fontSize: 18, fontWeight: '600', color: '#666', marginTop: 16, textAlign: 'center' }}>
+        {type === 'saved' ? "Chưa có công thức đã lưu" : "Bạn chưa tạo công thức nào"}
+      </Text>
+      <Text style={{ fontSize: 14, color: '#999', marginTop: 8, textAlign: 'center', marginBottom: 24 }}>
+        {type === 'saved' 
+          ? "Hãy khám phá những món ăn ngon và lưu lại để thực hiện nhé!" 
+          : "Chia sẻ niềm đam mê nấu nướng của bạn với mọi người ngay thôi."}
+      </Text>
+      <TouchableOpacity 
+        style={{ backgroundColor: '#D35400', paddingVertical: 12, paddingHorizontal: 24, borderRadius: 25 }}
+        onPress={() => router.push(type === 'saved' ? "/(details)/exploreItemTabs/ExploreRecipe" : "/(details)/exploreItemTabs/CreateRecipe")}
+      >
+        <Text style={{ color: '#fff', fontWeight: 'bold' }}>
+          {type === 'saved' ? "Khám phá ngay" : "Tạo công thức đầu tiên"}
+        </Text>
+      </TouchableOpacity>
     </View>
-    {activeTab === 'saved' && (
-      <Ionicons name="bookmark" size={24} color="#D35400" style={RecipeHandBookStyles.bookmarkIcon} />
-    )}
-  </View>
-);
+  );
 
   return (
     <View style={RecipeHandBookStyles.container}>
@@ -63,37 +82,89 @@ export default function RecipeHandbook() {
         </TouchableOpacity>
       </View>
 
-      <ScrollView contentContainerStyle={{ paddingBottom: 100 }}>
+      <ScrollView contentContainerStyle={{ flexGrow: 1, paddingBottom: 100 }}>
         {activeTab === 'mine' ? (
-          <View style={{ padding: 16 }}>
-            <View style={RecipeHandBookStyles.sectionHeader}>
-              <Text style={RecipeHandBookStyles.sectionTitle}>Bài viết của tôi</Text>
-              <Text style={RecipeHandBookStyles.filterText}>MỚI NHẤT</Text>
-            </View>
-            {MY_RECIPES.map(item => renderRecipeItem(item))}
-            
-            {/* Draft Box */}
-            <View style={RecipeHandBookStyles.draftBox}>
-              <View style={RecipeHandBookStyles.draftIconContainer}>
-                <Ionicons name="book-outline" size={24} color="#4A614D" />
-              </View>
-              <Text style={RecipeHandBookStyles.draftText}>Bạn còn 2 bản nháp chưa hoàn thiện</Text>
-              <TouchableOpacity><Text style={RecipeHandBookStyles.continueText}>Tiếp tục chỉnh sửa</Text></TouchableOpacity>
-            </View>
+          <View style={{ padding: 16, flex: 1 }}>
+            {(myRecipesPending) ? (
+              <ActivityIndicator size="large" color="#D35400" style={{ marginTop: 50 }} />
+            ) : myRecipes?.data && myRecipes.data.length > 0 ? (
+              <>
+                <View style={RecipeHandBookStyles.sectionHeader}>
+                  <Text style={RecipeHandBookStyles.sectionTitle}>Bài viết của tôi</Text>
+                  <Text style={RecipeHandBookStyles.filterText}>MỚI NHẤT</Text>
+                </View>
+                {myRecipes.data.map((item) => (
+                  <RenderMyRecipe key={item._id} item={item} openMenu={openMenu} />
+                ))}
+                
+                <View style={RecipeHandBookStyles.draftBox}>
+                  <View style={RecipeHandBookStyles.draftIconContainer}>
+                    <Ionicons name="book-outline" size={24} color="#4A614D" />
+                  </View>
+                  <Text style={RecipeHandBookStyles.draftText}>Bạn còn bản nháp chưa hoàn thiện</Text>
+                  <TouchableOpacity><Text style={RecipeHandBookStyles.continueText}>Tiếp tục</Text></TouchableOpacity>
+                </View>
+              </>
+            ) : renderEmptyState('mine')}
           </View>
         ) : (
-          <View style={{ padding: 16 }}>
-            <Text style={RecipeHandBookStyles.sectionTitle}>Món kho</Text>
-            {SAVED_RECIPES.map(item => renderRecipeItem(item))}
+          <View style={{ padding: 16, flex: 1 }}>
+            {savedRecipesPending ? (
+              <ActivityIndicator size="large" color="#D35400" style={{ marginTop: 50 }} />
+            ) : savedRecipes?.data && savedRecipes.data.length > 0 ? (
+              savedRecipes.data.map((item) => (
+                <RenderSavedRecipe key={item._id} item={item} />
+              ))
+            ) : renderEmptyState('saved')}
           </View>
         )}
       </ScrollView>
 
       <TouchableOpacity
         onPress={() => router.push("/(details)/exploreItemTabs/CreateRecipe")}
-        style={[RecipeHandBookStyles.fab, { backgroundColor: '#D35400'}]}>
+        style={[RecipeHandBookStyles.fab, { backgroundColor: '#D35400' }]}>
         <Ionicons name="add" size={32} color="white" />
       </TouchableOpacity>
+
+      <Modal
+        visible={isMenuVisible}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setMenuVisible(false)}
+      >
+        <Pressable 
+          style={RecipeHandBookStyles.modalOverlay} 
+          onPress={() => setMenuVisible(false)}
+        >
+          <View style={RecipeHandBookStyles.menuContainer}>
+            <View style={RecipeHandBookStyles.dragHandle} />
+            <Text style={RecipeHandBookStyles.menuTitle}>{selectedRecipe?.name}</Text>
+            
+            <TouchableOpacity 
+              style={RecipeHandBookStyles.menuItem}
+              onPress={handleUpdateRecipe}
+            >
+              <Ionicons name="create-outline" size={22} color="#333" />
+              <Text style={RecipeHandBookStyles.menuText}>Chỉnh sửa công thức</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity 
+              style={RecipeHandBookStyles.menuItem}
+              onPress={handleDeleteRecipe}
+            >
+              <Ionicons name="trash-outline" size={22} color="#FF3B30" />
+              <Text style={[RecipeHandBookStyles.menuText, { color: '#FF3B30' }]}>Xóa bài viết</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity 
+              style={[RecipeHandBookStyles.menuItem, { borderBottomWidth: 0 }]}
+              onPress={() => setMenuVisible(false)}
+            >
+              <Text style={[RecipeHandBookStyles.menuText, { textAlign: 'center', width: '100%', color: '#999' }]}>Hủy</Text>
+            </TouchableOpacity>
+          </View>
+        </Pressable>
+      </Modal>
     </View>
   );
-};
+}

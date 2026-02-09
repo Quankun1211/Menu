@@ -7,6 +7,8 @@ import useGetSuggestionProducts from '../hooks/useGetSuggestionProducts';
 const ProductSuggestion = () => {
   const { data: getSuggestionProducts, isPending } = useGetSuggestionProducts()
   
+  const sliceData = getSuggestionProducts?.data.slice(0,8)
+  
   return (
     <View style={ProductItemStyles.container}>
       <View style={ProductItemStyles.sectionHeader}>
@@ -17,7 +19,7 @@ const ProductSuggestion = () => {
       </View>
 
       <ScrollView horizontal showsHorizontalScrollIndicator={false} style={ProductItemStyles.productScroll}>
-        {getSuggestionProducts?.data.map((products) => (
+        {sliceData?.map((products) => (
             <ProductItem key={products._id} products={products}/>
         ))}
       </ScrollView>

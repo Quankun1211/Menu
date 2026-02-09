@@ -4,11 +4,13 @@
     "slug": "frontend",
     "version": "1.0.0",
     "extra": {
-      "API_BASE_URL": "http://192.168.1.6:5000/api",
+      "API_BASE_URL": "http://192.168.1.10:5000/api",
       "TOKEN_KEY": "token",
       "REFRESH_TOKEN_KEY": "refresh_token",
       "LOCALE_KEY": "locale",
-      "THEME_KEY": "theme"
+      "THEME_KEY": "theme",
+      "apiGetMapKey": "YuOe176yja0aeJMBohHVkgGs8n463JwZE6TN5dPW",
+      "apiMapKey": "SHFHc6W6LY42rLzOmnEL6MnS1mNXkvarKWq4vLzg"
     },
     "orientation": "portrait",
     "scheme": "frontend",

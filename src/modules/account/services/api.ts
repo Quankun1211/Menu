@@ -28,3 +28,47 @@ export const onRegisterApi = async(
     })
     return data.data
 }
+
+export const onVerifyApi = async (
+    payload: { email: string; otp: string, type: string }
+) : Promise<BackendResponse<any>> => {
+    const { email, otp, type } = payload;
+    const data = await api.post("/auth/verify-otp", {
+        email,
+        otp,
+        type
+    });
+    return data.data;
+}
+
+export const onResendOTPApi = async (
+    payload: { email: string }
+) : Promise<BackendResponse<any>> => {
+    const { email } = payload;
+    const data = await api.post("/auth/resend-otp", {
+        email
+    });
+    return data.data;
+}
+
+export const onForgotPasswordApi = async (
+    payload: { email: string }
+) : Promise<BackendResponse<any>> => {
+    const { email } = payload;
+    const data = await api.post("/auth/forgot-password", {
+        email
+    });
+    return data.data;
+}
+
+export const onResetPasswordApi = async (
+    payload: { email: string; otp: string; newPassword: string }
+) : Promise<BackendResponse<any>> => {
+    const { email, otp, newPassword } = payload;
+    const data = await api.post("/auth/reset-password", {
+        email,
+        otp,
+        newPassword
+    });
+    return data.data;
+}

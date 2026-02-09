@@ -1,4 +1,4 @@
-import { View, Text, Pressable, TextInput, TouchableOpacity, Image, ScrollView } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity } from 'react-native';
 import { SignUpStyle } from '../css/SignUpStyles';
 import { useState } from 'react';
 import { registerSchema } from "../schema/register.schema";
@@ -49,11 +49,6 @@ const SignUpForm = ({
       setErrors({});
       onFinish(result.data);
     };
-    const inputError = (error?: string) => [
-      SignUpStyle.input,
-      error && { borderColor: "red", borderWidth: 1 },
-    ];
-
 return (
     <View>
       <Text style={SignUpStyle.label}>Họ và tên</Text>

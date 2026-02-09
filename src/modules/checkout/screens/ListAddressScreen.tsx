@@ -4,7 +4,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useCheckoutStore } from "@/store/useCheckoutStore";
 import useGetAddress from "../hooks/useGetAddress";
 import { AddressModel } from "../types/api-response";
-import { router, useLocalSearchParams } from "expo-router";
+import { router } from "expo-router";
 import { AddressStyles } from "../css/AddressStyles";
 import { CheckoutStyles } from "../css/CheckOutStyles";
 
@@ -12,18 +12,18 @@ interface AddressListScreenProps {
   source?: string;
   items?: string;
 }
+
 export default function AddressListScreen({ source, items }: AddressListScreenProps) {
   const { data } = useGetAddress();
   const addresses: AddressModel[] = data?.data ?? [];
   const { selectedAddress, setSelectedAddress } = useCheckoutStore();
 
-  const [selectedId, setSelectedId] = useState<string | null>(
-    selectedAddress?._id || null
+  const [tempSelectedAddress, setTempSelectedAddress] = useState<AddressModel | null>(
+    selectedAddress || null
   );
 
   const handleSelect = (item: AddressModel) => {
-    setSelectedId(item._id);
-    setSelectedAddress(item);
+    setTempSelectedAddress(item);
   };
 
   const handleEdit = (item: AddressModel) => {
@@ -34,12 +34,15 @@ export default function AddressListScreen({ source, items }: AddressListScreenPr
   };
 
   const handleConfirm = () => {
-    // Quay lại màn hình Checkout và mang theo toàn bộ dữ liệu ban đầu
+    if (tempSelectedAddress) {
+      setSelectedAddress(tempSelectedAddress);
+    }
+
     router.replace({
       pathname: "/(details)/checkoutTabs/CheckOutTabs",
       params: { 
         source: source, 
-        items: items // items đã là chuỗi JSON sẵn
+        items: items 
       }
     });
   };
@@ -52,7 +55,7 @@ export default function AddressListScreen({ source, items }: AddressListScreenPr
             <TouchableOpacity
               style={[
                 AddressStyles.addressItem,
-                selectedId === item._id && AddressStyles.selectedItem,
+                tempSelectedAddress?._id === item._id && AddressStyles.selectedItem,
               ]}
               onPress={() => handleSelect(item)}
             >
@@ -84,9 +87,9 @@ export default function AddressListScreen({ source, items }: AddressListScreenPr
 
                 <View style={{ marginLeft: 12 }}>
                   <Ionicons
-                    name={selectedId === item._id ? "checkbox" : "square-outline"}
+                    name={tempSelectedAddress?._id === item._id ? "checkbox" : "square-outline"}
                     size={24}
-                    color={selectedId === item._id ? "#F26522" : "#DDD"}
+                    color={tempSelectedAddress?._id === item._id ? "#F26522" : "#DDD"}
                   />
                 </View>
               </View>
@@ -107,8 +110,12 @@ export default function AddressListScreen({ source, items }: AddressListScreenPr
 
       <View style={CheckoutStyles.footer}>
         <TouchableOpacity
-          style={CheckoutStyles.submitBtn}
-          onPress={handleConfirm} 
+          style={[
+            CheckoutStyles.submitBtn,
+            !tempSelectedAddress && { backgroundColor: '#ccc' }
+          ]}
+          onPress={handleConfirm}
+          disabled={!tempSelectedAddress}
         >
           <Text style={CheckoutStyles.submitBtnText}>Xác nhận địa chỉ</Text>
         </TouchableOpacity>

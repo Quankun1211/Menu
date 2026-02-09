@@ -1,4 +1,3 @@
-import { ProductResponse } from "@/modules/explore/types/api-response";
 import ProductDetailScreen from "@/modules/product/pages/ProductDetailScreen";
 import { useLocalSearchParams } from "expo-router";
 

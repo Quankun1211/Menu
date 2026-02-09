@@ -177,10 +177,27 @@ export const ProfileStyles = StyleSheet.create({
   iconContainer: { width: 80, height: 80, backgroundColor: '#FFF2EE', borderRadius: 40, justifyContent: 'center', alignItems: 'center', marginBottom: 16 },
   modalTitle: { fontSize: 20, fontWeight: '700', color: '#1A1A1A', marginBottom: 8 },
   modalSubTitle: { fontSize: 15, color: '#666', textAlign: 'center', marginBottom: 20 },
-  buttonGroup: { flexDirection: 'row', gap: 12 },
-  cancelButton: { flex: 1, paddingVertical: 14, borderRadius: 16, backgroundColor: '#F5F5F5', alignItems: 'center' },
   cancelButtonText: { fontSize: 16, fontWeight: '600', color: '#666' },
-  confirmButton: { width: '100%', paddingVertical: 14, borderRadius: 16, backgroundColor: '#E25822', alignItems: 'center' },
+  buttonGroup: { 
+    flexDirection: 'row', 
+    gap: 12, 
+    width: '100%', // Đảm bảo hàng ngang chiếm hết chiều rộng modal
+    marginTop: 20 
+  },
+  cancelButton: { 
+    flex: 1, // Chiếm 50%
+    paddingVertical: 14, 
+    borderRadius: 16, 
+    backgroundColor: '#F5F5F5', 
+    alignItems: 'center' 
+  },
+  confirmButton: { 
+    flex: 1, // ĐỔI TỪ width: '100%' THÀNH flex: 1 ĐỂ CHIẾM 50% CÒN LẠI
+    paddingVertical: 14, 
+    borderRadius: 16, 
+    backgroundColor: '#E25822', 
+    alignItems: 'center' 
+  },
   confirmButtonText: { fontSize: 16, fontWeight: '600', color: 'white' },
   badgeLevel: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#FFB039', paddingHorizontal: 10, paddingVertical: 3, borderRadius: 12, marginTop: 5 },
   badgeText: { color: '#FFF', fontSize: 12, fontWeight: 'bold', marginLeft: 4 },

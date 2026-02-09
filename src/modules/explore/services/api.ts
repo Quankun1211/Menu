@@ -69,3 +69,10 @@ export const onGetRecipeDetailApi = async (
   const res = await api.get(`/menu/recipe/get-detail/${id}`);
   return res.data;
 };
+
+export const onSaveRecipeApi = async (
+  recipeId: string
+): Promise<BackendResponse<RecipeResponse>> => {
+  const res = await api.post(`/menu/recipe/save/${recipeId}`);
+  return res.data;
+};

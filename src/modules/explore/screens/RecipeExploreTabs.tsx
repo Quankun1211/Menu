@@ -1,5 +1,5 @@
 import { useMemo, useRef, useState } from 'react';
-import { View, Text, Image, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text, Image, FlatList, TouchableOpacity, ActivityIndicator, GestureResponderEvent } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { RecipeStyle } from '../css/RecipeStyle';
 import RecipeGridItem from '../components/RecipeGridItem';
@@ -9,6 +9,8 @@ import { router } from "expo-router";
 import useGetCategoryRecipe from '../hooks/useGerCategoryRecipe';
 import useGetRecipe from '../hooks/useGetRecipe';
 import { useWeather } from '@/hooks/useWeather';
+import useSaveRecipe from '../hooks/useSaveRecipe';
+import { RecipeDetailResponse } from '../types/api-response';
 
 export default function RecipeExploreTabs() {
   const [activeTab, setActiveTab] = useState("all");
@@ -44,6 +46,16 @@ export default function RecipeExploreTabs() {
 
   const handleChangeCategory = (id: string) => {
     setActiveTab(id);
+  };
+
+  const { mutate: saveRecipe } = useSaveRecipe()
+  const handleSave = (e: GestureResponderEvent, item: RecipeDetailResponse) => {
+    e.stopPropagation(); 
+    saveRecipe(item._id, {
+      onSuccess: () => {
+        console.log("Luu ok");
+      }
+    })
   };
 
   return (
@@ -100,6 +112,24 @@ export default function RecipeExploreTabs() {
                 source={featuredRecipe.image ? { uri: featuredRecipe.image } : require("../../../assets/banner/gao.png")} 
                 style={RecipeStyle.featuredImage} 
               />
+              <TouchableOpacity 
+                style={{
+                  position: 'absolute',
+                  top: 15,
+                  right: 15,
+                  backgroundColor: 'rgba(255,255,255,0.8)',
+                  padding: 8,
+                  borderRadius: 20,
+                  zIndex: 10
+                }}
+                onPress={(e) => handleSave(e, featuredRecipe)}
+              >
+                <Ionicons 
+                  name={featuredRecipe.isSaved ? "bookmark" : "bookmark-outline"} 
+                  size={18} 
+                  color="#D35400" 
+                />
+              </TouchableOpacity>
               <View style={RecipeStyle.featuredBadge}>
                 <Text style={RecipeStyle.featuredBadgeText}>
                   {weatherMood === 'hot' ? '🔥 GIẢI NHIỆT' : weatherMood === 'cold' ? '❄️ ẤM ÁP' : 'PHỔ BIẾN'}

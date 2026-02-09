@@ -13,7 +13,7 @@ export const RecipeHandBookStyles = StyleSheet.create({
   sectionTitle: { fontSize: 18, fontWeight: 'bold' },
   filterText: { color: '#4A614D', fontSize: 12, fontWeight: 'bold' },
   recipeCard: { flexDirection: 'row', backgroundColor: 'white', borderRadius: 15, padding: 12, marginBottom: 16, elevation: 2, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.1, shadowRadius: 2 },
-  recipeImagePlaceholder: { width: 80, height: 80, borderRadius: 40, backgroundColor: '#DDD' },
+  recipeImage: { width: 80, height: 80, borderRadius: 40, backgroundColor: '#DDD' },
   recipeInfo: { flex: 1, marginLeft: 12, justifyContent: 'center' },
   titleRow: { flexDirection: 'row', justifyContent: 'space-between' },
   recipeTitle: { fontSize: 16, fontWeight: 'bold', flex: 1 },
@@ -26,5 +26,43 @@ export const RecipeHandBookStyles = StyleSheet.create({
   draftText: { color: '#666', fontSize: 13 },
   continueText: { color: '#D35400', fontWeight: 'bold', marginTop: 5, textDecorationLine: 'underline' },
   fab: { position: 'absolute', right: 20, bottom: 30, width: 60, height: 60, borderRadius: 30, justifyContent: 'center', alignItems: 'center', elevation: 5 },
-  bookmarkIcon: { position: 'absolute', right: 12, top: 30 }
+  bookmarkIcon: { position: 'absolute', right: 12, top: 30 },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'flex-end',
+  },
+  menuContainer: {
+    backgroundColor: 'white',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    padding: 20,
+  },
+  dragHandle: {
+    width: 40,
+    height: 5,
+    backgroundColor: '#E0E0E0',
+    borderRadius: 3,
+    alignSelf: 'center',
+    marginBottom: 15,
+  },
+  menuTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 20,
+    color: '#666',
+  },
+  menuItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F0F0F0',
+  },
+  menuText: {
+    fontSize: 16,
+    marginLeft: 15,
+    color: '#333',
+  },
 })

@@ -9,9 +9,11 @@ import useGetWallet from '../hooks/useGetWallet';
 import useConfirmVoucher from '../hooks/useConfirmVoucher';
 import useGetMyCoupons from '../hooks/useGetMyCoupons';
 import Toast from 'react-native-toast-message';
+import UserAvatar from '@/components/common/Avatar';
 
 export default function ProfileScreen() {
   const { data: meData } = useGetMe();
+  
   const { onLogout } = useLogout();
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [showRewardModal, setShowRewardModal] = useState(false);
@@ -50,7 +52,6 @@ export default function ProfileScreen() {
   };
 
   const menuItems = [
-    { id: 'address', title: 'Địa chỉ giao hàng', icon: 'location', iconColor: '#FFB039', onPress: () => router.push('/(tabs)/addressTabs/ListAddressTabs' as any) },
     { id: 'coupons', title: 'Voucher của tôi', icon: 'ticket', iconColor: '#FFB039', onPress: () => setShowCouponsModal(true) }, 
     { id: 'recipes', title: 'Sổ tay công thức', icon: 'book', iconColor: '#FFB039', onPress: () => router.push('/(details)/exploreItemTabs/RecipeSave') },
   ];
@@ -62,10 +63,7 @@ export default function ProfileScreen() {
           <View style={ProfileStyles.avatarContainer}>
             <View style={ProfileStyles.avatarBorder}>
               <View style={ProfileStyles.avatarInner}>
-                <Image 
-                  source={{ uri: isLoggedIn ? (meData?.data?.avatar || 'https://via.placeholder.com/150') : 'https://cdn-icons-png.flaticon.com/512/149/149071.png' }} 
-                  style={ProfileStyles.avatarImg} 
-                />
+                <UserAvatar avatarUrl={isLoggedIn ? meData?.data?.avatar : 'https://cdn-icons-png.flaticon.com/512/149/149071.png'} />
               </View>
             </View>
             

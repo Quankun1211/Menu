@@ -7,11 +7,11 @@ import { LinearGradient } from "expo-linear-gradient"
 import LoginForm from '../components/LoginForm';
 import useLogin from '../hooks/useLogin';
 import { LogInRequest } from '../types/api-request';
+
 export default function LoginPage() {
   const { mutate: onLogin, isPending } = useLogin()
+  
   const onFinish = (values: LogInRequest) => {
-    console.log("Login payload", values);
-    
     onLogin(
       {
         username: values.username,
@@ -30,6 +30,7 @@ export default function LoginPage() {
       }
     )
   }
+
   return (
     <LinearGradient
       colors={['#91a5ac', '#cbdcd4', '#f8a078']}
@@ -54,23 +55,31 @@ export default function LoginPage() {
               <Text style={LoginStyle.welcomeText}>Chào Bạn!</Text>
               <Text style={LoginStyle.subText}>Chào mừng bạn quay lại với Chợ Việt</Text>
 
-              {/* Form Đăng Nhập */}
               <LoginForm
                 onFinish={onFinish}
                 isLoading={isPending}
               />
 
-              {/* Social Login */}
               <View style={LoginStyle.socialSection}>
                 <View style={LoginStyle.dividerRow}>
-                  <View style={LoginStyle.line} /><Text style={LoginStyle.orText}>HOẶC ĐĂNG NHẬP VỚI</Text><View style={LoginStyle.line} />
+                  <View style={LoginStyle.line} />
+                  <Text style={LoginStyle.orText}>HOẶC ĐĂNG NHẬP VỚI</Text>
+                  <View style={LoginStyle.line} />
                 </View>
+                
                 <View style={LoginStyle.socialIconsRow}>
-                  <TouchableOpacity style={LoginStyle.socialCircle}><Ionicons name="logo-google" size={24} color="red" /></TouchableOpacity>
-                  <TouchableOpacity style={LoginStyle.socialCircle}><Ionicons name="logo-facebook" size={24} color="#1877F2" /></TouchableOpacity>
-                  <TouchableOpacity style={LoginStyle.socialCircle}><Ionicons name="logo-apple" size={24} color="black" /></TouchableOpacity>
+                  <TouchableOpacity style={LoginStyle.socialCircle}>
+                    <Ionicons name="logo-google" size={24} color="red" />
+                  </TouchableOpacity>
+                  <TouchableOpacity style={LoginStyle.socialCircle}>
+                    <Ionicons name="logo-facebook" size={24} color="#1877F2" />
+                  </TouchableOpacity>
+                  <TouchableOpacity style={LoginStyle.socialCircle}>
+                    <Ionicons name="logo-apple" size={24} color="black" />
+                  </TouchableOpacity>
                 </View>
               </View>
+
               <View style={LoginStyle.signUpContainer}>
                 <Text style={LoginStyle.signUpText}>Chưa có tài khoản? </Text>
                 <Pressable onPress={() => router.replace("/(auth)/register")}>

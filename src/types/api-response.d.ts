@@ -1,4 +1,4 @@
-type UserRecord = {
+export type UserRecord = {
     id: number;
     name: string;
     username: string;
