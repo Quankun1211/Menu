@@ -1,5 +1,5 @@
 import React from 'react';
-import { ScrollView, View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { ScrollView, View, Text } from 'react-native';
 import ProductItem from './ProductItem';
 import { ProductItemStyles } from '../css/ProductItemStyles';
 import useGetSuggestionProducts from '../hooks/useGetSuggestionProducts';
@@ -13,9 +13,6 @@ const ProductSuggestion = () => {
     <View style={ProductItemStyles.container}>
       <View style={ProductItemStyles.sectionHeader}>
         <Text style={ProductItemStyles.sectionTitle}>Gợi Ý Cho Bạn</Text>
-        <TouchableOpacity>
-          <Text style={ProductItemStyles.seeAll}>Tất cả</Text>
-        </TouchableOpacity>
       </View>
 
       <ScrollView horizontal showsHorizontalScrollIndicator={false} style={ProductItemStyles.productScroll}>

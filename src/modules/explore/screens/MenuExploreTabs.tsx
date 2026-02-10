@@ -13,7 +13,6 @@ export default function MenuExploreTabs() {
   
   const { data: getCategoryMenu } = useGetCategoryMenu();
   const { data: menuResponse, isPending: pendingMenu } = useGetMenu(activeTab);
-  console.log(menuResponse?.data);
 
   const categoriesWithAll = useMemo(() => {
     const allTab = { 

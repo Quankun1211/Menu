@@ -1,13 +1,17 @@
-import { View, Text, ScrollView, TextInput, ImageBackground } from "react-native";
+import { View, Text, ScrollView, StyleSheet, ImageBackground, TouchableOpacity } from "react-native";
 import { HomePageStyles } from "../css/HomePageStyle";
 import DiscountProducts from "./DiscountProducts";
-import { Ionicons } from "@expo/vector-icons";
 import CategorySection from "./CategorySection";
 import PopularSection from "./PopularSection";
 import RegionSection from "./RegionSection";
 import ProductSuggestion from "../components/ProductSuggestion";
 import SearchBar from "@/components/ui/SearchBar";
+import ChatBotModal from "./Chatbot";
+import { Ionicons } from "@expo/vector-icons";
+import { useState } from "react";
+import FloatingChatbot from "@/components/common/FloatingModal";
 export default function HomePage() {
+  const [chatVisible, setChatVisible] = useState(false);
   return (
     <View style={{ flex: 1, paddingTop: 10 }}>
       <View style={{paddingHorizontal: 15}}>
@@ -42,8 +46,13 @@ export default function HomePage() {
 
         <View style={{ height: 20 }} />
       </ScrollView>
+
+      <FloatingChatbot onPress={() => setChatVisible(true)} />
+
+      <ChatBotModal 
+        visible={chatVisible} 
+        onClose={() => setChatVisible(false)} 
+      />
     </View>
   );
 }
-
-

@@ -142,7 +142,7 @@ export default function ProductDetailScreen({ id }: ProductDetailProps) {
             ) : (
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                 <Ionicons name="bag-handle" size={20} color="#fff" style={{ marginRight: 8 }} />
-                <Text style={ProductDetailStyles.addToCartText}>Add to Cart</Text>
+                <Text style={ProductDetailStyles.addToCartText}>Thêm vào giỏ</Text>
               </View>
             )}
           </TouchableOpacity>

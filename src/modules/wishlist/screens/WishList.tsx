@@ -11,11 +11,14 @@ import { WishListProduct, WishListItemResponse } from "../types/api-response"
 import WishListItem from "../components/WishListItem"
 import useRemoveWishList from "../hooks/useRemoveWishList"
 import useAddToCart from "@/modules/cart/hooks/useAddToCart"
+import useGetSuggestionProducts from "@/modules/root/hooks/useGetSuggestionProducts"
 export default function Wishlist() {
     const { data: getWishList, isPending: wishListPending } = useGetWishList();
+    const { data: suggestionData } = useGetSuggestionProducts();
+
     const { mutate: addToCart, isPending: isAddingToCart } = useAddToCart();
     const { mutate: removeWishList, isPending: removePending } = useRemoveWishList();
-    const suggestionData = [ { _id: "s1", name: "Mật ong nhãn", images: "https://api.foodapp.com/images/mat-ong.jpg", price: 150000, unit: "Chai", categoryId: { name: "Đặc sản" } }, { _id: "s2", name: "Hạt điều rang muối", images: "https://api.foodapp.com/images/hat-dieu.jpg", price: 210000, unit: "Hộp", categoryId: { name: "Hạt khô" } }, { _id: "s3", name: "Khô bò sợi lá chanh", images: "https://api.foodapp.com/images/kho-bo.jpg", price: 95000, unit: "Gói", categoryId: { name: "Ăn vặt" } }, { _id: "s4", name: "Bánh tráng phơi sương", images: "https://api.foodapp.com/images/banh-trang.jpg", price: 55000, unit: "Xấp", categoryId: { name: "Ăn vặt" } } ];
+    // const suggestionData = [ { _id: "s1", name: "Mật ong nhãn", images: "https://api.foodapp.com/images/mat-ong.jpg", price: 150000, unit: "Chai", categoryId: { name: "Đặc sản" } }, { _id: "s2", name: "Hạt điều rang muối", images: "https://api.foodapp.com/images/hat-dieu.jpg", price: 210000, unit: "Hộp", categoryId: { name: "Hạt khô" } }, { _id: "s3", name: "Khô bò sợi lá chanh", images: "https://api.foodapp.com/images/kho-bo.jpg", price: 95000, unit: "Gói", categoryId: { name: "Ăn vặt" } }, { _id: "s4", name: "Bánh tráng phơi sương", images: "https://api.foodapp.com/images/banh-trang.jpg", price: 55000, unit: "Xấp", categoryId: { name: "Ăn vặt" } } ];
     const [isEditing, setIsEditing] = useState(false);
     const [selectedItems, setSelectedItems] = useState<string[]>([]);
     
@@ -138,9 +141,9 @@ export default function Wishlist() {
                             style={ProductItemStyles.productScroll}
                             contentContainerStyle={{ paddingRight: 20 }}
                         >
-                            {suggestionData.map((products) => (
+                            {suggestionData?.data.map((products) => (
                                 <View key={products._id} style={ProductItemStyles.productCard}>
-                                    <Image source={require("../../../assets/test/vegetables.jpg")} style={ProductItemStyles.productImg} />
+                                    <Image source={{ uri: products.images }} style={ProductItemStyles.productImg} />
                                     <View style={ProductItemStyles.productInfo}>
                                         <Text style={ProductItemStyles.productCat}>{products.categoryId.name}</Text>
                                         <Text style={ProductItemStyles.productName} numberOfLines={1}>{products.name}</Text>

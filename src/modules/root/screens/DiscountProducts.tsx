@@ -1,10 +1,9 @@
 import React from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import { DiscountProductStyles } from '../css/DiscountProductStyles';
 import useGetShockDeals from '../hooks/useGetShockDeals';
 import DiscountItems from '../components/DiscountItems';
-
+import { router } from 'expo-router';
 const DiscountGrid = () => {
   const { data: getDiscountProducts, isPending } = useGetShockDeals()
   
@@ -13,7 +12,14 @@ const DiscountGrid = () => {
       {/* Header */}
       <View style={DiscountProductStyles.sectionHeader}>
         <Text style={DiscountProductStyles.sectionTitle}>Ưu Đãi Cực Sốc</Text>
-        <TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => 
+            router.push({
+              pathname: "/(details)/exploreItemTabs/ExploreFood",
+              params: { sortInit: "sale" }
+            })
+          }
+        >
           <Text style={DiscountProductStyles.seeAll}>Xem tất cả</Text>
         </TouchableOpacity>
       </View>

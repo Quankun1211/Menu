@@ -44,3 +44,8 @@ export const onGetRecipeLastest = async() : Promise<BackendResponse<RecipeDetail
   const data = await api.get("/menu/recipe/get-lastest")
   return data.data
 }
+
+export const onAskChatbot = async (payload: { message: string, history: any[] }) => {
+    const res = await api.post("/ai/ask", payload);
+    return res.data;
+}

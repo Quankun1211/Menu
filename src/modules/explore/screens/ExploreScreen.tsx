@@ -18,13 +18,13 @@ const REGIONS = [
 ];
 
 export default function ExploreScreen() {
-  const { categoryId, regionId } = useLocalSearchParams<{ categoryId: string, regionId: string }>();
+  const { categoryId, regionId, sortInit } = useLocalSearchParams<{ categoryId: string, regionId: string, sortInit: string }>();
 
   const [selectedRegion, setSelectedRegion] = useState(regionId || 'bac');
   const [activeTab, setActiveTab] = useState(categoryId || 'all');
   
   const [filterVisible, setFilterVisible] = useState(false);
-  const [sort, setSortBy] = useState('newest');
+  const [sort, setSortBy] = useState(sortInit || 'newest');
   const flatListRef = useRef<FlatList>(null);
 
   const { data: getAllCategory } = useGetCategory();

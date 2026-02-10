@@ -7,6 +7,7 @@ export default function FilterModal({ visible, onClose, onSelect, currentSort }:
     { id: 'price_asc', label: 'Giá: Thấp đến Cao' },
     { id: 'price_desc', label: 'Giá: Cao đến Thấp' },
     { id: 'sold_desc', label: 'Bán chạy nhất' },
+    { id: 'sale', label: 'Giảm giá nhiều nhất' },
   ];
 
   return (

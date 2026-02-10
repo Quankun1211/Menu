@@ -23,6 +23,7 @@ export default function DetailsLayout() {
       <Stack.Screen name="exploreItemTabs/RecipeSave" options={{ title: 'Sổ tay công thức' }} />
       <Stack.Screen name="exploreItemTabs/MyRecipeDetailTabs" options={{ title: 'Chi tiết công thức' }} />
       <Stack.Screen name="exploreItemTabs/UpdateRecipeTabs" options={{ title: 'Chỉnh sửa công thức' }} />
+      <Stack.Screen name="exploreItemTabs/Wishlist" options={{ title: 'Danh sách yêu thích' }} />
       <Stack.Screen name="orderTabs/OrderTabs" options={{ title: 'Chi tiết đơn hàng' }} />
       <Stack.Screen name="checkoutTabs/CheckOutTabs" options={{ title: 'Thanh toán' }} />
       <Stack.Screen name="addressTabs/AddressTabs" options={{ title: 'Thêm địa chỉ' }} />

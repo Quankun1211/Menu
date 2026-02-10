@@ -6,6 +6,7 @@ import { formatVND } from "@/utils/helper";
 import { WishListItemResponse } from "../types/api-response";
 import useRemoveWishList from "../hooks/useRemoveWishList"
 import Toast from "react-native-toast-message";
+import { router } from "expo-router";
 interface Props {
   item: WishListItemResponse;
   isEditing: boolean;
@@ -47,17 +48,28 @@ const WishlistItem = ({
           />
         </TouchableOpacity>
       )}
-
-      <Image source={{ uri: product.images }} style={WishlistStyles.itemImage} />
+      <TouchableOpacity
+        onPress={() => router.push({
+            pathname: "/(details)/productDetailTabs/ProductDetailTabs",
+            params: { id: product._id }
+        })}>
+        <Image source={{ uri: product.images }} style={WishlistStyles.itemImage} />
+      </TouchableOpacity>
 
       <View style={WishlistStyles.itemInfo}>
         <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
-          <Text
-            style={[WishlistStyles.itemName, { flex: 1, marginRight: 8 }]}
-            numberOfLines={1}
-          >
-            {product.name}
-          </Text>
+          <TouchableOpacity
+              onPress={() => router.push({
+                  pathname: "/(details)/productDetailTabs/ProductDetailTabs",
+                  params: { id: product._id }
+              })}>
+            <Text
+              style={[WishlistStyles.itemName, { flex: 1, marginRight: 8 }]}
+              numberOfLines={1}
+              >
+              {product.name}
+            </Text>
+            </TouchableOpacity>
 
           {!isEditing && (
             <TouchableOpacity onPress={handleRemove}>

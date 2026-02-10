@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, Image, TouchableOpacity, ScrollView, Modal, ActivityIndicator, Alert, Clipboard } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, Modal, ActivityIndicator, Alert, Clipboard } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import useGetMe from '@/hooks/useGetMe';
@@ -53,6 +53,7 @@ export default function ProfileScreen() {
 
   const menuItems = [
     { id: 'coupons', title: 'Voucher của tôi', icon: 'ticket', iconColor: '#FFB039', onPress: () => setShowCouponsModal(true) }, 
+    { id: 'favourite', title: 'Yêu thích', icon: 'heart', iconColor: '#FFB039', onPress: () => router.push('/(details)/exploreItemTabs/Wishlist') },
     { id: 'recipes', title: 'Sổ tay công thức', icon: 'book', iconColor: '#FFB039', onPress: () => router.push('/(details)/exploreItemTabs/RecipeSave') },
   ];
 
