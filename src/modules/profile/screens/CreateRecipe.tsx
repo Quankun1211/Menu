@@ -14,7 +14,7 @@ import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import useCreateMyRecipe from '../hooks/useCreateMyRecipe';
 import { CreateRecipeStyles } from '../css/CreateRecipeStyles';
-
+import { router } from "expo-router"
 interface Ingredient {
   name: string;
   quantity: string;
@@ -37,12 +37,11 @@ export default function CreateRecipeScreen() {
   ]);
 
   const [instructions, setInstructions] = useState<Instruction[]>([
-    { step: 1, description: ''},
-    { step: 2, description: ''}
+    { step: 1, description: '' },
+    { step: 2, description: '' }
   ]);
 
-  const { mutate: createRecipe } = useCreateMyRecipe();
-  const isPending = false; // Mock trạng thái
+  const { mutate: createRecipe, isPending } = useCreateMyRecipe();
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -60,11 +59,23 @@ export default function CreateRecipeScreen() {
     setIngredients([...ingredients, { name: '', quantity: '' }]);
   };
 
+  const removeIngredient = (index: number) => {
+    const newIngredients = ingredients.filter((_, i) => i !== index);
+    setIngredients(newIngredients);
+  };
+
   const addStep = () => {
     setInstructions([
       ...instructions,
-      { step: instructions.length + 1, description: ''}
+      { step: instructions.length + 1, description: '' }
     ]);
+  };
+
+  const removeStep = (index: number) => {
+    const newSteps = instructions
+      .filter((_, i) => i !== index)
+      .map((step, i) => ({ ...step, step: i + 1 }));
+    setInstructions(newSteps);
   };
 
   const updateIngredient = (index: number, field: keyof Ingredient, value: string) => {
@@ -83,15 +94,15 @@ export default function CreateRecipeScreen() {
     if (!name.trim()) return alert("Vui lòng nhập tên món ăn");
 
     const formData = new FormData();
-    
     formData.append('name', name);
     formData.append('cookTime', cookTime || '0');
+    formData.append('familyNotes', familyNotes);
 
     if (image) {
       const filename = image.split('/').pop();
       const match = /\.(\w+)$/.exec(filename || '');
       const type = match ? `image/${match[1]}` : `image`;
-      
+
       formData.append('image', {
         uri: image,
         name: filename,
@@ -101,12 +112,15 @@ export default function CreateRecipeScreen() {
 
     const filteredIngredients = ingredients.filter(i => i.name.trim() !== '');
     const filteredInstructions = instructions.filter(s => s.description.trim() !== '');
-    
+
     formData.append('ingredients', JSON.stringify(filteredIngredients));
     formData.append('instructions', JSON.stringify(filteredInstructions));
 
-    console.log("Đang gửi FormData qua Hook...");
-    createRecipe(formData); 
+    createRecipe(formData, {
+      onSuccess: () => {
+        router.push("/(details)/exploreItemTabs/RecipeSave")
+      }
+    });
   };
 
   return (
@@ -115,14 +129,13 @@ export default function CreateRecipeScreen() {
       style={{ flex: 1, backgroundColor: '#F9F1E7' }}
     >
       <ScrollView contentContainerStyle={{ padding: 20 }}>
-
         <TouchableOpacity style={CreateRecipeStyles.imagePicker} onPress={pickImage}>
           {image ? (
             <Image source={{ uri: image }} style={CreateRecipeStyles.previewImage} />
           ) : (
             <View style={{ alignItems: 'center' }}>
               <Ionicons name="camera" size={40} color="#F26522" />
-              <Text style={{ color: '#666', marginTop: 8 }}>Thêm ảnh hoặc video bìa</Text>
+              <Text style={{ color: '#666', marginTop: 8 }}>Thêm ảnh bìa</Text>
             </View>
           )}
         </TouchableOpacity>
@@ -135,17 +148,15 @@ export default function CreateRecipeScreen() {
           onChangeText={setName}
         />
 
-        <View style={CreateRecipeStyles.rowBetween}>
-          <View style={{ width: '48%' }}>
-            <Text style={CreateRecipeStyles.label}>Thời gian nấu (phút)</Text>
-            <TextInput
-              style={CreateRecipeStyles.input}
-              placeholder="30"
-              keyboardType="numeric"
-              value={cookTime}
-              onChangeText={setCookTime}
-            />
-          </View>
+        <View style={{ width: '100%', marginBottom: 15 }}>
+          <Text style={CreateRecipeStyles.label}>Thời gian nấu (phút)</Text>
+          <TextInput
+            style={[CreateRecipeStyles.input, { width: '48%' }]}
+            placeholder="30"
+            keyboardType="numeric"
+            value={cookTime}
+            onChangeText={setCookTime}
+          />
         </View>
 
         <View style={CreateRecipeStyles.rowBetween}>
@@ -154,32 +165,42 @@ export default function CreateRecipeScreen() {
             <Text style={{ color: '#F26522', fontWeight: 'bold' }}>+ Thêm</Text>
           </TouchableOpacity>
         </View>
+
         {ingredients.map((item, index) => (
-          <View key={index} style={CreateRecipeStyles.rowBetween}>
+          <View key={index} style={[CreateRecipeStyles.rowBetween, { marginBottom: 10 }]}>
             <TextInput
-              style={[CreateRecipeStyles.input, { width: '60%' }]}
-              placeholder="Tên nguyên liệu"
+              style={[CreateRecipeStyles.input, { width: '50%', marginBottom: 0 }]}
+              placeholder="Nguyên liệu"
               value={item.name}
               onChangeText={(v) => updateIngredient(index, 'name', v)}
             />
             <TextInput
-              style={[CreateRecipeStyles.input, { width: '35%' }]}
-              placeholder="Số lượng"
+              style={[CreateRecipeStyles.input, { width: '30%', marginBottom: 0 }]}
+              placeholder="Lượng"
               value={item.quantity}
               onChangeText={(v) => updateIngredient(index, 'quantity', v)}
             />
+            <TouchableOpacity onPress={() => removeIngredient(index)}>
+              <Ionicons name="trash-outline" size={22} color="#FF4D4D" />
+            </TouchableOpacity>
           </View>
         ))}
 
-        <View style={CreateRecipeStyles.rowBetween}>
+        <View style={[CreateRecipeStyles.rowBetween, { marginTop: 10 }]}>
           <Text style={CreateRecipeStyles.label}>Cách làm</Text>
           <TouchableOpacity onPress={addStep}>
             <Text style={{ color: '#F26522', fontWeight: 'bold' }}>+ Thêm bước</Text>
           </TouchableOpacity>
         </View>
+
         {instructions.map((step, index) => (
           <View key={index} style={CreateRecipeStyles.stepContainer}>
-            <Text style={CreateRecipeStyles.stepLabel}>Bước {step.step}</Text>
+            <View style={CreateRecipeStyles.rowBetween}>
+              <Text style={CreateRecipeStyles.stepLabel}>Bước {step.step}</Text>
+              <TouchableOpacity onPress={() => removeStep(index)}>
+                <Ionicons name="close-circle-outline" size={20} color="#FF4D4D" />
+              </TouchableOpacity>
+            </View>
             <TextInput
               style={CreateRecipeStyles.textArea}
               placeholder="Tiến hành nấu..."
@@ -190,7 +211,7 @@ export default function CreateRecipeScreen() {
           </View>
         ))}
 
-        <Text style={CreateRecipeStyles.label}>Lưu ý cho gia đình</Text>
+        <Text style={[CreateRecipeStyles.label, { marginTop: 15 }]}>Lưu ý cho gia đình</Text>
         <TextInput
           style={CreateRecipeStyles.input}
           placeholder="VD: Gia đình mình ăn cay..."
@@ -198,8 +219,8 @@ export default function CreateRecipeScreen() {
           onChangeText={setFamilyNotes}
         />
 
-        <TouchableOpacity 
-          style={[CreateRecipeStyles.submitBtn, isPending && { opacity: 0.7 }]} 
+        <TouchableOpacity
+          style={[CreateRecipeStyles.submitBtn, isPending && { opacity: 0.7 }]}
           onPress={handlePost}
           disabled={isPending}
         >
@@ -209,7 +230,6 @@ export default function CreateRecipeScreen() {
             <Text style={CreateRecipeStyles.submitBtnText}>Đăng công thức</Text>
           )}
         </TouchableOpacity>
-
       </ScrollView>
     </KeyboardAvoidingView>
   );

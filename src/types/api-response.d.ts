@@ -6,6 +6,7 @@ export type UserRecord = {
     role: string;
     avatar: string;
     classId: string;
+    isOnline: boolean
 }
 
 export type MetaResponse = {

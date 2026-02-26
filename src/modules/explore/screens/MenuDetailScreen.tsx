@@ -1,6 +1,6 @@
-import {useState} from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { View, Text, Image, ScrollView, TouchableOpacity } from 'react-native';
-import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
 import MenuItems from '../components/MenuItems';
 import { MenuDetailStyles } from '../css/MenuDetailStyles';
 import { router, useLocalSearchParams } from "expo-router"
@@ -15,63 +15,104 @@ export default function MenuDetailScreen() {
 
   const { id } = useLocalSearchParams();
   const menuId = Array.isArray(id) ? id[0] : id;
-  const { data: menuDetail, isPending } = useGetMenuDetail(menuId);
-  
+  const { data: menuDetail } = useGetMenuDetail(menuId);
+
   const [isModalVisible, setModalVisible] = useState(false);
+  const [selectedItems, setSelectedItems] = useState<string[]>([]);
+
+  const getSafeProductId = (ing: any) => {
+    if (ing.itemType === 'Product') return ing.ingredientId?._id;
+    return ing.ingredientId?.productId;
+  };
+
+  const purchasableIngredients = useMemo(() => {
+    if (!menuDetail?.data?.recipes) return [];
+    return menuDetail.data.recipes.flatMap(recipe => 
+      recipe.ingredients.filter(ing => getSafeProductId(ing))
+    );
+  }, [menuDetail]);
+
+  useEffect(() => {
+    if (purchasableIngredients.length > 0) {
+      const allIds = Array.from(new Set(purchasableIngredients.map(ing => getSafeProductId(ing))));
+      setSelectedItems(allIds);
+    }
+  }, [purchasableIngredients]);
+
+  const toggleItem = (productId: string) => {
+    setSelectedItems(prev => 
+      prev.includes(productId) 
+        ? prev.filter(id => id !== productId) 
+        : [...prev, productId]
+    );
+  };
+
+  const currentTotalPrice = useMemo(() => {
+    return purchasableIngredients.reduce((total, ing) => {
+      const pId = getSafeProductId(ing);
+      if (selectedItems.includes(pId)) {
+        const price = ing.itemType === 'Product' 
+          ? (ing.ingredientId?.price || 0) 
+          : (ing.ingredientId?.price || 0);
+        return total + (price * (Number(ing.quantity) || 1));
+      }
+      return total;
+    }, 0);
+  }, [selectedItems, purchasableIngredients]);
 
   const handleCheckout = () => {
     if (!isLoggedIn) {
       setModalVisible(true);
       return;
     }
-    if (!menuDetail?.data?.recipes) return;
 
-    const itemsToCheckout = menuDetail.data.recipes
-      .flatMap(recipe => recipe.ingredients)
-      .filter(ing => {
-        const isProductType = ing.itemType === 'Product';
-        const hasShopLink = ing.ingredientId?.productId; 
-        return isProductType || hasShopLink;
-      }) 
-      .map(ing => ({
-        productId: ing.itemType === 'Product' ? ing.ingredientId._id : ing.ingredientId.productId,
-        quantity: Number(ing.quantity) || 1,
-      }));
+    // Logic gộp sản phẩm trùng nhau
+    const groupedItems = purchasableIngredients
+      .filter(ing => selectedItems.includes(getSafeProductId(ing)))
+      .reduce((acc: any[], ing) => {
+        const pId = getSafeProductId(ing);
+        const qty = Number(ing.quantity) || 1;
+        
+        const existingItem = acc.find(item => item.productId === pId);
+        if (existingItem) {
+          existingItem.quantity += qty;
+        } else {
+          acc.push({ productId: pId, quantity: qty });
+        }
+        return acc;
+      }, []);
 
-    if (itemsToCheckout.length === 0) {
-      alert("Mâm cơm này chưa có nguyên liệu nào hỗ trợ mua trực tiếp.");
+    if (groupedItems.length === 0) {
+      alert("Vui lòng chọn ít nhất một sản phẩm.");
       return;
     }
 
     router.push({
       pathname: "/(details)/checkoutTabs/CheckOutTabs",
       params: {
-        source: "menu",
-        items: JSON.stringify(itemsToCheckout),
+        source: "cart",
+        items: JSON.stringify(groupedItems),
       },
     });
   };
+
   return (
     <View style={MenuDetailStyles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
-        {/* Header Image */}
         <View style={MenuDetailStyles.imageHeader}>
           <Image source={{ uri: menuDetail?.data.image }} style={MenuDetailStyles.mainImage} />
         </View>
 
-        {/* Info Card */}
         <View style={MenuDetailStyles.infoCard}>
           <View style={MenuDetailStyles.rowBetween}>
             <Text style={MenuDetailStyles.title}>{menuDetail?.data.title}</Text>
             <View style={MenuDetailStyles.priceTag}>
-              {/* Hiển thị tổng giá trị thực tế của mâm cơm */}
               <Text style={MenuDetailStyles.priceText}>{formatVND(menuDetail?.data.totalPrice ?? 0)}</Text>
             </View>
           </View>
           <Text style={MenuDetailStyles.description}>{menuDetail?.data.description}</Text>
         </View>
 
-        {/* Recipes List */}
         <View style={MenuDetailStyles.listContainer}>
           {menuDetail?.data.recipes.map((recipe, index) => (
             <View key={recipe._id} style={MenuDetailStyles.recipeGroup}>
@@ -93,9 +134,31 @@ export default function MenuDetailScreen() {
                 </View>
               </View>
 
-              {recipe.ingredients.map((ingredient) => (
-                <MenuItems key={ingredient._id} item={ingredient} />
-              ))}
+              {recipe.ingredients.map((ingredient) => {
+                const productId = getSafeProductId(ingredient);
+                
+                return (
+                  <View key={ingredient._id} style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    {productId ? (
+                      <TouchableOpacity 
+                        onPress={() => toggleItem(productId)}
+                        style={{ paddingLeft: 15 }}
+                      >
+                        <Ionicons 
+                          name={selectedItems.includes(productId) ? "checkbox" : "square-outline"} 
+                          size={22} 
+                          color={selectedItems.includes(productId) ? "#E25822" : "#CCC"} 
+                        />
+                      </TouchableOpacity>
+                    ) : (
+                      <View style={{ width: 37 }} /> 
+                    )}
+                    <View style={{ flex: 1 }}>
+                      <MenuItems item={ingredient} />
+                    </View>
+                  </View>
+                );
+              })}
 
               {recipe.additionalIngredients && recipe.additionalIngredients.length > 0 && (
                 <View style={{ marginTop: 10, marginLeft: 20 }}>
@@ -118,11 +181,10 @@ export default function MenuDetailScreen() {
         <View style={{ height: 100 }} />
       </ScrollView>
 
-      {/* Bottom Bar: Hiển thị giá những thứ có thể mua ngay */}
       <View style={MenuDetailStyles.bottomBar}>
         <View>
-          <Text style={MenuDetailStyles.totalLabel}>CÓ THỂ MUA TẠI SHOP</Text>
-          <Text style={MenuDetailStyles.totalPrice}>{formatVND(menuDetail?.data.totalPriceInDB ?? 0)}</Text>
+          <Text style={MenuDetailStyles.totalLabel}>TỔNG TIỀN CHỌN ({selectedItems.length})</Text>
+          <Text style={MenuDetailStyles.totalPrice}>{formatVND(currentTotalPrice)}</Text>
         </View>
         <TouchableOpacity onPress={handleCheckout} style={MenuDetailStyles.buyButton}>
           <Ionicons name="basket" size={20} color="#FFF" />

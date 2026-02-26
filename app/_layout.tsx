@@ -11,8 +11,9 @@ import Toast, { BaseToast, ErrorToast } from 'react-native-toast-message';
 
 export default function RootLayout() {
   const [queryClient] = useState(() => new QueryClient());
-  const { loading, initAuth } = useAuthStore();
+  const { loading, initAuth, role } = useAuthStore();
   const [isReady, setIsReady] = useState(false);
+  console.log(role);
 
   const toastConfig = {
     success: (props: any) => (
@@ -40,10 +41,14 @@ export default function RootLayout() {
 
   useEffect(() => {
     if (!loading && !isReady) {
-      router.replace("/(tabs)");
+      if (role === 'shipper') {
+        router.replace("/(shipper)/dashboard_shipper");
+      } else {
+        router.replace("/(tabs)");
+      }
       setIsReady(true);
     }
-  }, [loading, isReady]);
+  }, [loading, isReady, role]);
 
   useEffect(() => {
     if (Platform.OS === 'android') {
@@ -70,6 +75,8 @@ export default function RootLayout() {
         <StatusBar style="dark" translucent={false} backgroundColor="#ffffff" />
         <Stack screenOptions={{ headerShown: false }}>
           <Stack.Screen name="(tabs)" />
+          <Stack.Screen name="(shipper)" /> 
+          <Stack.Screen name="(shipper_details)" /> 
           <Stack.Screen name="(details)" /> 
           <Stack.Screen name="(auth)/login" options={{ presentation: 'modal' }} />
           <Stack.Screen name="(auth)/register" options={{ presentation: 'modal' }} />

@@ -28,7 +28,7 @@ export default function ChatBotModal({ visible, onClose }: { visible: boolean; o
 
     const INITIAL_MESSAGE: ChatMessage = {
         role: 'model',
-        parts: [{ text: "Xin chào Bếp trưởng! Tôi là Bếp phó của Bếp Việt. Tôi có thể giúp gì cho thực đơn của bạn hôm nay?" }]
+        parts: [{ text: "Chào bạn! Tôi là Bếp trưởng của Bếp Việt. Tôi có thể giúp gì cho thực đơn của bạn hôm nay?" }]
     };
     const [messages, setMessages] = useState<ChatMessage[]>([INITIAL_MESSAGE]);
     const [input, setInput] = useState('');
@@ -142,7 +142,7 @@ export default function ChatBotModal({ visible, onClose }: { visible: boolean; o
                         <View style={ChatbotStyles.header}>
                             <View style={ChatbotStyles.headerTitleRow}>
                                 <View style={ChatbotStyles.statusDot} />
-                                <Text style={ChatbotStyles.headerTitle}>Bếp phó</Text>
+                                <Text style={ChatbotStyles.headerTitle}>Bếp trưởng</Text>
                             </View>
                             <TouchableOpacity onPress={() => { Keyboard.dismiss(); onClose(); }}>
                                 <Ionicons name="close" size={24} color="#333" />
@@ -164,7 +164,7 @@ export default function ChatBotModal({ visible, onClose }: { visible: boolean; o
                                 value={input} 
                                 onChangeText={setInput} 
                                 style={ChatbotStyles.textInput} 
-                                placeholder="Hỏi AI..."
+                                placeholder="Hỏi Bếp trưởng..."
                                 multiline
                                 onSubmitEditing={handleSend}
                             />

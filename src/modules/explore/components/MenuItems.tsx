@@ -3,6 +3,7 @@ import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { IngredientResponse } from '../types/api-response';
 import { formatVND } from '@/utils/helper';
+import { router } from 'expo-router';
 
 type MenuIngredientProps = {
   item: IngredientResponse
@@ -38,7 +39,22 @@ const MenuItems = ({ item }: MenuIngredientProps) => {
       </View>
       
       {isInShop ? (
-        <TouchableOpacity style={styles.cartButton}>
+        <TouchableOpacity
+         onPress={() => {
+          const memoiData = [{
+            productId: details._id,
+            quantity: 1,
+          }]
+          
+          router.push({
+              pathname: "/(details)/checkoutTabs/CheckOutTabs",
+              params: {
+                source: "cart",
+                items: JSON.stringify(memoiData),
+              },
+            });
+         }}
+         style={styles.cartButton}>
           <Ionicons name="cart-outline" size={18} color="#E25822" />
         </TouchableOpacity>
       ) : (

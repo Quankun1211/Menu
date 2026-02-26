@@ -1,4 +1,3 @@
-import React from 'react';
 import { Modal, View, Text, TouchableOpacity, StyleSheet, Pressable } from 'react-native';
 
 export default function FilterModal({ visible, onClose, onSelect, currentSort }: any) {

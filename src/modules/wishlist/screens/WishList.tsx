@@ -18,7 +18,6 @@ export default function Wishlist() {
 
     const { mutate: addToCart, isPending: isAddingToCart } = useAddToCart();
     const { mutate: removeWishList, isPending: removePending } = useRemoveWishList();
-    // const suggestionData = [ { _id: "s1", name: "Mật ong nhãn", images: "https://api.foodapp.com/images/mat-ong.jpg", price: 150000, unit: "Chai", categoryId: { name: "Đặc sản" } }, { _id: "s2", name: "Hạt điều rang muối", images: "https://api.foodapp.com/images/hat-dieu.jpg", price: 210000, unit: "Hộp", categoryId: { name: "Hạt khô" } }, { _id: "s3", name: "Khô bò sợi lá chanh", images: "https://api.foodapp.com/images/kho-bo.jpg", price: 95000, unit: "Gói", categoryId: { name: "Ăn vặt" } }, { _id: "s4", name: "Bánh tráng phơi sương", images: "https://api.foodapp.com/images/banh-trang.jpg", price: 55000, unit: "Xấp", categoryId: { name: "Ăn vặt" } } ];
     const [isEditing, setIsEditing] = useState(false);
     const [selectedItems, setSelectedItems] = useState<string[]>([]);
     
@@ -29,20 +28,6 @@ export default function Wishlist() {
         addToCart({
             productId: id,
             quantity: 1
-        }, {
-            onSuccess: () => {
-                Toast.show({
-                    type: 'success',
-                    text1: 'Đã thêm sản phẩm vào giỏ hàng 🛒'
-                });
-            },
-            onError: () => {
-                Toast.show({
-                    type: 'error',
-                    text1: 'Thất bại',
-                    text2: 'Có lỗi xảy ra, vui lòng thử lại sau'
-                });
-            }
         });
     };
 

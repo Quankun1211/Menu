@@ -4,7 +4,6 @@ import { HomePageStyles } from "@/modules/root/css/HomePageStyle";
 import { useState } from "react";
 import useSearchProducts from "@/hooks/useSearchProducts";
 import { router } from "expo-router";
-// Nhập ScrollView từ gesture-handler thay vì react-native gốc
 import { ScrollView } from 'react-native-gesture-handler';
 
 export default function SearchBar() {
@@ -56,17 +55,14 @@ export default function SearchBar() {
           <View 
             style={[HomePageStyles.searchDropdown, { 
               maxHeight: 280,
-              overflow: 'hidden' // Giúp bo góc hoạt động tốt trên Android
+              overflow: 'hidden' 
             }]}
           >
             <ScrollView
               style={{ flex: 1 }}
-              // Bắt buộc phải có cho Android khi nằm trong ScrollView cha
               nestedScrollEnabled={true} 
               keyboardShouldPersistTaps="always"
-              // Vô hiệu hóa hiệu ứng kéo quá đà làm ảnh hưởng cha
               overScrollMode="never" 
-              // Đảm bảo nhận touch ngay lập tức
               shouldCancelWhenOutside={false}
             >
               {products.map((item: any) => (

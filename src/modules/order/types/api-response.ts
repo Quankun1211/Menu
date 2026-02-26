@@ -1,23 +1,38 @@
 import { AddressModel } from "@/modules/checkout/types/api-response";
 export type OrderResponse = {
-    _id: string;
-    userId: string;
-    subTotal: number;
-    couponCode: string | null;
-    couponDiscount: number;
-    totalPrice: number;
-    status: "pending" | "delivered" | "cancelled" | "shipping"; 
-    createdAt: string;
-    cancelReason: string;
-    cancelledAt: string;
-    cancelledBy: string;
-    address: AddressModel;
-    productSummary: string;
-    thumbnail: string;
-    updatedAt: string;
-    paymentUrl?: string;
-    paymentStatus: string;
+  _id: string;
+  userId: string;
+  subTotal: number;
+  couponCode: string | null;
+  couponDiscount: number;
+  totalPrice: number;
+  status:
+    | "pending"
+    | "confirmed"
+    | "delivered"
+    | "cancelled"
+    | "shipping"
+    | "assigned"
+    | "completed"
+    | "pending_cancel";
+  createdAt: string;
+  cancelReason: string; 
+  cancelledAt: string;
+  cancelledBy: string;
+  address: AddressModel;
+  productSummary: string;
+  thumbnail: string;
+  updatedAt: string;
+  paymentUrl?: string;
+  paymentStatus: string;
+  shipperId?: string;
+  cancelRequest?: {
+    reason: string;
+    requestedAt: string;
+    adminNote?: string;
+    isAccepted: boolean;
   };
+};
 
 export type OrderProductResponse = {
   productId: string;

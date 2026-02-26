@@ -5,7 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 interface CancelOrderModalProps {
   isVisible: boolean;
   onClose: () => void;
-  onConfirm: (reason: string) => void; // Thay đổi để nhận lý do
+  onConfirm: (reason: string) => void;
 }
 
 export const CancelOrderModal = ({ isVisible, onClose, onConfirm }: CancelOrderModalProps) => {
@@ -14,7 +14,7 @@ export const CancelOrderModal = ({ isVisible, onClose, onConfirm }: CancelOrderM
   const handleConfirm = () => {
     if (reason.trim()) {
       onConfirm(reason);
-      setReason(''); // Reset sau khi gửi
+      setReason('');
     }
   };
 
@@ -68,7 +68,7 @@ export const CancelOrderModal = ({ isVisible, onClose, onConfirm }: CancelOrderM
               style={[
                 styles.button, 
                 styles.primaryButton,
-                !reason.trim() && { backgroundColor: '#FFA39E' } // Làm mờ nút nếu chưa nhập
+                !reason.trim() && { backgroundColor: '#FFA39E' }
               ]} 
               onPress={handleConfirm}
               activeOpacity={0.8}

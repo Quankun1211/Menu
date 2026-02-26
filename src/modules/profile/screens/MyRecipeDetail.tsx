@@ -10,6 +10,7 @@ import {
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import useGetRecipeDetail from '../hooks/useGetRecipeDetail';
 import { RecipeDetailStyles } from '../css/RecipeDetailStyles';
+import { router } from 'expo-router';
 
 type RecipeDetailProps = {
     recipeId: string
@@ -35,7 +36,7 @@ const RecipeDetailScreen = ({ recipeId }: RecipeDetailProps) => {
             <View style={RecipeDetailStyles.statCard}>
               <Ionicons name="time-outline" size={24} color="#D35400" />
               <Text style={RecipeDetailStyles.statValue}>{data?.data.cookTime}</Text>
-              <Text style={RecipeDetailStyles.statLabel}>THỜI GIAN</Text>
+              <Text style={RecipeDetailStyles.statLabel}>PHÚT</Text>
             </View>
             {/* <View style={RecipeDetailStyles.statCard}>
               <FontAwesome5 name="star" size={20} color="#D35400" />
@@ -85,7 +86,14 @@ const RecipeDetailScreen = ({ recipeId }: RecipeDetailProps) => {
 
       {/* Bottom Buttons */}
       <View style={RecipeDetailStyles.bottomActions}>
-        <TouchableOpacity style={RecipeDetailStyles.editBtn}>
+        <TouchableOpacity
+         onPress={() => {
+              router.push({
+                pathname: "/(details)/exploreItemTabs/UpdateRecipeTabs" as any,
+                params: { recipeId: data?.data._id }
+              });
+         }}
+          style={RecipeDetailStyles.editBtn}>
           <MaterialCommunityIcons name="playlist-edit" size={24} color="white" />
           <Text style={RecipeDetailStyles.btnText}>Chỉnh sửa công thức</Text>
         </TouchableOpacity>

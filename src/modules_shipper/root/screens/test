@@ -1,0 +1,42 @@
+{/* <View style={TrackingStyles.headerContainer}>
+        <View style={TrackingStyles.etaCard}>
+          <View style={TrackingStyles.etaIcon}>
+            <FontAwesome5 name="motorcycle" size={20} color="#4cd964" />
+          </View>
+          <View style={{ flex: 1, paddingLeft: 15 }}>
+            <Text style={TrackingStyles.etaLabel}>TRẠNG THÁI</Text>
+            <Text style={TrackingStyles.etaTime}>
+              {order?.status === 'confirmed' ? 'Đang lấy hàng' : 'Đang giao hàng'}
+            </Text>
+          </View>
+          <View style={TrackingStyles.vLine} />
+          <View style={{ alignItems: 'center' }}>
+            <Text style={TrackingStyles.distText}>Mã đơn</Text>
+            <Text style={TrackingStyles.dirValue}>#{order?._id.slice(-4).toUpperCase() || '...'}</Text>
+          </View>
+        </View>
+      </View>
+
+      <View style={{ position: 'absolute', bottom: 30, left: 20, right: 20, backgroundColor: 'white', borderRadius: 20, padding: 20, elevation: 5 }}>
+          <View style={TrackingStyles.userInfo}>
+            <Image source={{ uri: 'https://i.pravatar.cc/100' }} style={TrackingStyles.avatar} />
+            <View style={{ flex: 1, marginLeft: 15 }}>
+              <Text style={TrackingStyles.userName}>{order?.address?.name || 'Đang tải...'}</Text>
+              <Text style={TrackingStyles.userAddr} numberOfLines={2}>{order?.address?.address}</Text>
+            </View>
+            <TouchableOpacity style={TrackingStyles.callCircle}><Ionicons name="call" size={20} color="black" /></TouchableOpacity>
+          </View>
+
+          {order?.status !== 'delivered' && (
+            <View style={[TrackingStyles.slideContainer, { marginTop: 20 }]}>
+              <GestureDetector gesture={slideGesture}>
+                <Animated.View style={[TrackingStyles.slideThumb, animatedThumbStyle]}>
+                  <Ionicons name="chevron-forward" size={30} color="#4cd964" />
+                </Animated.View>
+              </GestureDetector>
+              <Text style={TrackingStyles.slideText}>
+                {order?.status === 'confirmed' ? 'TRƯỢT ĐỂ LẤY HÀNG' : 'TRƯỢT ĐỂ HOÀN TẤT'}
+              </Text>
+            </View>
+          )}
+      </View> */}

@@ -6,7 +6,6 @@ import Animated, {
   useSharedValue, 
   useAnimatedStyle, 
   withSpring,
-  interpolate
 } from 'react-native-reanimated';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');

@@ -1,4 +1,3 @@
-import React from 'react';
 import { ScrollView, View, Text } from 'react-native';
 import ProductItem from './ProductItem';
 import { ProductItemStyles } from '../css/ProductItemStyles';

@@ -11,7 +11,7 @@ import RenderSavedRecipe from '../components/RenderSavedRecipe';
 import useGetSavedRecipe from '../hooks/useGetSavedRecipe';
 
 export default function RecipeHandbook() {
-  const [activeTab, setActiveTab] = useState('saved');
+  const [activeTab, setActiveTab] = useState('mine');
   const [isMenuVisible, setMenuVisible] = useState(false);
   const [selectedRecipe, setSelectedRecipe] = useState<MyRecipeResponse | null>(null);
 
@@ -69,16 +69,16 @@ export default function RecipeHandbook() {
     <View style={RecipeHandBookStyles.container}>
       <View style={RecipeHandBookStyles.tabContainer}>
         <TouchableOpacity 
-          style={[RecipeHandBookStyles.tab, activeTab === 'saved' && RecipeHandBookStyles.activeTab]} 
-          onPress={() => setActiveTab('saved')}
-        >
-          <Text style={[RecipeHandBookStyles.tabText, activeTab === 'saved' && RecipeHandBookStyles.activeTabText]}>Đã lưu</Text>
-        </TouchableOpacity>
-        <TouchableOpacity 
           style={[RecipeHandBookStyles.tab, activeTab === 'mine' && RecipeHandBookStyles.activeTab]} 
           onPress={() => setActiveTab('mine')}
         >
           <Text style={[RecipeHandBookStyles.tabText, activeTab === 'mine' && RecipeHandBookStyles.activeTabText]}>Của tôi</Text>
+        </TouchableOpacity>
+        <TouchableOpacity 
+          style={[RecipeHandBookStyles.tab, activeTab === 'saved' && RecipeHandBookStyles.activeTab]} 
+          onPress={() => setActiveTab('saved')}
+        >
+          <Text style={[RecipeHandBookStyles.tabText, activeTab === 'saved' && RecipeHandBookStyles.activeTabText]}>Đã lưu</Text>
         </TouchableOpacity>
       </View>
 

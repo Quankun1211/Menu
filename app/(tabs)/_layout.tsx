@@ -27,7 +27,6 @@ export default function TabsLayout() {
           headerTitleStyle: {
             fontWeight: 'bold',
             fontSize: 18,
-            // paddingBottom: Platform.OS === 'android' ? 10 : 85,
           },
           tabBarActiveTintColor: '#F26522',
           tabBarInactiveTintColor: '#999',

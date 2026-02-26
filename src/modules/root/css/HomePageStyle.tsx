@@ -116,12 +116,45 @@ export const HomePageStyles = StyleSheet.create({
 // Header
   container: { flex: 1, paddingHorizontal: 15, paddingTop: 0 },
   
-  bannerContainer: { height: 180, marginTop: 0 },
-  bannerImage: { flex: 1, justifyContent: 'flex-end' },
-  bannerOverlay: { padding: 20, backgroundColor: 'rgba(0, 0, 0, 0.01)', borderRadius: 20 },
-  bannerTag: { color: '#F26522', fontWeight: 'bold', fontSize: 12 },
-  bannerTitle: { color: '#fff', fontSize: 24, fontWeight: 'bold' },
-  bannerSubTitle: { color: '#fff', fontSize: 13, opacity: 0.9 },
+  bannerContainer: {
+    height: 200, 
+    marginTop: 0,
+    borderRadius: 20,
+    overflow: 'hidden',
+  },
+  bannerImage: {
+    flex: 1,
+    justifyContent: 'flex-end',
+  },
+  bannerOverlay: {
+    padding: 20,
+    height: '100%', 
+    justifyContent: 'flex-end', 
+  },
+  bannerTag: {
+    color: '#F26522',
+    fontWeight: 'bold',
+    fontSize: 12,
+    textTransform: 'uppercase',
+    marginBottom: 4,
+    textShadowColor: 'rgba(0, 0, 0, 0.75)',
+    textShadowOffset: { width: -1, height: 1 },
+    textShadowRadius: 10
+  },
+  bannerTitle: {
+    color: '#fff',
+    fontSize: 24,
+    fontWeight: 'bold',
+    textShadowColor: 'rgba(0, 0, 0, 0.5)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 5
+  },
+  bannerSubTitle: {
+    color: '#fff',
+    fontSize: 14,
+    opacity: 0.9,
+    fontWeight: '500'
+  },
 
   sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 25, marginBottom: 15 },
   sectionTitle: { fontSize: 18, fontWeight: 'bold', color: '#333' },

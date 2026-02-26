@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, StyleSheet, ImageBackground, TouchableOpacity } from "react-native";
+import { View, Text, ScrollView, ImageBackground } from "react-native";
 import { HomePageStyles } from "../css/HomePageStyle";
 import DiscountProducts from "./DiscountProducts";
 import CategorySection from "./CategorySection";
@@ -7,9 +7,9 @@ import RegionSection from "./RegionSection";
 import ProductSuggestion from "../components/ProductSuggestion";
 import SearchBar from "@/components/ui/SearchBar";
 import ChatBotModal from "./Chatbot";
-import { Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
 import FloatingChatbot from "@/components/common/FloatingModal";
+import LatestProduct from "../components/LatestProduct";
 export default function HomePage() {
   const [chatVisible, setChatVisible] = useState(false);
   return (
@@ -22,22 +22,7 @@ export default function HomePage() {
         style={HomePageStyles.container}
         showsVerticalScrollIndicator={false}
       >
-        <View style={HomePageStyles.bannerContainer}>
-          <ImageBackground
-            source={require("../../../assets/test/banner_home_page.jpg")}
-            style={HomePageStyles.bannerImage}
-            imageStyle={{ borderRadius: 20 }}
-          >
-            <View style={HomePageStyles.bannerOverlay}>
-              <Text style={HomePageStyles.bannerTag}>ĐANG VÀO MÙA</Text>
-              <Text style={HomePageStyles.bannerTitle}>Mùa Vải Thiều</Text>
-              <Text style={HomePageStyles.bannerSubTitle}>
-                Đặc sản Bắc Giang, tươi ngon tận gốc
-              </Text>
-            </View>
-          </ImageBackground>
-        </View>
-
+        <LatestProduct/>
         <CategorySection />
         <RegionSection />
         <PopularSection />
