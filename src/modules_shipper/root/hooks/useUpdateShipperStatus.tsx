@@ -6,16 +6,12 @@ interface UpdateStatusPayload {
 }
 
 const useUpdateShipperStatus = () => {
-    const queryClient = useQueryClient();
     
     const { mutate, isPending, error, isError } = useMutation({
         mutationKey: ["update-status-shipper"],
         mutationFn: ({ isOnline }: UpdateStatusPayload) => {
             return onUpdateShipperStatus(isOnline);
-        },
-        // onSuccess: () => {
-        //     queryClient.invalidateQueries({ queryKey: ["get-order-shipper"] });
-        // }
+        }
     })
     
     return { mutate, isPending, error, isError }

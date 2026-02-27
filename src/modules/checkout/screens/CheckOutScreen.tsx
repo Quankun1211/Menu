@@ -40,7 +40,7 @@ export default function CheckoutScreen({
   const totalAmount = previewRes?.data?.totalAmount ?? 0;
   const userCoupons = Array.isArray(couponsData?.data) ? couponsData.data : [];
 
-  const [paymentMethod, setPaymentMethod] = useState("momo");
+  const [paymentMethod, setPaymentMethod] = useState("cod");
 
   const { data: getAddress, isPending } = useGetAddress();
   const addresses: AddressModel[] = getAddress?.data ?? [];
@@ -182,7 +182,7 @@ export default function CheckoutScreen({
         )}
 
         <Text style={CheckoutStyles.sectionTitle}>Phương thức thanh toán</Text>
-
+{/* 
         <PaymentOption
           id="momo"
           title="Ví MoMo"
@@ -190,7 +190,7 @@ export default function CheckoutScreen({
           icon="https://upload.wikimedia.org/wikipedia/vi/f/fe/MoMo_Logo.png"
           selected={paymentMethod === 'momo'}
           onPress={() => setPaymentMethod('momo')}
-        />
+        /> */}
 
         <PaymentOption
           id="vnpay"

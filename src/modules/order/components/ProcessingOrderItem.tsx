@@ -28,7 +28,7 @@ const ProcessingOrderItem = ({ order }: Props) => {
             </View> */}
           </View>
 
-          <Text style={styles.orderCode}>Đơn hàng #XYZ</Text>
+          <Text style={styles.orderCode}>Đơn hàng #VN-{order._id.slice(-5).toUpperCase()}</Text>
           <Text style={styles.subInfo}>{formatDate(order.createdAt)} • {formatVND(order.totalPrice)}</Text>
 
           <View style={styles.buttonGroup}>

@@ -39,14 +39,15 @@ const CancelledOrderItem = ({ order }: Props) => {
       <View style={styles.body}>
         <Text style={styles.cancelReasonType}>
           HẾT HÀNG
-          {order.cancelledBy === "admin" ? "HẾT HÀNG" : ""}
+          {order.cancelRequest?.isAccepted && order.cancelRequest.reason}
+          {/* {order.cancelledBy === "admin" ? "HẾT HÀNG" : ""} */}
         </Text>
         
-        <Text style={styles.orderCode}>Mã đơn: #XYZ</Text>
+        <Text style={styles.orderCode}>Mã đơn: #VN-{order._id.slice(-5).toUpperCase()}</Text>
         <Text style={styles.subInfo}>{formatDate(order.cancelledAt)} • {formatVND(order.totalPrice)}</Text>
         
         <Text style={styles.reasonText} numberOfLines={2}>
-          Lý do: {order.cancelReason}
+          Lý do: {order.cancelledBy === "user" ? order.cancelReason : (order.cancelRequest?.isAccepted && "HỆ THỐNG - " + order.cancelRequest.reason)}
         </Text>
 
         <View style={styles.footer}>

@@ -12,22 +12,29 @@ import Toast from 'react-native-toast-message';
 import UserAvatar from '@/components/common/Avatar';
 
 export default function ProfileScreen() {
-  const { data: meData } = useGetMe();
-  
-  const { onLogout } = useLogout();
+  const { data: meData, isPending } = useGetMe();
+  const { mutate: logoutMutation } = useLogout();
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [showRewardModal, setShowRewardModal] = useState(false);
   const [showCouponsModal, setShowCouponsModal] = useState(false); 
   const [showRulesModal, setShowRulesModal] = useState(false);
   const [claimedCode, setClaimedCode] = useState<string | null>(null);
+  const isLoggedIn = !!meData?.data;
 
-  const { data: walletData, isPending: isWalletLoading, refetch: refetchWallet } = useGetWallet();
+  const { data: walletData, isPending: isWalletLoading, refetch: refetchWallet } = useGetWallet(isLoggedIn);
   const { mutate: confirmReward, isPending: isConfirming } = useConfirmVoucher();
-  const { data: couponsData, refetch: refetchCoupons } = useGetMyCoupons();
+  const { data: couponsData, refetch: refetchCoupons } = useGetMyCoupons(isLoggedIn);
   
   const wallet = walletData?.data;
   const coupons = Array.isArray(couponsData?.data) ? couponsData.data : [];
-  const isLoggedIn = !!meData?.data;
+
+  // if (isPending) {
+  //   return (
+  //     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+  //       <ActivityIndicator size="large" color="#E25822" />
+  //     </View>
+  //   );
+  // }
 
   const handleClaimReward = () => {
     confirmReward(undefined, {
@@ -80,7 +87,7 @@ export default function ProfileScreen() {
               <View style={{ marginTop: 15, alignItems: 'center' }}>
                 <Text style={[ProfileStyles.userName, { marginBottom: 10 }]}>Chào mừng bạn!</Text>
                 <View style={{ flexDirection: 'row', gap: 10 }}>
-                  <TouchableOpacity onPress={() => router.push('/(auth)/login' as any)} style={{ backgroundColor: '#E25822', paddingHorizontal: 20, paddingVertical: 8, borderRadius: 20 }}>
+                  <TouchableOpacity onPress={() => router.push('/(auth)/login')} style={{ backgroundColor: '#E25822', paddingHorizontal: 20, paddingVertical: 8, borderRadius: 20 }}>
                     <Text style={{ color: '#fff', fontWeight: 'bold' }}>Đăng nhập</Text>
                   </TouchableOpacity>
                   <TouchableOpacity onPress={() => router.push('/(auth)/register' as any)} style={{ borderWidth: 1, borderColor: '#E25822', paddingHorizontal: 20, paddingVertical: 8, borderRadius: 20 }}>
@@ -144,7 +151,7 @@ export default function ProfileScreen() {
               <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                 {item.id === 'coupons' && coupons.length > 0 && (
                    <View style={{ backgroundColor: '#E25822', borderRadius: 10, paddingHorizontal: 6, marginRight: 5 }}>
-                      <Text style={{ color: '#FFF', fontSize: 10, fontWeight: 'bold' }}>{coupons.length}</Text>
+                     <Text style={{ color: '#FFF', fontSize: 10, fontWeight: 'bold' }}>{coupons.length}</Text>
                    </View>
                 )}
                 <Ionicons name="chevron-forward" size={20} color="#CCC" />
@@ -246,8 +253,6 @@ export default function ProfileScreen() {
       <Modal visible={showCouponsModal} transparent animationType="slide">
         <View style={ProfileStyles.modalOverlayBottom}>
           <View style={ProfileStyles.modalSheet}>
-            
-            {/* Header */}
             <View style={ProfileStyles.modalHeader}>
               <View>
                 <Text style={ProfileStyles.modalTitleText}>Kho Voucher của tôi</Text>
@@ -260,15 +265,12 @@ export default function ProfileScreen() {
               </TouchableOpacity>
             </View>
 
-            {/* List */}
             <ScrollView 
               showsVerticalScrollIndicator={false}
               contentContainerStyle={ProfileStyles.couponListContent}
             >
               {coupons.length > 0 ? coupons.map((item: any) => (
                 <View key={item._id} style={ProfileStyles.couponItemCard}>
-                  
-                  
                   <View style={ProfileStyles.couponLeftSection}>
                     <MaterialCommunityIcons name="ticket-percent" size={32} color="#FFF" />
                     <View style={ProfileStyles.couponStepContainer}>
@@ -277,8 +279,6 @@ export default function ProfileScreen() {
                       ))}
                     </View>
                   </View>
-
-               
                   <View style={ProfileStyles.couponMiddleSection}>
                     <Text style={ProfileStyles.couponValueText} numberOfLines={1}>
                       Giảm {item.couponId?.value?.toLocaleString()}đ
@@ -290,8 +290,6 @@ export default function ProfileScreen() {
                       HSD: {new Date(item.couponId?.endDate).toLocaleDateString('vi-VN')}
                     </Text>
                   </View>
-
-                
                   <TouchableOpacity 
                     onPress={() => copyToClipboard(item.couponId?.code)}
                     style={ProfileStyles.couponCopyBtn}
@@ -299,7 +297,6 @@ export default function ProfileScreen() {
                     <Ionicons name="copy" size={18} color="#E25822" />
                     <Text style={ProfileStyles.couponCopyText}>Sao chép</Text>
                   </TouchableOpacity>
-                  
                 </View>
               )) : (
                 <View style={ProfileStyles.emptyStateContainer}>
@@ -318,7 +315,6 @@ export default function ProfileScreen() {
             <TouchableOpacity style={ProfileStyles.closeModalBtn} onPress={() => { setShowRewardModal(false); setClaimedCode(null); }}>
                 <Ionicons name="close" size={24} color="#CCC" />
             </TouchableOpacity>
-
             {!claimedCode ? (
               <>
                 <View style={[ProfileStyles.iconContainer, { backgroundColor: '#FFF9F0' }]}>
@@ -326,11 +322,9 @@ export default function ProfileScreen() {
                 </View>
                 <Text style={ProfileStyles.modalTitle}>Chúc mừng cấp {wallet?.level}!</Text>
                 <Text style={ProfileStyles.modalSubTitle}>{wallet?.milestoneReward?.description}</Text>
-                
                 <View style={ProfileStyles.rewardBox}>
                   <Text style={ProfileStyles.rewardText}>🎁 Voucher giảm {wallet?.milestoneReward?.bonusBalance.toLocaleString()}đ</Text>
                 </View>
-
                 <TouchableOpacity 
                   style={[ProfileStyles.confirmButton, isConfirming && { opacity: 0.7 }]} 
                   onPress={handleClaimReward}
@@ -360,7 +354,6 @@ export default function ProfileScreen() {
         </View>
       </Modal>
 
-      {/* Modal Logout (Giữ nguyên) */}
       <Modal visible={showLogoutModal} transparent animationType="fade">
         <View style={ProfileStyles.modalOverlay}>
           <View style={ProfileStyles.modalContent}>
@@ -368,7 +361,7 @@ export default function ProfileScreen() {
             <Text style={ProfileStyles.modalTitle}>Xác nhận đăng xuất</Text>
             <View style={ProfileStyles.buttonGroup}>
               <TouchableOpacity style={ProfileStyles.cancelButton} onPress={() => setShowLogoutModal(false)}><Text style={ProfileStyles.cancelButtonText}>Hủy</Text></TouchableOpacity>
-              <TouchableOpacity style={ProfileStyles.confirmButton} onPress={() => { setShowLogoutModal(false); onLogout(); }}><Text style={ProfileStyles.confirmButtonText}>Đăng xuất</Text></TouchableOpacity>
+              <TouchableOpacity style={ProfileStyles.confirmButton} onPress={() => { setShowLogoutModal(false); logoutMutation(); }}><Text style={ProfileStyles.confirmButtonText}>Đăng xuất</Text></TouchableOpacity>
             </View>
           </View>
         </View>

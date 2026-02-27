@@ -1,4 +1,4 @@
-import { Stack, router } from "expo-router";
+import { Stack, router, useSegments } from "expo-router";
 import * as NavigationBar from 'expo-navigation-bar';
 import { NavigationBarBehavior } from "expo-navigation-bar";
 import { Platform } from 'react-native';
@@ -11,9 +11,9 @@ import Toast, { BaseToast, ErrorToast } from 'react-native-toast-message';
 
 export default function RootLayout() {
   const [queryClient] = useState(() => new QueryClient());
+  const segments = useSegments();
   const { loading, initAuth, role } = useAuthStore();
-  const [isReady, setIsReady] = useState(false);
-  console.log(role);
+  // const [isReady, setIsReady] = useState(false);
 
   const toastConfig = {
     success: (props: any) => (
@@ -40,32 +40,23 @@ export default function RootLayout() {
   }, []);
 
   useEffect(() => {
-    if (!loading && !isReady) {
-      if (role === 'shipper') {
-        router.replace("/(shipper)/dashboard_shipper");
-      } else {
-        router.replace("/(tabs)");
-      }
-      setIsReady(true);
-    }
-  }, [loading, isReady, role]);
+  if (loading) return;
 
-  useEffect(() => {
-    if (Platform.OS === 'android') {
-      const setupSystemUI = async () => {
-        try {
-          await NavigationBar.setPositionAsync('relative');
-          await NavigationBar.setVisibilityAsync("visible");
-          await NavigationBar.setBehaviorAsync('overlay' as NavigationBarBehavior);
-          await NavigationBar.setBackgroundColorAsync('#ffffff');
-          await NavigationBar.setButtonStyleAsync("dark");
-        } catch (e) {
-          console.log("Lỗi SystemUI:", e);
-        }
-      };
-      setupSystemUI();
+  const rootSegment = segments[0];
+
+  const shipperAllowedGroups = ['(shipper)', '(shipper_details)'];
+  const userAllowedGroups = ['(tabs)', '(auth)', '(details)'];
+
+  if (role === 'shipper') {
+    if (!shipperAllowedGroups.includes(rootSegment)) {
+      router.replace("/(shipper)/dashboard_shipper");
     }
-  }, []);
+  } else {
+    if (!userAllowedGroups.includes(rootSegment)) {
+      router.replace("/(tabs)");
+    }
+  }
+}, [loading, role, segments]);
 
   if (loading) return null;
  

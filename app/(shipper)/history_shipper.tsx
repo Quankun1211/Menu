@@ -1,11 +1,8 @@
-import React from 'react'
-import { Text, View } from 'react-native'
+import OrderHistoryScreen from '@/modules_shipper/root/screens/OrderHistoryScreen'
 
 const HistoryShipper = () => {
   return (
-    <View>
-        <Text>history</Text>
-    </View>
+    <OrderHistoryScreen/>
   )
 }
 

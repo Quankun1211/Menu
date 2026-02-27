@@ -1,15 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
 import { onGetWallet } from "../services/api";
 
-const useGetWallet = () => {
-  const { data, isPending, error, isError, refetch } = useQuery({
+const useGetWallet = (isEnabled = true) => {
+  return useQuery({
     queryKey: ["get-wallet"],
-    queryFn: () => {
-        return onGetWallet()
-    }
+    queryFn: () => onGetWallet(),
+    enabled: isEnabled, 
+    retry: false, 
   });
-
-  return { data, isPending, error, isError, refetch };
 };
 
 export default useGetWallet;

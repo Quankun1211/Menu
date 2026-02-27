@@ -15,7 +15,6 @@ const Tab = createMaterialTopTabNavigator();
 export default function OrdersScreen() {
   const { data: meData, isPending: mePending } = useGetMe();
   const isLoggedIn = !!meData?.data;
-  
 
   const { data, isPending } = useGetMyOrders(isLoggedIn);
 

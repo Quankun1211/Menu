@@ -7,6 +7,7 @@ import { useRouter } from 'expo-router';
 import Constants from 'expo-constants';
 import polyline from '@mapbox/polyline';
 import { useQueryClient } from '@tanstack/react-query';
+import { io } from "socket.io-client";
 
 import useGetOrderDetail from '@/modules/order/hooks/useGetOrderDetail';
 import useUpdateStatusShipper from '../hooks/useUpdateStatus';
@@ -14,6 +15,7 @@ import { DashboardStyles } from '../css/DashboardStyles';
 import { TrackingStyles } from '../css/TrackingStyles';
 import TrackingInforModal from '../components/TrackingInforModal';
 import InformationTracking from '../components/InformationTracking';
+import useUpdateLocation from '../hooks/useUpdateLocation';
 
 const GOONG_API_KEY = Constants.expoConfig?.extra?.apiGetMapKey;
 
@@ -25,6 +27,7 @@ export default function TrackingScreen({ orderId: initialOrderId }: TrackingOrde
   const router = useRouter();
   const mapRef = useRef<MapView>(null);
   const queryClient = useQueryClient();
+  const socket = useRef<any>(null);
   
   const orderId = useMemo(() => initialOrderId, []);
 
@@ -36,8 +39,26 @@ export default function TrackingScreen({ orderId: initialOrderId }: TrackingOrde
   
   const { data: orderResponse, refetch } = useGetOrderDetail(orderId);
   const { mutate: updateStatus, isPending: isUpdating } = useUpdateStatusShipper();
+  const { mutate: updateLocation, isPending: isLocation } = useUpdateLocation()
 
   const order = orderResponse?.data;
+
+  useEffect(() => {
+    socket.current = io("http://192.168.1.3:5000");
+    socket.current.emit("join_order", orderId);
+    return () => {
+      socket.current.disconnect();
+    };
+  }, [orderId]);
+
+  const handleManualUpdate = async () => {
+    if (!location) return;
+    console.log(orderId);
+    console.log(location.coords.latitude);
+    console.log(location.coords.longitude);
+    
+    updateLocation({orderId, latitude: location.coords.latitude, longitude: location.coords.longitude})
+  };
 
   const isCancelledState = useMemo(() => 
     order?.status === "cancelled" || order?.status === "pending_cancel", 
@@ -123,7 +144,7 @@ export default function TrackingScreen({ orderId: initialOrderId }: TrackingOrde
             }
           }
         } catch (error) {
-          console.error("TrackingScreen Error:", error);
+          console.error(error);
         }
       }
     };
@@ -218,6 +239,28 @@ export default function TrackingScreen({ orderId: initialOrderId }: TrackingOrde
           style={{
             position: 'absolute',
             right: 20,
+            bottom: 380, 
+            backgroundColor: '#4CAF50',
+            width: 50,
+            height: 50,
+            borderRadius: 25,
+            justifyContent: 'center',
+            alignItems: 'center',
+            elevation: 5,
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.2,
+            shadowRadius: 5
+          }}
+          onPress={handleManualUpdate}
+        >
+          <MaterialCommunityIcons name="map" size={24} color="#fff" />
+        </TouchableOpacity>
+
+        <TouchableOpacity 
+          style={{
+            position: 'absolute',
+            right: 20,
             bottom: 320, 
             backgroundColor: 'white',
             width: 50,
@@ -261,13 +304,13 @@ export default function TrackingScreen({ orderId: initialOrderId }: TrackingOrde
       </View>
       {order && (
           <InformationTracking 
-              order={order} 
-              handleNextStep={handleNextStep} 
-              isCancelledState={isCancelledState} 
-              isInactive={isInactive} 
-              isUpdating={isUpdating} 
-              setShowOrderModal={setShowOrderModal}
-              statusConfig={statusConfig} 
+            order={order} 
+            handleNextStep={handleNextStep} 
+            isCancelledState={isCancelledState} 
+            isInactive={isInactive} 
+            isUpdating={isUpdating} 
+            setShowOrderModal={setShowOrderModal}
+            statusConfig={statusConfig} 
           />
       )}
 

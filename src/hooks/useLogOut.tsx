@@ -7,24 +7,18 @@ const useLogout = () => {
     const queryClient = useQueryClient();
     const { logout } = useAuthStore();
 
-    const { data, error, isPending, isError, mutate } = useMutation({
+    return useMutation({
         mutationKey: ["logout"],
         mutationFn: onLogoutApi,
         onSuccess: async () => {
             await logout();
-
             await removeRefreshToken();
-
             queryClient.clear();
-            
-            console.log("Logout successfully");
         },
         onError: (err) => {
-            console.error("Logout failed:", err);
+            console.error(err);
         }
     });
-
-    return { data, error, isPending, isError, onLogout: mutate };
 };
 
 export default useLogout;

@@ -46,15 +46,6 @@ export default function TabsLayout() {
           }}
         />
         <Tabs.Screen
-          name="wallet_shipper"
-          options={{
-            title: "Ví tiền", 
-            tabBarIcon: ({ color, focused }) => (
-              <Ionicons name={focused ? "wallet" : "wallet-outline"} size={24} color={color} />
-            ),
-          }}
-        />
-        <Tabs.Screen
           name="profile_shipper"
           options={{
             title: "Cá nhân", 

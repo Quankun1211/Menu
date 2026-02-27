@@ -1,10 +1,11 @@
 import { View, Text } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { OrderItemStyles } from "../css/OrderItemStyles";
-import { formatStepTime } from "@/utils/helper";
+import { formatDate, formatStepTime } from "@/utils/helper";
+import { OrderResponse } from "../types/api-response";
 interface DeliveryStatusProps {
   currentStatus: string;
-  orderData: any; 
+  orderData: OrderResponse; 
 }
 
 const DeliveryStatus = ({ currentStatus, orderData }: DeliveryStatusProps) => {
@@ -28,12 +29,12 @@ const DeliveryStatus = ({ currentStatus, orderData }: DeliveryStatusProps) => {
   const steps = [
     { 
       title: 'Đơn hàng đã đặt', 
-      time: formatStepTime(orderData?.createdAt), 
+      time: formatDate(orderData?.createdAt) + " - " + formatStepTime(orderData?.createdAt), 
       icon: 'basket' as const 
     },
     { 
       title: 'Đang chuẩn bị hàng', 
-      time: formatStepTime(orderData?.confirmedAt || orderData?.updatedAt), 
+      time: formatStepTime(orderData?.shippedAt || orderData?.updatedAt), 
       icon: 'restaurant' as const 
     },
     { 
@@ -44,7 +45,7 @@ const DeliveryStatus = ({ currentStatus, orderData }: DeliveryStatusProps) => {
     },
     { 
       title: 'Đã giao thành công', 
-      time: formatStepTime(orderData?.deliveredAt), 
+      time: formatDate(orderData?.deliveredAt) + " - " + formatStepTime(orderData?.deliveredAt), 
       icon: 'home' as const 
     },
   ];

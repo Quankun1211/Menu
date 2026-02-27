@@ -6,6 +6,7 @@ export type OrderResponse = {
   couponCode: string | null;
   couponDiscount: number;
   totalPrice: number;
+  itemsForRebuy: OrderProductResponse[],
   status:
     | "pending"
     | "confirmed"
@@ -26,12 +27,18 @@ export type OrderResponse = {
   paymentUrl?: string;
   paymentStatus: string;
   shipperId?: string;
+  shippedAt: string,
+  deliveredAt: string,
   cancelRequest?: {
     reason: string;
     requestedAt: string;
     adminNote?: string;
     isAccepted: boolean;
   };
+  customer: {
+    _id: string,
+    name: string
+  }
 };
 
 export type OrderProductResponse = {
@@ -56,6 +63,11 @@ export type OrderDetailResponse = {
   createdAt: string,
   paymentStatus: string;
   paidAt: Date;
-  paymentMethod: string
+  paymentMethod: string;
+  lastKnownLocation: {
+    latitude: number,
+    longitude: number
+  },
+  deliveredAt: Date
 }
   

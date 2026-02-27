@@ -1,11 +1,10 @@
+import AccountScreen from '@/modules_shipper/root/screens/AccountScreen'
 import React from 'react'
 import { Text, View } from 'react-native'
 
 const ProfileShipper = () => {
   return (
-    <View>
-        <Text>profile</Text>
-    </View>
+    <AccountScreen/>
   )
 }
 

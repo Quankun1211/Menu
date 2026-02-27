@@ -1,23 +1,87 @@
-import { ScrollView, View, Text, Image, TouchableOpacity, ActivityIndicator } from "react-native";
+import { ScrollView, View, Text, ActivityIndicator, TouchableOpacity, StyleSheet } from "react-native";
+import MapView, { Marker } from "react-native-maps";
+import * as Location from "expo-location";
+import { useEffect, useRef, useState } from "react";
 import DeliveryStatus from "../components/DeliveryStatus";
 import { Ionicons } from "@expo/vector-icons";
 import OrderItemDetail from "../components/OrderItemDetail";
 import { OrderItemStyles } from "../css/OrderItemStyles";
 import useGetOrderDetail from "../hooks/useGetOrderDetail";
 import { formatVND } from "@/utils/helper";
-import { useState } from "react";
 import { CancelOrderModal } from "@/components/common/CancelModal";
 import useCancelOrder from "../hooks/useCancelOrder";
+import Constants from 'expo-constants';
+import { DashboardStyles } from "@/modules_shipper/root/css/DashboardStyles";
 
 type OrderProps = {
   orderId?: string;
 };
 
 export default function OrderDetailScreen({ orderId }: OrderProps) {
+  const mapRef = useRef<MapView>(null);
+  const [isMapReady, setIsMapReady] = useState(false);
   const { data, isPending } = useGetOrderDetail(orderId);
   const [isModalVisible, setModalVisible] = useState(false);
+  const [mapRegion, setMapRegion] = useState<any>(null);
+  const [loadingMap, setLoadingMap] = useState(true);
+  const [shipperCoords, setShipperCoords] = useState<any>(null);
 
   const { mutate: cancelOrder, isPending: cancelPending } = useCancelOrder();
+
+  const order = data?.data;
+  const status = order?.status ?? "pending";
+
+  useEffect(() => {
+    if (order?.lastKnownLocation) {
+      setShipperCoords({
+        latitude: order.lastKnownLocation.latitude,
+        longitude: order.lastKnownLocation.longitude,
+      });
+    }
+  }, [order]);
+
+  useEffect(() => {
+    const geocodeAddress = async () => {
+      const address = order?.address?.address;
+      if (address) {
+        try {
+          const result = await Location.geocodeAsync(address);
+          if (result && result.length > 0) {
+            setMapRegion({
+              latitude: result[0].latitude,
+              longitude: result[0].longitude,
+              latitudeDelta: 0.005,
+              longitudeDelta: 0.005,
+            });
+          }
+        } catch (error) {
+          console.error(error);
+        } finally {
+          setLoadingMap(false);
+        }
+      } else {
+        setLoadingMap(false);
+      }
+    };
+    if (order) {
+      geocodeAddress();
+    }
+  }, [order]);
+
+  useEffect(() => {
+    if (isMapReady && mapRef.current && mapRegion && status === "shipping" && shipperCoords) {
+      mapRef.current.fitToCoordinates(
+        [
+          { latitude: mapRegion.latitude, longitude: mapRegion.longitude },
+          shipperCoords
+        ],
+        {
+          edgePadding: { top: 50, right: 50, bottom: 50, left: 50 },
+          animated: true,
+        }
+      );
+    }
+  }, [isMapReady, shipperCoords, mapRegion, status]);
 
   const getBannerInfo = (status: string, paymentStatus?: string) => {
     if (paymentStatus === "refunded") {
@@ -28,7 +92,6 @@ export default function OrderDetailScreen({ orderId }: OrderProps) {
         color: "#4CAF50",
       };
     }
-
     switch (status) {
       case "delivered":
         return { title: "Giao hàng thành công", sub: "Đơn hàng đã được giao", icon: "checkmark-circle", color: "#F26522" };
@@ -58,10 +121,8 @@ export default function OrderDetailScreen({ orderId }: OrderProps) {
     );
   }
 
-  const order = data?.data;
   if (!order) return null;
 
-  const status = order.status ?? "pending";
   const banner = getBannerInfo(status, order.paymentStatus);
 
   return (
@@ -77,21 +138,8 @@ export default function OrderDetailScreen({ orderId }: OrderProps) {
           </View>
         </View>
 
-        <DeliveryStatus currentStatus={status} orderData={order} />
-
-        {order.paymentStatus === "refunded" && (
-          <View style={[OrderItemStyles.sectionCard, { borderColor: "#B7EB8F", borderWidth: 1, backgroundColor: "#F6FFED" }]}>
-            <View style={{ flexDirection: "row", alignItems: "center" }}>
-              <Ionicons name="information-circle" size={20} color="#52C41A" />
-              <Text style={{ marginLeft: 8, color: "#52C41A", fontWeight: "bold" }}>Thông tin hoàn tiền</Text>
-            </View>
-            <Text style={{ marginTop: 5, fontSize: 13, color: "#666", lineHeight: 18 }}>
-              Hệ thống đã thực hiện hoàn trả {formatVND(order.totalPrice)} về tài khoản của bạn qua cổng VNPAY. 
-              Tiền sẽ được ghi nhận trong vòng 3-5 ngày làm việc tùy thuộc vào ngân hàng.
-            </Text>
-          </View>
-        )}
-
+        <DeliveryStatus currentStatus={status} orderData={order as any} />
+        
         <View style={OrderItemStyles.sectionCard}>
           <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 10 }}>
             <View style={OrderItemStyles.locationCircle}>
@@ -103,7 +151,77 @@ export default function OrderDetailScreen({ orderId }: OrderProps) {
               </Text>
             </View>
           </View>
-          <Image source={require("../../../assets/test/origin.jpg")} style={OrderItemStyles.mapSnippet} />
+
+          {loadingMap ? (
+            <ActivityIndicator style={OrderItemStyles.mapSnippet} />
+          ) : mapRegion ? (
+            <View style={{ position: 'relative' }}>
+              <MapView
+                ref={mapRef}
+                onMapReady={() => setIsMapReady(true)}
+                style={[OrderItemStyles.mapSnippet, { borderRadius: 12 }]}
+                initialRegion={mapRegion}
+                scrollEnabled={status !== "delivered"}
+                zoomEnabled={status !== "delivered"}
+                rotateEnabled={status !== "delivered"}
+                pitchEnabled={status !== "delivered"}
+                scrollDuringRotateOrZoomEnabled={status !== "delivered"}
+              >
+                <Marker 
+                  coordinate={{ latitude: mapRegion.latitude, longitude: mapRegion.longitude }}
+                >
+                  <View style={DashboardStyles.customerMarker}>
+                    <View style={DashboardStyles.customerDot} />
+                  </View>
+                </Marker>
+
+                {shipperCoords && typeof shipperCoords.latitude === 'number' && typeof shipperCoords.longitude === 'number' && (
+                  <Marker
+                    coordinate={shipperCoords}
+                  >
+                    <View style={DashboardStyles.shipperMarker}>
+                      <View style={DashboardStyles.shipperDot} />
+                    </View>
+                  </Marker>
+                )}
+              </MapView>
+              
+              {status === "delivered" && (
+                <View style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    backgroundColor: 'rgba(255, 255, 255, 0.4)',
+                    borderRadius: 12,
+                    justifyContent: 'center',
+                    alignItems: 'center'
+                }}>
+                    <Text style={{ color: '#888', fontWeight: 'bold', backgroundColor: '#fff', padding: 8, borderRadius: 8 }}>Đơn hàng đã hoàn tất</Text>
+                </View>
+              )}
+
+              <View style={{ flexDirection: 'row', justifyContent: 'center', marginTop: 12, marginBottom: 5 }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', marginHorizontal: 10 }}>
+                  <View style={DashboardStyles.customerMarker}>
+                    <View style={DashboardStyles.customerDot} />
+                  </View>
+                  <Text style={{ marginLeft: 6, fontSize: 12, color: '#666' }}>Địa chỉ giao</Text>
+                </View>
+                <View style={{ flexDirection: 'row', alignItems: 'center', marginHorizontal: 10 }}>
+                  <View style={DashboardStyles.shipperMarker}>
+                      <View style={DashboardStyles.shipperDot} />
+                    </View>
+                  <Text style={{ marginLeft: 6, fontSize: 12, color: '#666' }}>Shipper</Text>
+                </View>
+              </View>
+            </View>
+          ) : (
+            <View style={[OrderItemStyles.mapSnippet, { justifyContent: 'center', alignItems: 'center', backgroundColor: '#f0f0f0' }]}>
+                <Text>Không tải được bản đồ</Text>
+            </View>
+          )}
         </View>
 
         <View style={OrderItemStyles.sectionCard}>
@@ -139,7 +257,9 @@ export default function OrderDetailScreen({ orderId }: OrderProps) {
               Thanh toán: {order.paymentMethod?.toUpperCase()}
             </Text>
             <Text style={[OrderItemStyles.paidText, order.paymentStatus === "refunded" && { color: "#52C41A" }]}>
-              {order.paymentStatus === "refunded" ? "ĐÃ HOÀN TIỀN" : "ĐÃ THANH TOÁN"}
+              {order.paymentStatus === "refunded" && "ĐÃ HOÀN TIỀN"}
+              {order.paymentStatus === "pending" && "CHƯA THANH TOÁN"}
+              {order.paymentStatus === "paid" && "ĐÃ THANH TOÁN"}
             </Text>
           </View>
         </View>

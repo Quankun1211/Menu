@@ -9,6 +9,13 @@ export const onGetOrderShipperApi = async (): Promise<
   return data;
 };
 
+export const onGetAllOrderShipperApi = async (): Promise<
+  BackendResponse<OrderResponse[]>
+> => {
+  const { data } = await api.get("/shipper/all-orders");
+  return data;
+};
+
 export const onUpdateStatusOrderApi = async (
   orderId: string, 
   nextStatus: string
@@ -24,5 +31,10 @@ export const onCancelOrderApi = async (orderId: string, reason: string): Promise
 
 export const onUpdateShipperStatus = async (isOnline: boolean) => {
   const { data } = await api.put("/shipper/update-online", {isOnline})
+  return data
+}
+
+export const onUpdateShipperLocation = async (orderId: string, latitude: number, longitude: number) => {
+  const { data } = await api.put("/shipper/update-location", { orderId, latitude, longitude })
   return data
 }
