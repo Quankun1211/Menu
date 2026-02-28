@@ -16,6 +16,9 @@ const ShippingOrders = ({ orders }: Props) => {
       contentContainerStyle={{ padding: 16 }}
       ListFooterComponent={() => (
         <View style={{ marginTop: 8 }}>
+          {orders.length === 0 && (
+            <Text style={OrderStyles.footerText}>QUÝ KHÁCH CHƯA CÓ ĐƠN HÀNG NÀO</Text>
+          )}
           <View style={[OrderStyles.noteBox, { backgroundColor: '#F0F9FF', borderColor: '#BAE7FF' }]}>
             <Ionicons name="shield-checkmark-outline" size={20} color="#1890FF" />
             <Text style={[OrderStyles.noteText, { color: '#003A8C' }]}>

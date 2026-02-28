@@ -16,6 +16,9 @@ const ProcessingOrders = ({ orders }: Props) => {
       contentContainerStyle={{ padding: 16 }}
       ListFooterComponent={() => (
         <View>
+          {orders.length === 0 && (
+            <Text style={OrderStyles.footerText}>QUÝ KHÁCH CHƯA CÓ ĐƠN HÀNG NÀO</Text>
+          )}
           <View style={OrderStyles.noteBox}>
             <Ionicons name="information-circle" size={20} color="#F26522" />
             <Text style={OrderStyles.noteText}>

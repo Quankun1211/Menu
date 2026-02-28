@@ -45,7 +45,7 @@ const DeliveryStatus = ({ currentStatus, orderData }: DeliveryStatusProps) => {
     },
     { 
       title: 'Đã giao thành công', 
-      time: formatDate(orderData?.deliveredAt) + " - " + formatStepTime(orderData?.deliveredAt), 
+      time:  orderData?.deliveredAt && (formatDate(orderData?.deliveredAt) + " - " + formatStepTime(orderData?.deliveredAt)), 
       icon: 'home' as const 
     },
   ];
@@ -84,7 +84,6 @@ const DeliveryStatus = ({ currentStatus, orderData }: DeliveryStatusProps) => {
                 {step.title}
               </Text>
               
-              {/* Hiển thị thời gian nếu bước đó đã hoàn thành hoặc đang hoạt động */}
               {step.time ? (
                 <Text style={OrderItemStyles.stepTime}>{step.time}</Text>
               ) : (

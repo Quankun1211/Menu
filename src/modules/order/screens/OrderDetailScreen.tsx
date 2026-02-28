@@ -10,7 +10,6 @@ import useGetOrderDetail from "../hooks/useGetOrderDetail";
 import { formatVND } from "@/utils/helper";
 import { CancelOrderModal } from "@/components/common/CancelModal";
 import useCancelOrder from "../hooks/useCancelOrder";
-import Constants from 'expo-constants';
 import { DashboardStyles } from "@/modules_shipper/root/css/DashboardStyles";
 
 type OrderProps = {
@@ -161,11 +160,11 @@ export default function OrderDetailScreen({ orderId }: OrderProps) {
                 onMapReady={() => setIsMapReady(true)}
                 style={[OrderItemStyles.mapSnippet, { borderRadius: 12 }]}
                 initialRegion={mapRegion}
-                scrollEnabled={status !== "delivered"}
-                zoomEnabled={status !== "delivered"}
-                rotateEnabled={status !== "delivered"}
-                pitchEnabled={status !== "delivered"}
-                scrollDuringRotateOrZoomEnabled={status !== "delivered"}
+                scrollEnabled={false}
+                zoomEnabled={false}
+                rotateEnabled={false}
+                pitchEnabled={false}
+                scrollDuringRotateOrZoomEnabled={false}
               >
                 <Marker 
                   coordinate={{ latitude: mapRegion.latitude, longitude: mapRegion.longitude }}

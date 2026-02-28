@@ -9,6 +9,7 @@ import AllOrders from './AllOrder';
 import ProcessingOrders from './ProcessingOrder';
 import ShippingOrders from './ShippingOrder';
 import CancelledOrders from './CancelledOrder';
+import CompletedOrders from './CompletedOrders';
 
 const Tab = createMaterialTopTabNavigator();
 
@@ -56,6 +57,10 @@ export default function OrdersScreen() {
           {() => <AllOrders orders={orders} />}
         </Tab.Screen>
         
+        <Tab.Screen name="Hoàn thành">
+          {() => <CompletedOrders orders={orders.filter(o => o.status === 'delivered')} />}
+        </Tab.Screen>
+
         <Tab.Screen name="Đang xử lý">
           {() => <ProcessingOrders orders={orders.filter(o => o.status === 'pending')} />}
         </Tab.Screen>
@@ -63,7 +68,7 @@ export default function OrdersScreen() {
         <Tab.Screen name="Đang giao">
           {() => <ShippingOrders orders={orders.filter(o => o.status === 'shipping')} />}
         </Tab.Screen>
-        
+
         <Tab.Screen name="Đã hủy">
           {() => <CancelledOrders orders={orders.filter(o => o.status === 'cancelled')} />}
         </Tab.Screen>

@@ -226,5 +226,15 @@ export const CheckoutStyles = StyleSheet.create({
     alignItems: 'center',
     borderWidth: 1,
     borderColor: '#ddd'
-  }
+  },
+  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center' },
+  modalContent: { width: '85%', backgroundColor: '#fff', padding: 20, borderRadius: 15, alignItems: 'center' },
+  modalTitle: { fontSize: 18, fontWeight: 'bold', marginBottom: 15 },
+  modalText: { fontSize: 16, textAlign: 'center', marginBottom: 25, color: '#333' },
+  modalButtons: { flexDirection: 'row', width: '100%', justifyContent: 'space-between' },
+  btn: { flex: 1, paddingVertical: 12, borderRadius: 8, alignItems: 'center' },
+  cancelBtn: { backgroundColor: '#f0f0f0', marginRight: 10 },
+  confirmBtn: { backgroundColor: '#F26522' },
+  cancelText: { fontWeight: 'bold', color: '#333' },
+  confirmText: { fontWeight: 'bold', color: '#fff' }
 });

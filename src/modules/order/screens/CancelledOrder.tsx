@@ -16,6 +16,9 @@ const CancelledOrders = ({ orders }: Props) => {
       contentContainerStyle={{ padding: 16 }}
       ListFooterComponent={() => (
         <View style={{ marginTop: 8 }}>
+          {orders.length === 0 && (
+            <Text style={OrderStyles.footerText}>QUÝ KHÁCH CHƯA CÓ ĐƠN HÀNG NÀO</Text>
+          )}
           <View style={[OrderStyles.noteBox, { backgroundColor: '#F6FFED', borderColor: '#B7EB8F' }]}>
             <Ionicons name="refresh-circle-outline" size={20} color="#52C41A" />
             <Text style={[OrderStyles.noteText, { color: '#237804' }]}>

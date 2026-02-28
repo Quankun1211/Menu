@@ -44,7 +44,14 @@ export const OrderStyles = StyleSheet.create({
   subInfo: {
     fontSize: 13,
     color: '#777',
-    marginBottom: 12,
+    marginBottom: 5,
+    marginLeft: 5
+  },
+  subInfoChild: {
+    fontSize: 13,
+    color: '#777',
+    marginBottom: 8,
+    marginLeft: 5
   },
   productImage: {
     width: 100,
@@ -148,6 +155,7 @@ export const OrderStyles = StyleSheet.create({
     marginBottom: 20,
   },
   footerText: {
+    textAlign: "center",
     letterSpacing: 2,
     fontSize: 12,
     color: '#DDD',

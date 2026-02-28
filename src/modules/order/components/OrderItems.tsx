@@ -4,7 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { OrderStyles } from '../css/OrderStyles';
 import { router } from "expo-router";
 import { OrderResponse } from '../types/api-response';
-import { formatDate, formatVND } from '@/utils/helper';
+import { formatDate, formatStepTime, formatVND } from '@/utils/helper';
 
 interface OrderItemProps {
   order: OrderResponse;
@@ -54,7 +54,8 @@ const OrderItem = ({ order }: OrderItemProps) => {
           </View>
 
           <Text style={OrderStyles.orderCode}>Đơn hàng #VN-{order._id.slice(-5).toUpperCase()}</Text>
-          <Text style={OrderStyles.subInfo}>{formatDate(order.createdAt)} • {formatVND(order.totalPrice)}</Text>
+          <Text style={OrderStyles.subInfo}>{formatDate(order.createdAt)} • {formatStepTime(order.createdAt)}</Text>
+          <Text style={OrderStyles.subInfoChild}>{formatVND(order.totalPrice)}</Text>
 
           <View style={OrderStyles.buttonGroup}>
             {(order.status === 'pending' || order.status === 'confirmed') && (

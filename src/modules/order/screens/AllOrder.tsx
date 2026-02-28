@@ -16,7 +16,13 @@ const AllOrders = ({ orders }: Props) => {
       contentContainerStyle={{ padding: 16 }}
       ListFooterComponent={() => (
         <View style={OrderStyles.footer}>
-          <Text style={OrderStyles.footerText}>CẢM ƠN QUÝ KHÁCH</Text>
+          {orders.length === 0 ? 
+            (
+              <Text style={OrderStyles.footerText}>QUÝ KHÁCH CHƯA CÓ ĐƠN HÀNG NÀO</Text>
+            ) : (
+              <Text style={OrderStyles.footerText}>CẢM ƠN QUÝ KHÁCH</Text>
+            ) 
+        }
         </View>
       )}
     />

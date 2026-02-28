@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Alert, Modal } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { router, useFocusEffect } from 'expo-router';
 import { PromoModal } from '../components/PromoModal';
@@ -35,7 +35,7 @@ export default function CheckoutScreen({
 
   const { data: previewRes, isPending: previewPending } = usePreviewCheckout(memoizedItems);
   const { data: couponsData } = useGetMyCoupons();
-
+  const [isConfirmModalVisible, setConfirmModalVisible] = useState(false);
   const checkoutItems = previewRes?.data?.items ?? [];
   const totalAmount = previewRes?.data?.totalAmount ?? 0;
   const userCoupons = Array.isArray(couponsData?.data) ? couponsData.data : [];
@@ -182,16 +182,6 @@ export default function CheckoutScreen({
         )}
 
         <Text style={CheckoutStyles.sectionTitle}>Phương thức thanh toán</Text>
-{/* 
-        <PaymentOption
-          id="momo"
-          title="Ví MoMo"
-          sub="Thanh toán nhanh qua ứng dụng MoMo"
-          icon="https://upload.wikimedia.org/wikipedia/vi/f/fe/MoMo_Logo.png"
-          selected={paymentMethod === 'momo'}
-          onPress={() => setPaymentMethod('momo')}
-        /> */}
-
         <PaymentOption
           id="vnpay"
           title="VNPay"
@@ -257,7 +247,7 @@ export default function CheckoutScreen({
       <View style={CheckoutStyles.footer}>
         <TouchableOpacity
           style={[CheckoutStyles.submitBtn, checkoutPending && { opacity: 0.7 }]}
-          onPress={handlePlaceOrder}
+          onPress={() => setConfirmModalVisible(true)}
           disabled={checkoutPending}
         >
           {checkoutPending ? (
@@ -269,6 +259,23 @@ export default function CheckoutScreen({
           )}
         </TouchableOpacity>
       </View>
+
+      <Modal visible={isConfirmModalVisible} transparent animationType="fade">
+        <View style={CheckoutStyles.modalOverlay}>
+          <View style={CheckoutStyles.modalContent}>
+            <Text style={CheckoutStyles.modalTitle}>Xác nhận đặt hàng</Text>
+            <Text style={CheckoutStyles.modalText}>Bạn có chắc chắn muốn đặt đơn hàng này với tổng giá trị <Text style={{fontWeight: 'bold'}}>{formatVND(finalTotal)}</Text> không?</Text>
+            <View style={CheckoutStyles.modalButtons}>
+              <TouchableOpacity style={[CheckoutStyles.btn, CheckoutStyles.cancelBtn]} onPress={() => setConfirmModalVisible(false)}>
+                <Text style={CheckoutStyles.cancelText}>Quay lại</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={[CheckoutStyles.btn, CheckoutStyles.confirmBtn]} onPress={handlePlaceOrder}>
+                <Text style={CheckoutStyles.confirmText}>Xác nhận</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
       
       <PromoModal
         isVisible={isModalVisible}
