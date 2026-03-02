@@ -8,6 +8,7 @@ import { useAuthStore } from "../src/store/auth.store";
 import { StatusBar } from 'expo-status-bar'
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import Toast, { BaseToast, ErrorToast } from 'react-native-toast-message';
+import { SocketProvider } from "@/context/SocketContext";
 
 export default function RootLayout() {
   const [queryClient] = useState(() => new QueryClient());
@@ -61,6 +62,7 @@ export default function RootLayout() {
   if (loading) return null;
  
   return (
+    <SocketProvider>
     <QueryClientProvider client={queryClient}>
       <GestureHandlerRootView style={{ flex: 1 }}>
         <StatusBar style="dark" translucent={false} backgroundColor="#ffffff" />
@@ -75,5 +77,6 @@ export default function RootLayout() {
         <Toast config={toastConfig}/>
       </GestureHandlerRootView>
     </QueryClientProvider>
+    </SocketProvider>
   );
 }

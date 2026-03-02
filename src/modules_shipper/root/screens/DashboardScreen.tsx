@@ -19,12 +19,15 @@ import CancelModal from '../components/CancelModal';
 import { router } from "expo-router"
 import useUpdateShipperStatus from '../hooks/useUpdateShipperStatus';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { useQueryClient } from '@tanstack/react-query';
+import { useSocket } from '@/context/SocketContext';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 const SHEET_MAX_HEIGHT = -SCREEN_HEIGHT + 180; 
 const SHEET_MIN_HEIGHT = -70; 
 
 export default function DashboardScreen() {
+  const queryClient = useQueryClient();
   const { data: meData } = useGetMe();
     
   const { data: orderData, isPending: orderLoading } = useGetOrderShipper();
@@ -32,7 +35,8 @@ export default function DashboardScreen() {
   const { mutate: cancelOrder } = useRequestCancel();
   const { mutate: setOnlineStatus, isPending: isUpdatingStatus } = useUpdateShipperStatus();
 
-  const [isOnline, setIsOnline] = useState(false);
+  const [isOnline, setIsOnline] = useState(meData?.data.isOnline);
+  
   const [location, setLocation] = useState<Location.LocationObject | null>(null);
   const mapRef = useRef<MapView>(null);
   
@@ -45,6 +49,50 @@ export default function DashboardScreen() {
 
   const translateY = useSharedValue(SHEET_MIN_HEIGHT);
   const context = useSharedValue({ y: 0 });
+
+  const socket = useSocket();
+
+  useEffect(() => {
+    if (!socket || !meData?.data?.id) return;
+
+    const joinRoom = () => {
+      socket.emit('join_shipper_room', meData.data.id.toString());
+    };
+
+    socket.on('connect', joinRoom);
+
+    if (socket.connected) {
+      joinRoom();
+    }
+
+    return () => {
+      socket.off('connect', joinRoom);
+    };
+  }, [socket, meData?.data?.id]);
+
+  useEffect(() => {
+    if (!socket) return;
+    const handleNewOrder = () => {
+      queryClient.invalidateQueries({ queryKey: ['get-order-shipper'] });
+    };
+    socket.on('new_order_assigned', handleNewOrder);
+    return () => { socket.off('new_order_assigned', handleNewOrder); };
+  }, [socket, queryClient]);
+
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleCancelResult = (data : any) => {
+      Alert.alert("Thông báo", data.message);
+      queryClient.invalidateQueries({ queryKey: ['get-order-shipper'] });
+    };
+
+    socket.on('shipper_cancel_result', handleCancelResult);
+
+    return () => {
+      socket.off('shipper_cancel_result', handleCancelResult);
+    };
+  }, [socket, queryClient]);
 
   useEffect(() => {
     if (meData?.data) {
@@ -97,6 +145,10 @@ export default function DashboardScreen() {
   }));
 
   const handleNextStep = (orderId: string) => {
+    if (!isOnline) {
+        Alert.alert("Thông báo", "Bạn cần trực tuyến để thực hiện hành động này");
+        return;
+    }
     const order = orderData?.data?.find(o => o._id === orderId);
     if (!order) return;
 
@@ -132,6 +184,7 @@ export default function DashboardScreen() {
   };
 
   const onConfirmUpdate = () => {
+    if (!isOnline) return;
     if (!confirmData) return;
 
     updateStatusOrder(
@@ -140,6 +193,7 @@ export default function DashboardScreen() {
         onSuccess: () => {
           setIsConfirmModalVisible(false);
           setConfirmData(undefined);
+          socket.emit("order_status_changed_by_shipper", { orderId: confirmData.id });
         },
         onError: (err: any) => {
           setIsConfirmModalVisible(false);
@@ -150,11 +204,16 @@ export default function DashboardScreen() {
   };
 
   const openCancelModal = (orderId: string) => {
+    if (!isOnline) {
+        Alert.alert("Thông báo", "Bạn cần trực tuyến để thực hiện hành động này");
+        return;
+    }
     setSelectedOrderId(orderId);
     setIsModalVisible(true);
   };
 
   const submitCancelRequest = () => {
+    if (!isOnline) return;
     if (!reason.trim()) {
       Alert.alert("Thông báo", "Vui lòng nhập lý do hủy đơn");
       return;
@@ -165,6 +224,7 @@ export default function DashboardScreen() {
             setIsModalVisible(false);
             setReason('');
             setSelectedOrderId(null);
+            socket.emit("shipper_request_cancel", { orderId: selectedOrderId });
             Alert.alert("Thành công", "Yêu cầu hủy đơn đã được gửi tới Admin");
         }
     })
@@ -246,7 +306,6 @@ export default function DashboardScreen() {
               </View>
             </Marker>
           )}
-          
         </MapView>
 
         <TouchableOpacity

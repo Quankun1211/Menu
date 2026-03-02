@@ -16,6 +16,9 @@ const CompletedOrders = ({ orders }: Props) => {
       contentContainerStyle={{ padding: 16 }}
       ListFooterComponent={() => (
         <View style={{ marginTop: 8 }}>
+          {orders.length === 0 && (
+            <Text style={OrderStyles.footerText}>QUÝ KHÁCH CHƯA CÓ ĐƠN HÀNG NÀO</Text>
+          )}
           <View style={[OrderStyles.noteBox, { backgroundColor: '#FFF2E8', borderColor: '#FFD8BF' }]}>
             <Ionicons name="heart-outline" size={20} color="#F26522" />
             <Text style={[OrderStyles.noteText, { color: '#D46B08' }]}>

@@ -13,6 +13,7 @@ interface RenderOrderProps {
 const RenderOrder = ({ item, onNextStep, onOpenCancel, onViewDetail }: RenderOrderProps) => {
   const isFinished = item.status === "delivered" || item.status === "completed";
   const isPendingCancel = item.status === "pending_cancel";
+  const isCancelled = item.status === "cancelled";
   const isAssigned = item.status === "assigned";
 
   const getButtonConfig = (status: OrderResponse["status"]) => {
@@ -21,6 +22,7 @@ const RenderOrder = ({ item, onNextStep, onOpenCancel, onViewDetail }: RenderOrd
       case "confirmed": return { text: "ĐÃ LẤY HÀNG", color: "#007AFF" };
       case "shipping": return { text: "HOÀN THÀNH", color: "#28a745" };
       case "pending_cancel": return { text: "CHỜ HỦY...", color: "#666" };
+      case "cancelled": return { text: "ĐÃ HỦY", color: "#FF3B30" };
       case "delivered":
       case "completed": return { text: "ĐÃ GIAO HÀNG", color: "#333" };
       default: return { text: "LIÊN HỆ ADMIN", color: "#555" };
@@ -30,8 +32,7 @@ const RenderOrder = ({ item, onNextStep, onOpenCancel, onViewDetail }: RenderOrd
   const config = getButtonConfig(item.status);
 
   return (
-    <View style={[DashboardStyles.orderCard, (isPendingCancel || isFinished) && { opacity: 0.8 }]}>
-      {/* Bao bọc phần nội dung bằng Touchable để xem chi tiết */}
+    <View style={[DashboardStyles.orderCard, (isPendingCancel || isFinished || isCancelled) && { opacity: 0.8 }]}>
       <TouchableOpacity 
         activeOpacity={0.7} 
         onPress={() => onViewDetail(item._id)}
@@ -58,13 +59,14 @@ const RenderOrder = ({ item, onNextStep, onOpenCancel, onViewDetail }: RenderOrd
           </View>
         </View>
 
-        {isPendingCancel && (
+        {(isPendingCancel || isCancelled) && (
           <View style={DashboardStyles.cancelInfoBox}>
-            <Text style={DashboardStyles.cancelInfoText}>Lý do hủy: {item.cancelRequest?.reason}</Text>
+            <Text style={DashboardStyles.cancelInfoText}>
+              {isCancelled ? "Đơn hàng đã được hủy thành công." : `Lý do hủy: ${item.cancelRequest?.reason}`}
+            </Text>
           </View>
         )}
         
-        {/* Chỉ dẫn nhỏ để người dùng biết có thể nhấn vào */}
         <Text style={{ fontSize: 12, color: '#007AFF', marginTop: 10, textAlign: 'right' }}>
           Xem chi tiết đơn hàng {">"}
         </Text>
@@ -84,10 +86,10 @@ const RenderOrder = ({ item, onNextStep, onOpenCancel, onViewDetail }: RenderOrd
           style={[
             DashboardStyles.acceptBtn, 
             { backgroundColor: config.color },
-            (!isAssigned || isFinished || isPendingCancel) && { flex: 1 }
+            (!isAssigned || isFinished || isPendingCancel || isCancelled) && { flex: 1 }
           ]} 
-          onPress={() => !isPendingCancel && !isFinished && onNextStep(item._id)}
-          disabled={isPendingCancel || isFinished}
+          onPress={() => !isPendingCancel && !isFinished && !isCancelled && onNextStep(item._id)}
+          disabled={isPendingCancel || isFinished || isCancelled}
         >
           <Text style={DashboardStyles.acceptText}>{config.text}</Text>
         </TouchableOpacity>

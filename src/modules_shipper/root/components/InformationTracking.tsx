@@ -16,10 +16,21 @@ interface InformationTrackingProps {
     };
     isInactive: boolean, 
     handleNextStep: () => void, 
-    isUpdating: boolean
-
+    isUpdating: boolean,
+    onOpenCancel: () => void,
 }
-const InformationTracking = ({ order, isCancelledState, setShowOrderModal, statusConfig, isInactive, handleNextStep, isUpdating } : InformationTrackingProps) => {
+
+const InformationTracking = ({ 
+    order, 
+    isCancelledState, 
+    setShowOrderModal, 
+    statusConfig, 
+    isInactive, 
+    handleNextStep, 
+    isUpdating,
+    onOpenCancel 
+} : InformationTrackingProps) => {
+
     const handleCall = (phoneNumber?: string) => {
       if (!phoneNumber) {
         Alert.alert("Lỗi", "Không tìm thấy số điện thoại khách hàng");
@@ -36,6 +47,7 @@ const InformationTracking = ({ order, isCancelledState, setShowOrderModal, statu
         })
         .catch((err) => console.error("An error occurred", err));
     };
+
     return (
     <View style={{ position: 'absolute', bottom: 30, left: 20, right: 20, backgroundColor: 'white', borderRadius: 20, padding: 20, elevation: 5, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 10 }}>
           <View style={TrackingStyles.userInfo}>
@@ -76,11 +88,36 @@ const InformationTracking = ({ order, isCancelledState, setShowOrderModal, statu
             {!isCancelledState && <Ionicons name="chevron-forward" size={18} color="#999" />}
           </TouchableOpacity>
 
-          <View style={{ marginTop: 15 }}>
+          <View style={{ marginTop: 15, flexDirection: 'row', gap: 10 }}>
+            {order?.status === 'assigned' && (
+                <TouchableOpacity 
+                    style={{ 
+                        flex: 1,
+                        height: 50, 
+                        borderRadius: 12, 
+                        justifyContent: 'center', 
+                        alignItems: 'center',
+                        backgroundColor: '#ff4d4f'
+                    }} 
+                    onPress={onOpenCancel}
+                >
+                    <Text style={{ fontSize: 16, fontWeight: '700', color: 'white' }}>
+                        Hủy đơn
+                    </Text>
+                </TouchableOpacity>
+            )}
+
             <TouchableOpacity 
               style={[
                 DashboardStyles.acceptBtn, 
-                { backgroundColor: statusConfig.color, height: 50, borderRadius: 12, justifyContent: 'center', alignItems: 'center' },
+                { 
+                    flex: order?.status === 'assigned' ? 2 : 1,
+                    height: 50, 
+                    borderRadius: 12, 
+                    justifyContent: 'center', 
+                    alignItems: 'center',
+                    backgroundColor: statusConfig.color
+                },
                 isInactive && { backgroundColor: '#e0e0e0', opacity: 0.8 }
               ]} 
               onPress={handleNextStep}
@@ -96,7 +133,7 @@ const InformationTracking = ({ order, isCancelledState, setShowOrderModal, statu
             </TouchableOpacity>
           </View>
       </View>
-  )
+    )
 }
 
 export default InformationTracking

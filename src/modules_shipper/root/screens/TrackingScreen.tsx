@@ -11,11 +11,15 @@ import { io } from "socket.io-client";
 
 import useGetOrderDetail from '@/modules/order/hooks/useGetOrderDetail';
 import useUpdateStatusShipper from '../hooks/useUpdateStatus';
+import useRequestCancel from '../hooks/useRequestCancel';
+import CancelModal from '../components/CancelModal';
 import { DashboardStyles } from '../css/DashboardStyles';
 import { TrackingStyles } from '../css/TrackingStyles';
 import TrackingInforModal from '../components/TrackingInforModal';
 import InformationTracking from '../components/InformationTracking';
 import useUpdateLocation from '../hooks/useUpdateLocation';
+import { useSocket } from '@/context/SocketContext';
+import useGetMe from '@/hooks/useGetMe';
 
 const GOONG_API_KEY = Constants.expoConfig?.extra?.apiGetMapKey;
 
@@ -30,6 +34,8 @@ export default function TrackingScreen({ orderId: initialOrderId }: TrackingOrde
   const socket = useRef<any>(null);
   
   const orderId = useMemo(() => initialOrderId, []);
+  const { data: meData } = useGetMe();
+  const isOnline = !!meData?.data?.isOnline;
 
   const [location, setLocation] = useState<Location.LocationObject | null>(null);
   const [customerCoords, setCustomerCoords] = useState<{ latitude: number, longitude: number } | null>(null);
@@ -37,32 +43,73 @@ export default function TrackingScreen({ orderId: initialOrderId }: TrackingOrde
   const [hasInitialZoom, setHasInitialZoom] = useState(false);
   const [showOrderModal, setShowOrderModal] = useState(false);
   
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [reason, setReason] = useState('');
+
   const { data: orderResponse, refetch } = useGetOrderDetail(orderId);
   const { mutate: updateStatus, isPending: isUpdating } = useUpdateStatusShipper();
-  const { mutate: updateLocation, isPending: isLocation } = useUpdateLocation()
+  const { mutate: updateLocation } = useUpdateLocation();
+  const { mutate: cancelOrder } = useRequestCancel();
 
   const order = orderResponse?.data;
+  const socketEmit = useSocket();
+
+  const isCancelled = order?.status === 'cancelled';
+  const isPendingCancel = order?.status === 'pending_cancel';
+  const isCancelledState = isCancelled || isPendingCancel;
 
   useEffect(() => {
-    socket.current = io("http://192.168.1.3:5000");
+    socket.current = io("http://192.168.1.8:5000");
     socket.current.emit("join_order", orderId);
+
+    if (socketEmit) {
+      socketEmit.on("shipper_cancel_result", (data: any) => {
+        if (data.orderId === orderId) {
+          Alert.alert("Thông báo", data.message);
+          refetch();
+        }
+      });
+    }
+
     return () => {
-      socket.current.disconnect();
+      socket.current?.disconnect();
+      if (socketEmit) socketEmit.off("shipper_cancel_result");
     };
-  }, [orderId]);
+  }, [orderId, socketEmit]);
 
   const handleManualUpdate = async () => {
+    if (!isOnline) {
+      Alert.alert("Thông báo", "Bạn cần trực tuyến để cập nhật vị trí");
+      return;
+    }
     if (!location) return;
-    console.log(orderId);
-    console.log(location.coords.latitude);
-    console.log(location.coords.longitude);
-    
-    updateLocation({orderId, latitude: location.coords.latitude, longitude: location.coords.longitude})
+    updateLocation({orderId, latitude: location.coords.latitude, longitude: location.coords.longitude});
   };
 
-  const isCancelledState = useMemo(() => 
-    order?.status === "cancelled" || order?.status === "pending_cancel", 
-  [order?.status]);
+  const openCancelModal = () => {
+    if (!isOnline) {
+      Alert.alert("Thông báo", "Bạn cần trực tuyến để thực hiện hành động này");
+      return;
+    }
+    setIsModalVisible(true);
+  };
+  
+  const submitCancelRequest = () => {
+    if (!isOnline) return;
+    if (!reason.trim()) {
+      Alert.alert("Thông báo", "Vui lòng nhập lý do hủy đơn");
+      return;
+    }
+    cancelOrder({ orderId: orderId, reason }, {
+        onSuccess: () => {
+            socketEmit.emit("shipper_request_cancel", { orderId: order?._id });
+            setIsModalVisible(false);
+            setReason('');
+            Alert.alert("Thành công", "Yêu cầu hủy đơn đã được gửi tới Admin");
+            refetch();
+        }
+    });
+  };
 
   const statusConfig = useMemo(() => {
     switch (order?.status) {
@@ -161,6 +208,10 @@ export default function TrackingScreen({ orderId: initialOrderId }: TrackingOrde
   }, [routeCoordinates, hasInitialZoom, isCancelledState]);
 
   const handleNextStep = () => {
+    if (!isOnline) {
+      Alert.alert("Thông báo", "Bạn cần trực tuyến để thực hiện hành động này");
+      return;
+    }
     if (!order || !statusConfig.next || isCancelledState) return;
 
     updateStatus({ orderId: order._id, nextStatus: statusConfig.next }, {
@@ -302,6 +353,7 @@ export default function TrackingScreen({ orderId: initialOrderId }: TrackingOrde
           </View>
         </View>
       </View>
+
       {order && (
           <InformationTracking 
             order={order} 
@@ -310,11 +362,20 @@ export default function TrackingScreen({ orderId: initialOrderId }: TrackingOrde
             isInactive={isInactive} 
             isUpdating={isUpdating} 
             setShowOrderModal={setShowOrderModal}
+            onOpenCancel={openCancelModal}
             statusConfig={statusConfig} 
           />
       )}
 
       {order && <TrackingInforModal order={order} showOrderModal={showOrderModal} setShowOrderModal={setShowOrderModal} />}
+
+      <CancelModal 
+        isModalVisible={isModalVisible} 
+        setIsModalVisible={setIsModalVisible} 
+        reason={reason} 
+        setReason={setReason} 
+        submitCancelRequest={submitCancelRequest} 
+      />
     </View>
   );
 }
