@@ -59,7 +59,7 @@ export default function TrackingScreen({ orderId: initialOrderId }: TrackingOrde
   const isCancelledState = isCancelled || isPendingCancel;
 
   useEffect(() => {
-    socket.current = io("http://192.168.1.8:5000");
+    socket.current = io("http://192.168.1.4:5000");
     socket.current.emit("join_order", orderId);
 
     if (socketEmit) {
