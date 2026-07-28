@@ -8,6 +8,7 @@ import RenderOrder from '../components/RenderOrder';
 import useGetMe from '@/hooks/useGetMe';
 import useGetOrderShipper from '../hooks/useGetOrderShipper';
 import useUpdateStatusShipper from '../hooks/useUpdateStatus';
+import type { ShipperNextStatus } from '../utils/orderWorkflow';
 import useRequestCancel from '../hooks/useRequestCancel';
 import ConfirmModal from '../components/ConfirmModal';
 import CancelModal from '../components/CancelModal';
@@ -37,7 +38,11 @@ export default function DashboardScreen() {
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
 
   const [isConfirmModalVisible, setIsConfirmModalVisible] = useState(false);
-  const [confirmData, setConfirmData] = useState<{ id: string; nextStatus: string; text: string } | undefined>(undefined);
+  const [confirmData, setConfirmData] = useState<{
+    id: string;
+    nextStatus: ShipperNextStatus;
+    text: string;
+  } | undefined>(undefined);
 
   const socket = useSocket();
   const isFocused = useIsFocused();
@@ -129,7 +134,7 @@ export default function DashboardScreen() {
     const order = orderData?.data?.find(o => o._id === orderId);
     if (!order) return;
 
-    const statusFlow: Record<string, string> = {
+    const statusFlow: Partial<Record<string, ShipperNextStatus>> = {
       "assigned": "confirmed",
       "confirmed": "shipping",
       "processing": "shipping",

@@ -17,17 +17,18 @@ export default function ExploreProductItems({ product }: ProductProps) {
     const router = useRouter();
     const [timeLeft, setTimeLeft] = useState("");
 
-    const hasSale = product.salePercent && product.salePercent.percent > 0;
+    const salePercent = product.salePercent;
+    const hasSale = Boolean(salePercent && salePercent.percent > 0);
     const discountedPrice = hasSale 
-        ? product.price * (1 - product.salePercent.percent / 100) 
+        ? product.price * (1 - salePercent!.percent / 100)
         : product.price;
 
     useEffect(() => {
-        if (!hasSale || !product.salePercent.endDate) return;
+        if (!hasSale || !salePercent?.endDate) return;
 
         const timer = setInterval(() => {
             const now = new Date().getTime();
-            const end = new Date(product.salePercent.endDate).getTime();
+            const end = new Date(salePercent.endDate).getTime();
             const distance = end - now;
 
             const TWO_DAYS_IN_MS = 2 * 24 * 60 * 60 * 1000;
@@ -51,7 +52,7 @@ export default function ExploreProductItems({ product }: ProductProps) {
         }, 1000);
 
         return () => clearInterval(timer);
-    }, [product.salePercent]);
+    }, [hasSale, salePercent]);
 
     const { mutate: addToCart } = useAddToCart();
     const { mutate: addWishList, isPending: wishLishPending } = useAddToWishList()
@@ -116,7 +117,7 @@ export default function ExploreProductItems({ product }: ProductProps) {
                 {hasSale && (
                     <View style={ExploreStyles.saleBadge}>
                         <Text style={ExploreStyles.saleText}>
-                            -{product.salePercent.percent}%
+                            -{salePercent!.percent}%
                         </Text>
                     </View>
                 )}

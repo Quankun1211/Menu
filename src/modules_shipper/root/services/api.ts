@@ -1,6 +1,7 @@
 import { BackendResponse } from "@/libs/shared/types/backend-response";
 import { OrderResponse } from "@/modules/order/types/api-response";
 import api from "@/services/axios";
+import type { ShipperNextStatus } from "../utils/orderWorkflow";
 
 export const onGetOrderShipperApi = async (): Promise<
   BackendResponse<OrderResponse[]>
@@ -18,7 +19,7 @@ export const onGetAllOrderShipperApi = async (): Promise<
 
 export const onUpdateStatusOrderApi = async (
   orderId: string, 
-  nextStatus: string
+  nextStatus: ShipperNextStatus
 ): Promise<BackendResponse<OrderResponse>> => {
   const { data } = await api.patch("/shipper/update", { orderId, nextStatus });
   return data;

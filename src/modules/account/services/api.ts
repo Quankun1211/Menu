@@ -43,11 +43,12 @@ export const onVerifyApi = async (
 }
 
 export const onResendOTPApi = async (
-    payload: { email: string }
+    payload: { email: string; type?: "verify" | "reset" }
 ) : Promise<BackendResponse<any>> => {
-    const { email } = payload;
+    const { email, type = "verify" } = payload;
     const data = await api.post("/auth/resend-otp", {
-        email
+        email,
+        type
     });
     return data.data;
 }

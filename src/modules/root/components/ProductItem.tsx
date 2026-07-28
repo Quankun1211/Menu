@@ -29,11 +29,13 @@ export default function ProductItem ({ products }: PopularProductProps) {
                 pathname: "/(details)/productDetailTabs/ProductDetailTabs",
                 params: { id: products._id }
             })}>
-          <Text style={ProductItemStyles.productCat}>{products.categoryId.name}</Text>
+          <Text style={ProductItemStyles.productCat}>{products.categoryId?.name || "Sản phẩm"}</Text>
           <Text style={ProductItemStyles.productName} numberOfLines={1}>{products.name}</Text>
         </TouchableOpacity>
         <View style={ProductItemStyles.productFooter}>
-          <Text style={ProductItemStyles.productPrice}>{formatVND(products.price)} / {products.unit}</Text>
+          <Text style={ProductItemStyles.productPrice}>
+            {formatVND(products.price)}{products.unit ? ` / ${products.unit}` : ""}
+          </Text>
           {/* <TouchableOpacity style={ProductItemStyles.addButton}>
             <Ionicons name="basket" size={20} color="#fff" />
           </TouchableOpacity> */}

@@ -1,9 +1,10 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { onUpdateStatusOrderApi } from "../services/api"
+import type { ShipperNextStatus } from "../utils/orderWorkflow";
 
 interface UpdateStatusPayload {
   orderId: string;
-  nextStatus: string;
+  nextStatus: ShipperNextStatus;
 }
 
 const useUpdateStatusShipper = () => {
@@ -16,6 +17,8 @@ const useUpdateStatusShipper = () => {
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["get-order-shipper"] });
+            queryClient.invalidateQueries({ queryKey: ["get-all-order-shipper"] });
+            queryClient.invalidateQueries({ queryKey: ["get-shipper-stats"] });
         }
     })
     

@@ -10,25 +10,25 @@ type SaleItems = {
 }
 
 export type ProductResponse = {
-    _id: string,
-    name: string,
-    categoryId: CategoryItemResponse,
-    price: number,
-    unit: string,
-    description: string,
-    images: string,
-    finalPrice: number,
-    stock: string,
-    soldCount: number,
-    region: string,
-    salePercent: SaleItems,
-    origin: string,
-    originDescription: string,
-    originFound: string,
-    story: string,
-    nutrition: NutritionData,
-    usage_instruction: string[],
-    relatedRecipes: RecipeDetailResponse[],
+    _id: string;
+    name: string;
+    price: number;
+    images: string;
+    categoryId?: CategoryItemResponse;
+    unit?: string;
+    description?: string;
+    finalPrice?: number;
+    stock?: number | string;
+    soldCount?: number;
+    region?: string;
+    salePercent?: SaleItems;
+    origin?: string;
+    originDescription?: string;
+    originFound?: string;
+    story?: string;
+    nutrition?: NutritionData;
+    usage_instruction?: string[];
+    relatedRecipes?: RecipeDetailResponse[];
 }
 
 export type CategoryResponse = {

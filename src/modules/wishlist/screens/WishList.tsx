@@ -130,7 +130,7 @@ export default function Wishlist() {
                                 <View key={products._id} style={ProductItemStyles.productCard}>
                                     <Image source={{ uri: products.images }} style={ProductItemStyles.productImg} />
                                     <View style={ProductItemStyles.productInfo}>
-                                        <Text style={ProductItemStyles.productCat}>{products.categoryId.name}</Text>
+                                        <Text style={ProductItemStyles.productCat}>{products.categoryId?.name || "Sản phẩm"}</Text>
                                         <Text style={ProductItemStyles.productName} numberOfLines={1}>{products.name}</Text>
                                         <View style={ProductItemStyles.productFooter}>
                                             <Text style={ProductItemStyles.productPrice}>{formatVND(products.price)} / {products.unit}</Text>

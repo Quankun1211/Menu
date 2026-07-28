@@ -9,18 +9,7 @@ type CategoryItemResponse = {
     _id: string,
     name: string
 }
-export type ProductResponse = {
-    _id: string,
-    name: string,
-    categoryId: CategoryItemResponse,
-    price: number,
-    unit: string,
-    description: string,
-    images: string,
-    stock: string,
-    soldCount: number,
-    region: string
-}
+export type { ProductResponse } from "@/modules/explore/types/api-response";
 
 type SaleItems = {
     _id: string,

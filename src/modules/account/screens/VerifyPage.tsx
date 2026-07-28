@@ -8,7 +8,9 @@ import { VerifyStyles } from '../css/VerifyStyles';
 import { SignUpStyle } from '../css/SignUpStyles';
 
 export default function VerifyPage() {
-  const { email, type } = useLocalSearchParams<{ email: string, type: string }>();
+  const params = useLocalSearchParams<{ email: string, type?: string }>();
+  const email = params.email;
+  const type = params.type === "reset" ? "reset" : "verify";
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [timer, setTimer] = useState(30); 
   const [canResend, setCanResend] = useState(false);
@@ -73,7 +75,7 @@ export default function VerifyPage() {
   const handleResend = () => {
     if (!canResend) return;
     
-    resendOTP({ email }, {
+    resendOTP({ email, type }, {
       onSuccess: () => {
         setTimer(60);
         setCanResend(false);

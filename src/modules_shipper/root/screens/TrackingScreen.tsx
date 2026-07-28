@@ -19,6 +19,7 @@ import InformationTracking from '../components/InformationTracking';
 import useUpdateLocation from '../hooks/useUpdateLocation';
 import { useSocket } from '@/context/SocketContext';
 import useGetMe from '@/hooks/useGetMe';
+import { getShipperStatusConfig } from '../utils/orderWorkflow';
 
 const GOONG_API_KEY = Constants.expoConfig?.extra?.apiGetMapKey;
 
@@ -31,7 +32,7 @@ export default function TrackingScreen({ orderId: initialOrderId }: TrackingOrde
   const mapRef = useRef<MapView>(null);
   const queryClient = useQueryClient();
   
-  const orderId = useMemo(() => initialOrderId, []);
+  const orderId = initialOrderId;
   const { data: meData } = useGetMe();
   const isOnline = !!meData?.data?.isOnline;
 
@@ -108,27 +109,10 @@ export default function TrackingScreen({ orderId: initialOrderId }: TrackingOrde
     });
   };
 
-  const statusConfig = useMemo(() => {
-    switch (order?.status) {
-      case "assigned": 
-        return { text: "XÁC NHẬN ĐƠN", next: "confirmed", color: "#FF8C00", label: "Chờ xác nhận" };
-      case "confirmed": 
-        return { text: "ĐÃ LẤY HÀNG", next: "shipping", color: "#007AFF", label: "Đang lấy hàng" };
-      case "processing":
-        return { text: "ĐÃ LẤY HÀNG", next: "shipping", color: "#007AFF", label: "Đang chuẩn bị hàng" };
-      case "shipping": 
-        return { text: "HOÀN THÀNH", next: "delivered", color: "#28a745", label: "Đang giao hàng" };
-      case "pending_cancel":
-        return { text: "ĐANG CHỜ HỦY", next: null, color: "#6c757d", label: "Yêu cầu hủy" };
-      case "cancelled":
-        return { text: "ĐƠN ĐÃ HỦY", next: null, color: "#dc3545", label: "Đã hủy" };
-      case "delivered":
-      case "completed":
-        return { text: "ĐÃ GIAO HÀNG", next: null, color: "#333", label: "Đã hoàn tất" };
-      default: 
-        return { text: "KIỂM TRA LẠI", next: null, color: "#999", label: "Không xác định" };
-    }
-  }, [order?.status]);
+  const statusConfig = useMemo(
+    () => getShipperStatusConfig(order?.status),
+    [order?.status],
+  );
 
   useEffect(() => {
     if (!isOnline) return;
