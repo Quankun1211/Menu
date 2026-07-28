@@ -7,7 +7,10 @@ type OrderDetailProps = {
 }
 const OrderItemDetail = ({orderDetail} : OrderDetailProps) => (
   <View style={OrderItemStyles.productRow}>
-    <Image source={{uri: orderDetail.image}} style={OrderItemStyles.productImg} />
+    <Image
+      source={orderDetail.image ? { uri: orderDetail.image } : require('../../../assets/images/logo.png')}
+      style={OrderItemStyles.productImg}
+    />
     <View style={{ flex: 1, marginLeft: 12 }}>
       <Text style={OrderItemStyles.productName}>{orderDetail.name}</Text>
       <Text style={OrderItemStyles.productUnit}>{orderDetail.quantity} {orderDetail.unit}</Text>

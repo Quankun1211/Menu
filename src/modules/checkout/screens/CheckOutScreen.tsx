@@ -15,7 +15,7 @@ import Toast from 'react-native-toast-message';
 import useGetMyCoupons from "../../profile/hooks/useGetMyCoupons";
 
 type CheckoutScreenProps = {
-  source?: "cart" | "buy_now";
+  source?: "cart" | "buy_now" | "menu" | "recipe";
   items: {
     productId: string;
     quantity: number;
@@ -33,19 +33,18 @@ export default function CheckoutScreen({
 
   const scrollRef = useRef<ScrollView>(null)
 
-  const { data: previewRes, isPending: previewPending } = usePreviewCheckout(memoizedItems);
+  const { data: previewRes } = usePreviewCheckout(memoizedItems);
   const { data: couponsData } = useGetMyCoupons();
   const [isConfirmModalVisible, setConfirmModalVisible] = useState(false);
-  const checkoutItems = previewRes?.data?.items ?? [];
   const totalAmount = previewRes?.data?.totalAmount ?? 0;
   const userCoupons = Array.isArray(couponsData?.data) ? couponsData.data : [];
 
   const [paymentMethod, setPaymentMethod] = useState("cod");
 
-  const { data: getAddress, isPending } = useGetAddress();
+  const { data: getAddress } = useGetAddress();
   const addresses: AddressModel[] = getAddress?.data ?? [];
 
-  const { selectedAddress, setSelectedAddress } = useCheckoutStore();
+  const { selectedAddress, setSelectedAddress, clearCheckoutDraft } = useCheckoutStore();
 
   const displayAddress =
     selectedAddress ||
@@ -60,10 +59,6 @@ export default function CheckoutScreen({
   useFocusEffect(
     useCallback(() => {
       scrollRef.current?.scrollTo({ y: 0, animated: false })
-      return () => {
-        setDiscountValue(0)
-        setAppliedCode("")
-      }
     }, [])
   )
 
@@ -80,7 +75,7 @@ export default function CheckoutScreen({
     if (!selectedAddress && displayAddress) {
       setSelectedAddress(displayAddress);
     }
-  }, [addresses]);
+  }, [displayAddress, selectedAddress, setSelectedAddress]);
 
   const { mutate: checkoutApply, isPending: checkoutPending } = useCheckout()
   
@@ -94,7 +89,7 @@ export default function CheckoutScreen({
       items: memoizedItems,
       address: displayAddress._id,
       couponCode: appliedCode,
-      source: "cart",
+      source,
       paymentMethod: paymentMethod,
       shippingFee: shippingFee
     }, {
@@ -108,6 +103,7 @@ export default function CheckoutScreen({
           });
         } else {
           Toast.show({ type: 'success', text1: 'Đặt hàng thành công' });
+          clearCheckoutDraft();
           router.replace("/(tabs)/order");
         }
       },

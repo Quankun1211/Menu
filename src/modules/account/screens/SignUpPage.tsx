@@ -6,6 +6,7 @@ import useRegister from '../hooks/useRegister';
 import { RegisterRequest } from '../types/api-request';
 import SignUpForm from '../components/SignUpForm';
 import { useState } from 'react';
+import AuthHomeButton from '../components/AuthHomeButton';
 export default function SignUpPage() {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [registeredEmail, setRegisteredEmail] = useState('');
@@ -44,6 +45,7 @@ export default function SignUpPage() {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       style={{ flex: 1 }}
     >
+      <AuthHomeButton />
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <ScrollView contentContainerStyle={SignUpStyle.container}>
           <View style={SignUpStyle.imageContainer}>

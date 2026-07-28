@@ -1,4 +1,5 @@
 import { Stack } from 'expo-router';
+import { AppTheme } from '@/constants/theme';
 
 export default function DetailsLayout() {
   return (
@@ -6,10 +7,17 @@ export default function DetailsLayout() {
       screenOptions={{
         headerShown: true, 
         headerTitleAlign: 'center',
-        headerStyle: { backgroundColor: '#fff' },
-        headerTitleStyle: { fontWeight: 'bold', fontSize: 18 },
-        headerTintColor: '#000',
+        headerStyle: { backgroundColor: AppTheme.colors.cream },
+        headerShadowVisible: false,
+        headerTitleStyle: { fontWeight: '800', fontSize: 17, color: AppTheme.colors.brown },
+        headerTintColor: AppTheme.colors.brown,
+        contentStyle: { backgroundColor: AppTheme.colors.canvas },
         animation: 'slide_from_right',
+        animationDuration: 220,
+        gestureEnabled: true,
+        fullScreenGestureEnabled: true,
+        animationMatchesGesture: true,
+        freezeOnBlur: true,
       }}
     >
       <Stack.Screen name="exploreItemTabs/ExploreMenu" options={{ title: 'Thực đơn' }} />

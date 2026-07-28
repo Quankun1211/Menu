@@ -4,7 +4,9 @@ export default function ProductDetailTabsLayout() {
   return (
     <Stack
       screenOptions={{
-        headerShown: false, 
+        headerShown: false,
+        animation: 'none',
+        freezeOnBlur: true,
       }}
     >
       <Stack.Screen 

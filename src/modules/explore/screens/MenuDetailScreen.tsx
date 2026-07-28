@@ -21,7 +21,7 @@ export default function MenuDetailScreen() {
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
 
   const getSafeProductId = (ing: any) => {
-    if (ing.itemType === 'Product') return ing.ingredientId?._id;
+    if (ing.itemType === 'Product' || ing.itemType === 'Special') return ing.ingredientId?._id;
     return ing.ingredientId?.productId;
   };
 
@@ -51,7 +51,7 @@ export default function MenuDetailScreen() {
     return purchasableIngredients.reduce((total, ing) => {
       const pId = getSafeProductId(ing);
       if (selectedItems.includes(pId)) {
-        const price = ing.itemType === 'Product' 
+        const price = ing.itemType === 'Product' || ing.itemType === 'Special'
           ? (ing.ingredientId?.price || 0) 
           : (ing.ingredientId?.price || 0);
         return total + (price * (Number(ing.quantity) || 1));

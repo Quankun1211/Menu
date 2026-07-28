@@ -34,7 +34,10 @@ const CompletedOrderItem = ({ order }: Props) => {
       <Text style={styles.dateTime}>{formatDate(order?.deliveredAt) + " - " + formatStepTime(order?.deliveredAt)}</Text>
 
       <View style={styles.mainContent}>
-        <Image source={{ uri: order.thumbnail }} style={styles.image} />
+        <Image
+          source={order.thumbnail ? { uri: order.thumbnail } : require('../../../assets/images/logo.png')}
+          style={styles.image}
+        />
         <View style={styles.infoContainer}>
           <Text style={styles.title}>{order.productSummary}</Text>
           <Text style={styles.details}>{order.itemsForRebuy.length} sản phẩm</Text>

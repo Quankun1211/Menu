@@ -20,7 +20,7 @@ const RecipeDetail = () => {
   const [isModalVisible, setModalVisible] = useState(false);
 
   const toggleCheck = (item: any) => {
-    const isBuyable = item.itemType === 'Product';
+    const isBuyable = item.itemType === 'Product' || item.itemType === 'Special';
     if (!isBuyable) return;
 
     const productId = item.ingredientId?._id;
@@ -133,7 +133,7 @@ const RecipeDetail = () => {
 
           {recipe?.ingredients?.map((item: any) => {
             const productId = item.ingredientId?._id;
-            const isBuyable = item.itemType === 'Product';
+            const isBuyable = item.itemType === 'Product' || item.itemType === 'Special';
             const isChecked = selectedIngredients.some(ing => ing.productId === productId);
             
             return (

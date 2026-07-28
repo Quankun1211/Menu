@@ -1,5 +1,3 @@
-import Constants from "expo-constants";
-
 interface Configuration {
   apiBaseUrl: string;
   tokenKey: string;
@@ -8,14 +6,12 @@ interface Configuration {
   storageThemeKey: string;
 }
 
-const extra = Constants.expoConfig?.extra ?? {};
-
 const env: Configuration = {
-  apiBaseUrl: extra.API_BASE_URL ?? "",
-  tokenKey: extra.TOKEN_KEY ?? "token",
-  refreshTokenKey: extra.REFRESH_TOKEN_KEY ?? "refresh_token",
-  storageLocaleKey: extra.LOCALE_KEY ?? "locale",
-  storageThemeKey: extra.THEME_KEY ?? "theme",
+  apiBaseUrl: process.env.EXPO_PUBLIC_API_BASE_URL ?? "",
+  tokenKey: process.env.EXPO_PUBLIC_TOKEN_KEY ?? "token",
+  refreshTokenKey: process.env.EXPO_PUBLIC_REFRESH_TOKEN_KEY ?? "refresh_token",
+  storageLocaleKey: process.env.EXPO_PUBLIC_LOCALE_KEY ?? "locale",
+  storageThemeKey: process.env.EXPO_PUBLIC_THEME_KEY ?? "theme",
 };
 
 export default env;

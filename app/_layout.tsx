@@ -1,19 +1,23 @@
 import { Stack, router, useSegments } from "expo-router";
-import * as NavigationBar from 'expo-navigation-bar';
-import { NavigationBarBehavior } from "expo-navigation-bar";
-import { Platform } from 'react-native';
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useAuthStore } from "../src/store/auth.store";
 import { StatusBar } from 'expo-status-bar'
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import Toast, { BaseToast, ErrorToast } from 'react-native-toast-message';
 import { SocketProvider } from "@/context/SocketContext";
+import { AppTheme } from "@/constants/theme";
+import { enableFreeze, enableScreens } from 'react-native-screens';
+import OrderRealtimeSync from "@/context/OrderRealtimeSync";
+
+enableScreens(true);
+enableFreeze(true);
 
 export default function RootLayout() {
   const [queryClient] = useState(() => new QueryClient());
   const segments = useSegments();
   const { loading, initAuth, role } = useAuthStore();
+  const initialRouteChecked = useRef(false);
   // const [isReady, setIsReady] = useState(false);
 
   const toastConfig = {
@@ -38,12 +42,14 @@ export default function RootLayout() {
 
   useEffect(() => {
     initAuth();
-  }, []);
+  }, [initAuth]);
 
   useEffect(() => {
-  if (loading) return;
+  if (loading || initialRouteChecked.current) return;
 
   const rootSegment = segments[0];
+  if (!rootSegment) return;
+  initialRouteChecked.current = true;
 
   const shipperAllowedGroups = ['(shipper)', '(shipper_details)'];
   const userAllowedGroups = ['(tabs)', '(auth)', '(details)'];
@@ -64,15 +70,25 @@ export default function RootLayout() {
   return (
     <SocketProvider>
     <QueryClientProvider client={queryClient}>
+      <OrderRealtimeSync />
       <GestureHandlerRootView style={{ flex: 1 }}>
-        <StatusBar style="dark" translucent={false} backgroundColor="#ffffff" />
-        <Stack screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="(tabs)" />
+        <StatusBar style="dark" translucent={false} backgroundColor={AppTheme.colors.cream} />
+        <Stack screenOptions={{
+          headerShown: false,
+          contentStyle: { backgroundColor: AppTheme.colors.canvas },
+          animation: 'slide_from_right',
+          animationDuration: 220,
+          gestureEnabled: true,
+          fullScreenGestureEnabled: true,
+          animationMatchesGesture: true,
+          freezeOnBlur: false,
+        }}>
+          <Stack.Screen name="(tabs)" options={{ animation: 'none' }} />
           <Stack.Screen name="(shipper)" /> 
           <Stack.Screen name="(shipper_details)" /> 
           <Stack.Screen name="(details)" /> 
-          <Stack.Screen name="(auth)/login" options={{ presentation: 'modal' }} />
-          <Stack.Screen name="(auth)/register" options={{ presentation: 'modal' }} />
+          <Stack.Screen name="(auth)/login" options={{ presentation: 'modal', animation: 'slide_from_bottom' }} />
+          <Stack.Screen name="(auth)/register" options={{ presentation: 'modal', animation: 'slide_from_bottom' }} />
         </Stack>
         <Toast config={toastConfig}/>
       </GestureHandlerRootView>

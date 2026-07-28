@@ -2,7 +2,6 @@ import { BackendResponse } from "@/libs/shared/types/backend-response";
 import { CategoryResponse, ProductResponse, ShockDealProducts } from "../types/api-response";
 import api from "@/services/axios";
 import { PaginationRequest } from "@/types/api-request";
-import { PaginationResponse } from "@/types/api-response";
 import { RecipeDetailResponse } from "@/modules/explore/types/api-response";
 export const onGetCategoriesApi = async (
   limit?: number
@@ -24,7 +23,7 @@ export const ongetPopularProducts = async (
 
 export const onGetShockDealProducts = async (
   params?: PaginationRequest
-): Promise<BackendResponse<PaginationResponse<ShockDealProducts>>> => {
+): Promise<BackendResponse<ShockDealProducts[]>> => {
   const data = await api.get("/product/get-shock-deals", {
     params: {
       ...(params?.page && { page: params.page }),
@@ -51,6 +50,6 @@ export const onAskChatbot = async (payload: { message: string, history: any[] })
 }
 
 export const onGetSpecialLatestProduct = async() : Promise<BackendResponse<ProductResponse>> => {
-  const data = await api.get("/product/get-latest-specialty")
+  const data = await api.get("/special/latest")
   return data.data
 }

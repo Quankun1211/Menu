@@ -2,6 +2,7 @@ import { useMutation } from "@tanstack/react-query"
 import { onLoginApi } from "../services/api"
 import { router } from "expo-router";
 import { useAuthStore } from "@/store/auth.store";
+import { setRefreshToken } from "@/utils/token";
 
 const useLogin = () => {
   const setAuth = useAuthStore((state) => state.setAuth);
@@ -11,14 +12,18 @@ const useLogin = () => {
     mutationFn: onLoginApi,
     onSuccess: async (res) => {
       const token = res?.data?.access_token;
+      const refreshToken = res?.data?.refresh_token;
       const role = res?.data?.role; 
 
-      if (!token || !role) {
-        console.error("Thiếu token hoặc role từ API");
+      if (!token || !refreshToken || !role) {
+        console.error("Thiếu token, refresh token hoặc role từ API");
         return;
       }
 
-      await setAuth(token, role);
+      await Promise.all([
+        setAuth(token, role),
+        setRefreshToken(refreshToken),
+      ]);
 
       if (role === 'shipper') {
         router.replace("/(shipper)/dashboard_shipper"); 

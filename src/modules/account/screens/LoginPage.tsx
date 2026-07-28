@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, Text, Pressable, TextInput, TouchableOpacity, Image, ImageBackground, KeyboardAvoidingView, Platform, ScrollView, TouchableWithoutFeedback, Keyboard } from 'react-native';
+import React from 'react';
+import { View, Text, Pressable, TouchableOpacity, Image, KeyboardAvoidingView, Platform, ScrollView, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LoginStyle } from '../css/LoginStyles';
 import { router } from "expo-router";
@@ -7,6 +7,8 @@ import { LinearGradient } from "expo-linear-gradient"
 import LoginForm from '../components/LoginForm';
 import useLogin from '../hooks/useLogin';
 import { LogInRequest } from '../types/api-request';
+import AuthHomeButton from '../components/AuthHomeButton';
+import Toast from 'react-native-toast-message';
 
 export default function LoginPage() {
   const { mutate: onLogin, isPending } = useLogin()
@@ -22,10 +24,11 @@ export default function LoginPage() {
           console.log("Login successfully");
         },
         onError: (error: any) => {
-          console.log(
-            "Login failed:",
-            error?.response?.data || error.message
-          );
+          Toast.show({
+            type: 'error',
+            text1: 'Đăng nhập chưa thành công',
+            text2: error?.response?.data?.error || 'Vui lòng kiểm tra lại thông tin đăng nhập.',
+          });
         },
       }
     )
@@ -39,6 +42,7 @@ export default function LoginPage() {
       locations={[0.1, 0.3, 0.7]} 
       style={{ flex: 1 }}
     >
+      <AuthHomeButton />
       <KeyboardAvoidingView 
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={{ flex: 1 }}
@@ -53,7 +57,7 @@ export default function LoginPage() {
 
             <View style={LoginStyle.content}>
               <Text style={LoginStyle.welcomeText}>Chào Bạn!</Text>
-              <Text style={LoginStyle.subText}>Chào mừng bạn quay lại với Chợ Việt</Text>
+              <Text style={LoginStyle.subText}>Chào mừng bạn quay lại với Bếp Việt</Text>
 
               <LoginForm
                 onFinish={onFinish}

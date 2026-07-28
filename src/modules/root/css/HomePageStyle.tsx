@@ -1,5 +1,51 @@
 import { StyleSheet } from "react-native";
 export const HomePageStyles = StyleSheet.create({
+  screen: { flex: 1, backgroundColor: '#FFFDF9' },
+  scroll: { flex: 1 },
+  scrollContent: { paddingHorizontal: 16, paddingBottom: 36 },
+  mobileHeader: {
+    height: 58,
+    paddingHorizontal: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#FAECE1',
+  },
+  brandRow: { flexDirection: 'row', alignItems: 'center', gap: 9 },
+  brandMark: { backgroundColor: '#D16D2F', borderRadius: 9, paddingHorizontal: 9, paddingVertical: 7 },
+  brandMarkText: { color: '#fff', fontSize: 14, fontWeight: '900', letterSpacing: -0.5 },
+  brandName: { color: '#5C4033', fontSize: 16, fontWeight: '900', letterSpacing: 2 },
+  brandCaption: { color: '#8B6E5C', fontSize: 9, fontWeight: '600', marginTop: 1 },
+  headerAction: {
+    width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center',
+    backgroundColor: 'rgba(255,255,255,0.6)',
+  },
+  searchArea: { paddingHorizontal: 16, paddingTop: 10, backgroundColor: '#FAECE1', zIndex: 20 },
+  hero: { minHeight: 330, borderRadius: 28, padding: 22, overflow: 'hidden', marginBottom: 4 },
+  heroGlow: {
+    position: 'absolute', width: 220, height: 220, borderRadius: 110,
+    right: -80, top: -70, backgroundColor: 'rgba(209,109,47,0.24)',
+  },
+  eyebrow: { flexDirection: 'row', alignItems: 'center', gap: 7, marginBottom: 14 },
+  eyebrowText: { color: '#F4C7A5', fontSize: 10, fontWeight: '900', letterSpacing: 1.6 },
+  heroTitle: { color: '#fff', fontSize: 29, lineHeight: 36, fontWeight: '900', letterSpacing: -0.7 },
+  heroDescription: { color: 'rgba(255,255,255,0.78)', fontSize: 14, lineHeight: 21, marginTop: 12, maxWidth: 310 },
+  heroActions: { flexDirection: 'row', gap: 10, marginTop: 20 },
+  primaryButton: {
+    minHeight: 46, borderRadius: 23, paddingHorizontal: 18, flexDirection: 'row',
+    alignItems: 'center', justifyContent: 'center', gap: 7, backgroundColor: '#D16D2F',
+  },
+  primaryButtonText: { color: '#fff', fontSize: 13, fontWeight: '800' },
+  secondaryButton: {
+    minHeight: 46, borderRadius: 23, paddingHorizontal: 16, flexDirection: 'row',
+    alignItems: 'center', justifyContent: 'center', gap: 7, borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.28)', backgroundColor: 'rgba(255,255,255,0.08)',
+  },
+  secondaryButtonText: { color: '#fff', fontSize: 13, fontWeight: '800' },
+  pressed: { opacity: 0.75, transform: [{ scale: 0.98 }] },
+  trustRow: { flexDirection: 'row', gap: 16, marginTop: 20 },
+  trustItem: { flexDirection: 'row', alignItems: 'center', gap: 5 },
+  trustText: { color: 'rgba(255,255,255,0.72)', fontSize: 10, fontWeight: '600' },
   headerContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -11,11 +57,11 @@ export const HomePageStyles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "#fff",
-    borderRadius: 20,
+    borderRadius: 22,
     paddingHorizontal: 12,
-    height: 44,
+    height: 46,
     borderWidth: 1,
-    borderColor: "#ffa85c90"
+    borderColor: "#E8C5A8"
   },
   searchDropdown: {
     position: "absolute",
@@ -114,7 +160,7 @@ export const HomePageStyles = StyleSheet.create({
   recipeTitle: { color: '#fff', fontSize: 18, fontWeight: 'bold' },
   recipeSub: { color: '#eee', fontSize: 12, marginTop: 4 },
 // Header
-  container: { flex: 1, paddingHorizontal: 15, paddingTop: 0 },
+  container: { flex: 1, paddingHorizontal: 0, paddingTop: 0 },
   
   bannerContainer: {
     height: 200, 
@@ -156,7 +202,7 @@ export const HomePageStyles = StyleSheet.create({
     fontWeight: '500'
   },
 
-  sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 25, marginBottom: 15 },
-  sectionTitle: { fontSize: 18, fontWeight: 'bold', color: '#333' },
-  seeAll: { color: '#F26522', fontWeight: '500' },
+  sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 28, marginBottom: 14 },
+  sectionTitle: { fontSize: 19, fontWeight: '900', color: '#5C4033', letterSpacing: -0.3 },
+  seeAll: { color: '#D16D2F', fontWeight: '700', fontSize: 13 },
 });

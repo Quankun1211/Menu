@@ -10,6 +10,7 @@ export type OrderResponse = {
   status:
     | "pending"
     | "confirmed"
+    | "processing"
     | "delivered"
     | "cancelled"
     | "shipping"
@@ -22,7 +23,7 @@ export type OrderResponse = {
   cancelledBy: string;
   address: AddressModel;
   productSummary: string;
-  thumbnail: string;
+  thumbnail: string | null;
   updatedAt: string;
   paymentUrl?: string;
   paymentStatus: string;
@@ -44,13 +45,12 @@ export type OrderResponse = {
 export type OrderProductResponse = {
   productId: string;
   name: string;
-  image: string;
+  image: string | null;
   unit: string;
   price: number;
   quantity: number;
   total: number
 }
-
 export type OrderDetailResponse = {
   _id: string,
   orderId: string,
@@ -70,4 +70,3 @@ export type OrderDetailResponse = {
   },
   deliveredAt: Date
 }
-  

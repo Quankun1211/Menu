@@ -72,7 +72,7 @@ export default function EditAddressScreen({ addressId }: EditProps) {
     }, {
       onSuccess: () => {
         Toast.show({ type: 'success', text1: 'Đã sửa địa chỉ!' });
-        router.push("/(details)/addressTabs/ListAddressTabs");
+        router.back();
       },
       onError: () => {
         Toast.show({

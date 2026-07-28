@@ -18,7 +18,7 @@ const MenuItems = ({ item }: MenuIngredientProps) => {
   const displayImage = details.image || details.images;
   const displayPrice = details.price || 0;
   
-  const isInShop = item.itemType === 'Product' || !!details.productId;
+  const isInShop = ['Product', 'Special'].includes(item.itemType) || !!details.productId;
 
   return (
     <View style={[

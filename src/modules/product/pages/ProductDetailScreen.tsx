@@ -11,11 +11,13 @@ import useAddToCart from "@/modules/cart/hooks/useAddToCart";
 import Toast from "react-native-toast-message";
 import { router } from "expo-router"
 import ModalLogin from "../components/ModalLogin";
+import { useCheckoutStore } from "@/store/useCheckoutStore";
 interface ProductDetailProps {
   id: string
 }
 
 export default function ProductDetailScreen({ id }: ProductDetailProps) {
+  const setCheckoutDraft = useCheckoutStore((state) => state.setCheckoutDraft);
   const { data: getProductDetail, isPending } = useGetProductDetail(id);
   const { data: meData } = useGetMe();
   const { mutate: trackView } = useTrackView();
@@ -75,11 +77,12 @@ export default function ProductDetailScreen({ id }: ProductDetailProps) {
       productId: id,
       quantity: quantity,
     }];
+    setCheckoutDraft("buy_now", itemsToCheckout);
     
     router.push({
       pathname: "/(details)/checkoutTabs/CheckOutTabs",
       params: {
-        source: "cart",
+        source: "buy_now",
         items: JSON.stringify(itemsToCheckout),
       },
     });

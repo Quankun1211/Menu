@@ -1,34 +1,24 @@
-import { StyleSheet, Dimensions } from "react-native";
-const { height: SCREEN_HEIGHT } = Dimensions.get('window');
+import { StyleSheet } from "react-native";
 
 export const DashboardStyles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#050a05' },
-  header: { padding: 20, paddingTop: 20 },
+  container: { flex: 1, backgroundColor: '#FFFDF9' },
+  header: { paddingHorizontal: 18, paddingTop: 14, paddingBottom: 10, backgroundColor: '#5C4033', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   userInfo: { flexDirection: 'row', alignItems: 'center' },
   avatar: { width: 50, height: 50, borderRadius: 25 },
   userText: { marginLeft: 15 },
   userName: { color: '#fff', fontSize: 20, fontWeight: 'bold' },
   userId: { color: '#32E021', fontSize: 12 },
-  incomeCard: { marginTop: 15 },
+  incomeCard: { backgroundColor: 'rgba(255,255,255,0.12)', paddingHorizontal: 12, paddingVertical: 8, borderRadius: 16 },
   incomeValue: { color: '#32E021', fontSize: 24, fontWeight: 'bold' },
-  orderCount: { color: '#fff', marginTop: 5 },
-  statusToggle: { flexDirection: 'row', justifyContent: 'space-between', padding: 20, paddingTop: 0, paddingBottom: 0 },
-  statusTitle: { color: '#fff', fontSize: 16 },
-  mapContainer: { flex: 1 },
+  orderCount: { color: '#fff', fontSize: 12, fontWeight: '700' },
+  statusToggle: { flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 18, paddingVertical: 12, backgroundColor: '#FAECE1', alignItems: 'center' },
+  statusTitle: { color: '#5C4033', fontSize: 15, fontWeight: '800' },
+  mapContainer: { height: '34%' },
   bottomSheet: { 
-    backgroundColor: '#101a10', 
-    padding: 20, 
-    position: 'absolute', 
-    top: SCREEN_HEIGHT - 60, 
-    width: '100%',
-    height: SCREEN_HEIGHT, // Chiều cao full màn hình để khi kéo lên không bị hụt đáy
-    borderTopLeftRadius: 30,
-    borderTopRightRadius: 30,
-    elevation: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -3 },
-    shadowOpacity: 0.5,
-    shadowRadius: 5,
+    flex: 1,
+    backgroundColor: '#FFFDF9',
+    paddingHorizontal: 16,
+    paddingTop: 16,
   },
   dragHandle: {
     width: 40,
@@ -38,24 +28,25 @@ export const DashboardStyles = StyleSheet.create({
     alignSelf: 'center',
     marginBottom: 10
   },
-  sheetTitle: { 
-    color: '#fff', 
-    fontSize: 18, 
-    fontWeight: 'bold', 
-    marginBottom: 15 
-  },
+  sheetHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 },
+  sheetEyebrow: { color: '#D16D2F', fontSize: 10, fontWeight: '900', letterSpacing: 1.4 },
+  sheetTitle: { color: '#5C4033', fontSize: 20, fontWeight: '900', marginTop: 2 },
+  activeCountBadge: { minWidth: 36, height: 36, borderRadius: 18, backgroundColor: '#FAECE1', alignItems: 'center', justifyContent: 'center' },
+  activeCountText: { color: '#D16D2F', fontWeight: '900' },
   orderCard: { 
-    backgroundColor: '#162616', 
+    backgroundColor: '#fff',
     borderRadius: 20, 
-    padding: 15,
-    marginBottom: 15
+    padding: 16,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: '#EEDCCF',
   },
   orderRow: { flexDirection: 'row', justifyContent: 'space-between' },
   serviceType: { color: '#FF4500', fontSize: 12, fontWeight: 'bold' },
-  priceText: { color: '#32E021', fontSize: 18, fontWeight: 'bold' },
+  priceText: { color: '#D16D2F', fontSize: 18, fontWeight: 'bold' },
   addressContainer: { marginVertical: 10 },
-  addressLabel: { color: '#32E021', fontSize: 10, fontWeight: 'bold' },
-  addressValue: { color: '#fff', fontSize: 14 },
+  addressLabel: { color: '#D16D2F', fontSize: 10, fontWeight: 'bold' },
+  addressValue: { color: '#5C4033', fontSize: 14 },
   statusRow: { marginBottom: 10 },
   statusText: { color: '#ccc', fontSize: 12 },
   actionRow: {
@@ -64,7 +55,7 @@ export const DashboardStyles = StyleSheet.create({
     gap: 10
   },
   acceptBtn: { 
-    backgroundColor: '#32E021', 
+    backgroundColor: '#D16D2F',
     padding: 12, 
     borderRadius: 12, 
     alignItems: 'center',
@@ -174,7 +165,7 @@ export const DashboardStyles = StyleSheet.create({
   },
   addressLine: {
     borderLeftWidth: 2,
-    borderLeftColor: '#444',
+    borderLeftColor: '#E8C5A8',
     paddingLeft: 12,
     marginBottom: 8,
     marginLeft: 4
@@ -182,7 +173,7 @@ export const DashboardStyles = StyleSheet.create({
   customerInfo: {
     fontSize: 14,
     fontWeight: 'bold',
-    color: '#fff',
+    color: '#5C4033',
     marginBottom: 2,
     paddingBottom: 5,
     paddingTop: 5,

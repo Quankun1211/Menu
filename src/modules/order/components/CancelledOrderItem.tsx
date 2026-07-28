@@ -30,7 +30,10 @@ const CancelledOrderItem = ({ order }: Props) => {
   return (
     <View style={styles.container}>
       <View style={styles.imageWrapper}>
-        <Image source={{uri: order.thumbnail}} style={styles.bannerImage} />
+        <Image
+          source={order.thumbnail ? { uri: order.thumbnail } : require('../../../assets/images/logo.png')}
+          style={styles.bannerImage}
+        />
         <View style={styles.cancelledBadge}>
           <Text style={styles.cancelledBadgeText}>ĐÃ HỦY</Text>
         </View>

@@ -1,14 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, Image, Switch, Dimensions, Alert, ActivityIndicator, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, Image, Switch, Alert, ActivityIndicator, TouchableOpacity } from 'react-native';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import * as Location from 'expo-location';
 import { DashboardStyles } from "../css/DashboardStyles"
-import Animated, { 
-  useSharedValue, 
-  useAnimatedStyle, 
-  withSpring, 
-} from 'react-native-reanimated';
-import { GestureDetector, Gesture, FlatList } from 'react-native-gesture-handler';
+import { FlatList } from 'react-native-gesture-handler';
 import RenderOrder from '../components/RenderOrder';
 import useGetMe from '@/hooks/useGetMe';
 import useGetOrderShipper from '../hooks/useGetOrderShipper';
@@ -21,10 +16,7 @@ import useUpdateShipperStatus from '../hooks/useUpdateShipperStatus';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useQueryClient } from '@tanstack/react-query';
 import { useSocket } from '@/context/SocketContext';
-
-const { height: SCREEN_HEIGHT } = Dimensions.get('window');
-const SHEET_MAX_HEIGHT = -SCREEN_HEIGHT + 180; 
-const SHEET_MIN_HEIGHT = -70; 
+import { useIsFocused } from '@react-navigation/native';
 
 export default function DashboardScreen() {
   const queryClient = useQueryClient();
@@ -47,10 +39,11 @@ export default function DashboardScreen() {
   const [isConfirmModalVisible, setIsConfirmModalVisible] = useState(false);
   const [confirmData, setConfirmData] = useState<{ id: string; nextStatus: string; text: string } | undefined>(undefined);
 
-  const translateY = useSharedValue(SHEET_MIN_HEIGHT);
-  const context = useSharedValue({ y: 0 });
-
   const socket = useSocket();
+  const isFocused = useIsFocused();
+  const activeOrders = (orderData?.data || []).filter((order) =>
+    ["assigned", "confirmed", "processing", "shipping", "pending_cancel"].includes(order.status)
+  );
 
   useEffect(() => {
     if (!socket || !meData?.data?.id) return;
@@ -101,6 +94,7 @@ export default function DashboardScreen() {
   }, [meData?.data?.isOnline]);
 
   useEffect(() => {
+    if (!isOnline || !isFocused) return;
     let locationSubscription: Location.LocationSubscription;
     (async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
@@ -125,24 +119,7 @@ export default function DashboardScreen() {
       );
     })();
     return () => { if (locationSubscription) locationSubscription.remove(); };
-  }, [isOnline]);
-
-  const panGesture = Gesture.Pan()
-    .onStart(() => { context.value = { y: translateY.value }; })
-    .onUpdate((event) => {
-      translateY.value = Math.min(Math.max(event.translationY + context.value.y, SHEET_MAX_HEIGHT), SHEET_MIN_HEIGHT);
-    })
-    .onEnd(() => {
-      if (translateY.value < (SHEET_MAX_HEIGHT + SHEET_MIN_HEIGHT) / 2) {
-        translateY.value = withSpring(SHEET_MAX_HEIGHT, { damping: 50 });
-      } else {
-        translateY.value = withSpring(SHEET_MIN_HEIGHT, { damping: 50 });
-      }
-    });
-
-  const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: translateY.value }],
-  }));
+  }, [isOnline, isFocused]);
 
   const handleNextStep = (orderId: string) => {
     if (!isOnline) {
@@ -155,6 +132,7 @@ export default function DashboardScreen() {
     const statusFlow: Record<string, string> = {
       "assigned": "confirmed",
       "confirmed": "shipping",
+      "processing": "shipping",
       "shipping": "delivered"
     };
 
@@ -193,7 +171,6 @@ export default function DashboardScreen() {
         onSuccess: () => {
           setIsConfirmModalVisible(false);
           setConfirmData(undefined);
-          socket.emit("order_status_changed_by_shipper", { orderId: confirmData.id });
         },
         onError: (err: any) => {
           setIsConfirmModalVisible(false);
@@ -224,7 +201,6 @@ export default function DashboardScreen() {
             setIsModalVisible(false);
             setReason('');
             setSelectedOrderId(null);
-            socket.emit("shipper_request_cancel", { orderId: selectedOrderId });
             Alert.alert("Thành công", "Yêu cầu hủy đơn đã được gửi tới Admin");
         }
     })
@@ -268,7 +244,7 @@ export default function DashboardScreen() {
           </View>
         </View>
         <View style={DashboardStyles.incomeCard}>
-          <Text style={DashboardStyles.orderCount}>{orderData?.data?.length || 0} Đơn hàng</Text>
+          <Text style={DashboardStyles.orderCount}>{activeOrders.length} đơn cần xử lý</Text>
         </View>
       </View>
 
@@ -288,7 +264,7 @@ export default function DashboardScreen() {
       </View>
 
       <View style={DashboardStyles.mapContainer}>
-        <MapView
+        {isFocused && <MapView
           ref={mapRef}
           style={StyleSheet.absoluteFill}
           provider={PROVIDER_GOOGLE}
@@ -306,13 +282,13 @@ export default function DashboardScreen() {
               </View>
             </Marker>
           )}
-        </MapView>
+        </MapView>}
 
         <TouchableOpacity
           style={{
             position: 'absolute',
             right: 20,
-            bottom: 320, 
+            bottom: 18,
             backgroundColor: 'white',
             width: 50,
             height: 50,
@@ -331,16 +307,22 @@ export default function DashboardScreen() {
         </TouchableOpacity>
       </View>
 
-      <GestureDetector gesture={panGesture}>
-        <Animated.View style={[DashboardStyles.bottomSheet, animatedStyle]}>
-          <View style={DashboardStyles.dragHandle} />
-          <Text style={DashboardStyles.sheetTitle}>Đơn được phân công</Text>
+      <View style={DashboardStyles.bottomSheet}>
+          <View style={DashboardStyles.sheetHeader}>
+            <View>
+              <Text style={DashboardStyles.sheetEyebrow}>CÔNG VIỆC HIỆN TẠI</Text>
+              <Text style={DashboardStyles.sheetTitle}>Đơn cần xử lý</Text>
+            </View>
+            <View style={DashboardStyles.activeCountBadge}>
+              <Text style={DashboardStyles.activeCountText}>{activeOrders.length}</Text>
+            </View>
+          </View>
           
           {orderLoading ? (
-            <ActivityIndicator size="large" color="#000" style={{ marginTop: 20 }} />
+            <ActivityIndicator size="large" color="#D16D2F" style={{ marginTop: 20 }} />
           ) : (
             <FlatList
-              data={orderData?.data || []} 
+              data={activeOrders}
               keyExtractor={(item) => item._id}
               renderItem={({ item }) => (
                 <RenderOrder 
@@ -350,16 +332,15 @@ export default function DashboardScreen() {
                   onViewDetail={handleViewDetail} 
                 />
               )}
-              contentContainerStyle={{ paddingBottom: 150 }}
+              contentContainerStyle={{ paddingBottom: 24 }}
               ListEmptyComponent={
                 <Text style={{ textAlign: 'center', marginTop: 20, color: '#999' }}>
-                  Hiện chưa có đơn hàng nào được phân công.
+                  {isOnline ? "Chưa có đơn được phân công." : "Bật trực tuyến để bắt đầu ca làm việc."}
                 </Text>
               }
             />
           )}
-        </Animated.View>
-      </GestureDetector>
+      </View>
 
       <ConfirmModal isConfirmModalVisible={isConfirmModalVisible} setIsConfirmModalVisible={setIsConfirmModalVisible} confirmData={confirmData} onConfirmUpdate={onConfirmUpdate} />
 

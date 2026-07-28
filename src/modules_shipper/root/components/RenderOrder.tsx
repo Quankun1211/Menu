@@ -20,6 +20,7 @@ const RenderOrder = ({ item, onNextStep, onOpenCancel, onViewDetail }: RenderOrd
     switch (status) {
       case "assigned": return { text: "XÁC NHẬN ĐƠN", color: "#FF8C00" };
       case "confirmed": return { text: "ĐÃ LẤY HÀNG", color: "#007AFF" };
+      case "processing": return { text: "ĐÃ LẤY HÀNG", color: "#007AFF" };
       case "shipping": return { text: "HOÀN THÀNH", color: "#28a745" };
       case "pending_cancel": return { text: "CHỜ HỦY...", color: "#666" };
       case "cancelled": return { text: "ĐÃ HỦY", color: "#FF3B30" };
@@ -39,13 +40,16 @@ const RenderOrder = ({ item, onNextStep, onOpenCancel, onViewDetail }: RenderOrd
       >
         <View style={DashboardStyles.orderRow}>
           <Text style={DashboardStyles.serviceType}>{item.productSummary || "GIAO HÀNG"}</Text>
-          <Text style={DashboardStyles.priceText}>{formatVND(item.totalPrice)}</Text>
+          <View style={{ alignItems: "flex-end" }}>
+            <Text style={DashboardStyles.addressLabel}>GIÁ TRỊ ĐƠN</Text>
+            <Text style={DashboardStyles.priceText}>{formatVND(item.totalPrice)}</Text>
+          </View>
         </View>
 
         <View style={DashboardStyles.addressContainer}>
           <View style={DashboardStyles.addressLine}>
             <Text style={DashboardStyles.addressLabel}>LẤY HÀNG</Text>
-            <Text style={DashboardStyles.addressValue}>Kho hàng hệ thống</Text>
+            <Text style={DashboardStyles.addressValue}>Bếp / cửa hàng Bếp Việt</Text>
           </View>
           
           <View style={DashboardStyles.addressLine}>
@@ -91,7 +95,7 @@ const RenderOrder = ({ item, onNextStep, onOpenCancel, onViewDetail }: RenderOrd
           onPress={() => !isPendingCancel && !isFinished && !isCancelled && onNextStep(item._id)}
           disabled={isPendingCancel || isFinished || isCancelled}
         >
-          <Text style={DashboardStyles.acceptText}>{config.text}</Text>
+          <Text style={[DashboardStyles.acceptText, { color: "#fff" }]}>{config.text}</Text>
         </TouchableOpacity>
       </View>
     </View>

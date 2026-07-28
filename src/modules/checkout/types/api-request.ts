@@ -34,7 +34,7 @@ export type ApplyCouponRequest = {
     }[];
 };
 
-type CheckoutSource = "cart" | "product";
+type CheckoutSource = "cart" | "buy_now" | "menu" | "recipe";
 
 type CheckoutItemRequest = {
   productId: string;

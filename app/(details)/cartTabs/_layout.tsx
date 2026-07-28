@@ -4,7 +4,9 @@ export default function CartTabsLayout() {
   return (
     <Stack
       screenOptions={{
-        headerShown: false, 
+        headerShown: false,
+        animation: 'none',
+        freezeOnBlur: true,
       }}
     />
   );

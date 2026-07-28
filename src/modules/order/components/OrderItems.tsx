@@ -11,7 +11,6 @@ interface OrderItemProps {
 }
 
 const OrderItem = ({ order }: OrderItemProps) => {
-
   const getStatusColor = () => {
     switch (order.status) {
       case 'confirmed':
@@ -41,7 +40,6 @@ const OrderItem = ({ order }: OrderItemProps) => {
         items: JSON.stringify(itemsToCheckout),
       },
     });
-    console.log(order.itemsForRebuy);
   }
 
   return (
@@ -124,7 +122,10 @@ const OrderItem = ({ order }: OrderItemProps) => {
           </View>
         </View>
 
-        <Image source={{ uri: order.thumbnail }} style={OrderStyles.productImage} />
+        <Image
+          source={order.thumbnail ? { uri: order.thumbnail } : require('../../../assets/images/logo.png')}
+          style={OrderStyles.productImage}
+        />
       </View>
     </View>
   );

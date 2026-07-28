@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { 
   View, 
   Text, 
@@ -19,10 +19,12 @@ import useAddAddress from '../hooks/useAddAddress';
 import Toast from 'react-native-toast-message';
 import MapView, { Marker } from 'react-native-maps';
 import Constants from 'expo-constants';
+import { useCheckoutStore } from '@/store/useCheckoutStore';
 
 const GOONG_API_KEY = Constants.expoConfig?.extra?.apiGetMapKey;
 
 export default function AddAddressScreen() {
+  const setSelectedAddress = useCheckoutStore((state) => state.setSelectedAddress);
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [address, setAddress] = useState('');
@@ -40,10 +42,14 @@ export default function AddAddressScreen() {
   const searchTimeout = useRef<any>(null);
   const mapRef = useRef<MapView>(null);
 
+  const normalizedPhone = phone
+    .replace(/[\s.-]/g, '')
+    .replace(/^\+84/, '0');
+  const isPhoneValid = /^0\d{9,10}$/.test(normalizedPhone);
   const isFormValid =
-    name.trim() !== '' &&
-    phone.trim().length >= 10 &&
-    address.trim() !== '';
+    name.trim().length >= 2 &&
+    isPhoneValid &&
+    address.trim().length >= 5;
 
   const { mutate: addAddress, isPending } = useAddAddress();
 
@@ -51,17 +57,34 @@ export default function AddAddressScreen() {
     if (!isFormValid) return;
 
     addAddress(
-      { name, phone, address, isDefault },
       {
-        onSuccess: () => {
+        name: name.trim(),
+        phone: normalizedPhone,
+        address: address.trim(),
+        isDefault,
+      },
+      {
+        onSuccess: (response) => {
+          if (response?.data) {
+            setSelectedAddress(response.data);
+          }
           Toast.show({ type: 'success', text1: 'Đã thêm địa chỉ' });
-          router.push('/(details)/addressTabs/ListAddressTabs');
+          router.back();
         },
-        onError: () => {
+        onError: (error: any) => {
+          const invalidField = error?.response?.data?.errors?.[0]?.field;
+          const errorMessage =
+            invalidField === 'phone'
+              ? 'Số điện thoại phải bắt đầu bằng 0 và gồm 10–11 chữ số.'
+              : invalidField === 'name'
+                ? 'Tên người nhận cần có ít nhất 2 ký tự.'
+                : invalidField === 'address'
+                  ? 'Địa chỉ cần có ít nhất 5 ký tự.'
+                  : error?.response?.data?.message || 'Thêm địa chỉ thất bại';
           Toast.show({
             type: 'error',
-            text1: 'Thất bại',
-            text2: 'Thêm địa chỉ thất bại',
+            text1: 'Thông tin chưa hợp lệ',
+            text2: errorMessage,
           });
         },
       }
@@ -221,10 +244,15 @@ export default function AddAddressScreen() {
               placeholder="Nhập số điện thoại"
               keyboardType="phone-pad"
               value={phone}
-              onChangeText={setPhone}
-              maxLength={11}
+              onChangeText={(value) => setPhone(value.replace(/[^\d+\s.-]/g, ''))}
+              maxLength={15}
             />
           </View>
+          {phone.length > 0 && !isPhoneValid && (
+            <Text style={CheckoutStyles.errorText}>
+              Nhập số điện thoại bắt đầu bằng 0, gồm 10–11 chữ số.
+            </Text>
+          )}
         </View>
 
         <View style={CheckoutStyles.inputWrapper}>

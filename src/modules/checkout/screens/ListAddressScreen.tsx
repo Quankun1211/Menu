@@ -38,13 +38,7 @@ export default function AddressListScreen({ source, items }: AddressListScreenPr
       setSelectedAddress(tempSelectedAddress);
     }
 
-    router.replace({
-      pathname: "/(details)/checkoutTabs/CheckOutTabs",
-      params: { 
-        source: source, 
-        items: items 
-      }
-    });
+    router.back();
   };
 
   return (

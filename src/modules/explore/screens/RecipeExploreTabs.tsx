@@ -1,5 +1,5 @@
 import { useMemo, useRef, useState } from 'react';
-import { View, Text, Image, FlatList, TouchableOpacity, ActivityIndicator, GestureResponderEvent } from 'react-native';
+import { View, Text, Image, FlatList, TouchableOpacity, ActivityIndicator, GestureResponderEvent, Linking } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { RecipeStyle } from '../css/RecipeStyle';
 import RecipeGridItem from '../components/RecipeGridItem';
@@ -15,7 +15,14 @@ import { RecipeDetailResponse } from '../types/api-response';
 export default function RecipeExploreTabs() {
   const [activeTab, setActiveTab] = useState("all");
   const horizontalFlatListRef = useRef<FlatList>(null);
-  const { temperature, condition, loading: weatherLoading } = useWeather();
+  const {
+    temperature,
+    condition,
+    loading: weatherLoading,
+    permissionStatus,
+    canAskAgain,
+    requestWeather,
+  } = useWeather();
   
   const { data: getCategoryRecipe } = useGetCategoryRecipe();
   const { data: recipeResponse, isPending: pendingRecipe } = useGetRecipe(activeTab);
@@ -98,6 +105,31 @@ export default function RecipeExploreTabs() {
           <View style={RecipeStyle.sectionHeader}>
             <Text style={RecipeStyle.sectionTitle}>Gợi ý hôm nay</Text>
           </View>
+
+          {permissionStatus !== 'granted' && permissionStatus !== 'checking' && (
+            <View style={RecipeStyle.weatherPrompt}>
+              <View style={RecipeStyle.weatherIcon}>
+                <Ionicons name="partly-sunny-outline" size={22} color="#D16D2F" />
+              </View>
+              <View style={RecipeStyle.weatherPromptContent}>
+                <Text style={RecipeStyle.weatherPromptTitle}>Gợi ý hợp thời tiết</Text>
+                <Text style={RecipeStyle.weatherPromptText}>
+                  Bật vị trí để ưu tiên món phù hợp. Bạn vẫn có thể xem mọi công thức nếu bỏ qua.
+                </Text>
+              </View>
+              <TouchableOpacity
+                accessibilityRole="button"
+                style={RecipeStyle.weatherButton}
+                disabled={weatherLoading}
+                onPress={() => canAskAgain ? requestWeather() : Linking.openSettings()}
+              >
+                {weatherLoading
+                  ? <ActivityIndicator size="small" color="#fff" />
+                  : <Text style={RecipeStyle.weatherButtonText}>{canAskAgain ? 'Bật' : 'Cài đặt'}</Text>
+                }
+              </TouchableOpacity>
+            </View>
+          )}
 
           {featuredRecipe && (
             <TouchableOpacity 

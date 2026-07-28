@@ -34,14 +34,17 @@ export default function SearchBar() {
           <Ionicons
             name="search-outline"
             size={20}
-            color="#ffa85c"
+            color="#D16D2F"
             style={HomePageStyles.searchIcon}
           />
 
           <TextInput
             placeholder="Tìm kiếm đặc sản Việt..."
             style={HomePageStyles.searchInput}
-            placeholderTextColor="#999"
+            placeholderTextColor="#9A8172"
+            returnKeyType="search"
+            clearButtonMode="while-editing"
+            accessibilityLabel="Tìm kiếm đặc sản Việt"
             value={keyword}
             onChangeText={setKeyword}
             onFocus={() => setIsFocused(true)}

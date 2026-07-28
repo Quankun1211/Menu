@@ -192,6 +192,13 @@ export const CheckoutStyles = StyleSheet.create({
   saveBtnTextDisabled: {
     color: 'rgba(255, 255, 255, 0.8)',
   },
+  errorText: {
+    color: '#C94A42',
+    fontSize: 12,
+    lineHeight: 17,
+    marginTop: 6,
+    marginLeft: 12,
+  },
 
 
 

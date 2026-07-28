@@ -1,6 +1,5 @@
-import { Tabs, useRouter } from 'expo-router';
+import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { Platform } from 'react-native';
 import { DefaultTheme, ThemeProvider } from '@react-navigation/native'
 
 export default function TabsLayout() {
@@ -15,22 +14,29 @@ export default function TabsLayout() {
   return (
     <ThemeProvider value={MyTheme}>
       <Tabs
+        detachInactiveScreens={false}
         screenOptions={{
           headerShown: false,
-          tabBarActiveTintColor: '#32E021', 
-          tabBarInactiveTintColor: '#999',
+          tabBarActiveTintColor: '#D16D2F',
+          tabBarInactiveTintColor: '#8D817A',
           tabBarStyle: {
-            backgroundColor: '#0A0F0A', 
-            borderTopWidth: 0,
-            height: 55,
-            paddingBottom: 5,
+            backgroundColor: '#FFFDF9',
+            borderTopWidth: 1,
+            borderTopColor: '#EEDCCF',
+            height: 64,
+            paddingTop: 6,
+            paddingBottom: 8,
           },
+          tabBarLabelStyle: { fontSize: 11, fontWeight: '700' },
+          animation: 'none',
+          freezeOnBlur: false,
+          lazy: true,
         }}
       >
         <Tabs.Screen
           name="dashboard_shipper"
           options={{
-            title: "Trang chủ", 
+            title: "Công việc",
             tabBarIcon: ({ color, focused }) => (
               <Ionicons name={focused ? "home" : "home-outline"} size={24} color={color} />
             ),
@@ -52,18 +58,6 @@ export default function TabsLayout() {
             tabBarIcon: ({ color, focused }) => (
               <Ionicons name={focused ? "person" : "person-outline"} size={24} color={color} />
             ),
-          }}
-        />
-        <Tabs.Screen
-          name="dashboard" 
-          options={{
-            href: null, 
-          }}
-        />
-        <Tabs.Screen
-          name="(shipper_details)"
-          options={{
-            href: null, 
           }}
         />
       </Tabs>

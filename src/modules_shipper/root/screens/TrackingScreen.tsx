@@ -7,7 +7,6 @@ import { useRouter } from 'expo-router';
 import Constants from 'expo-constants';
 import polyline from '@mapbox/polyline';
 import { useQueryClient } from '@tanstack/react-query';
-import { io } from "socket.io-client";
 
 import useGetOrderDetail from '@/modules/order/hooks/useGetOrderDetail';
 import useUpdateStatusShipper from '../hooks/useUpdateStatus';
@@ -31,7 +30,6 @@ export default function TrackingScreen({ orderId: initialOrderId }: TrackingOrde
   const router = useRouter();
   const mapRef = useRef<MapView>(null);
   const queryClient = useQueryClient();
-  const socket = useRef<any>(null);
   
   const orderId = useMemo(() => initialOrderId, []);
   const { data: meData } = useGetMe();
@@ -52,30 +50,30 @@ export default function TrackingScreen({ orderId: initialOrderId }: TrackingOrde
   const { mutate: cancelOrder } = useRequestCancel();
 
   const order = orderResponse?.data;
-  const socketEmit = useSocket();
+  const socket = useSocket();
 
   const isCancelled = order?.status === 'cancelled';
   const isPendingCancel = order?.status === 'pending_cancel';
   const isCancelledState = isCancelled || isPendingCancel;
 
   useEffect(() => {
-    socket.current = io("http://192.168.1.4:5000");
-    socket.current.emit("join_order", orderId);
-
-    if (socketEmit) {
-      socketEmit.on("shipper_cancel_result", (data: any) => {
-        if (data.orderId === orderId) {
-          Alert.alert("Thông báo", data.message);
-          refetch();
-        }
-      });
-    }
+    if (!socket) return;
+    const joinOrder = () => socket.emit("join_order", orderId);
+    const handleCancelResult = (data: any) => {
+      if (data.orderId === orderId) {
+        Alert.alert("Thông báo", data.message);
+        refetch();
+      }
+    };
+    socket.on("connect", joinOrder);
+    socket.on("shipper_cancel_result", handleCancelResult);
+    if (socket.connected) joinOrder();
 
     return () => {
-      socket.current?.disconnect();
-      if (socketEmit) socketEmit.off("shipper_cancel_result");
+      socket.off("connect", joinOrder);
+      socket.off("shipper_cancel_result", handleCancelResult);
     };
-  }, [orderId, socketEmit]);
+  }, [orderId, socket, refetch]);
 
   const handleManualUpdate = async () => {
     if (!isOnline) {
@@ -102,7 +100,6 @@ export default function TrackingScreen({ orderId: initialOrderId }: TrackingOrde
     }
     cancelOrder({ orderId: orderId, reason }, {
         onSuccess: () => {
-            socketEmit.emit("shipper_request_cancel", { orderId: order?._id });
             setIsModalVisible(false);
             setReason('');
             Alert.alert("Thành công", "Yêu cầu hủy đơn đã được gửi tới Admin");
@@ -117,6 +114,8 @@ export default function TrackingScreen({ orderId: initialOrderId }: TrackingOrde
         return { text: "XÁC NHẬN ĐƠN", next: "confirmed", color: "#FF8C00", label: "Chờ xác nhận" };
       case "confirmed": 
         return { text: "ĐÃ LẤY HÀNG", next: "shipping", color: "#007AFF", label: "Đang lấy hàng" };
+      case "processing":
+        return { text: "ĐÃ LẤY HÀNG", next: "shipping", color: "#007AFF", label: "Đang chuẩn bị hàng" };
       case "shipping": 
         return { text: "HOÀN THÀNH", next: "delivered", color: "#28a745", label: "Đang giao hàng" };
       case "pending_cancel":
@@ -132,11 +131,16 @@ export default function TrackingScreen({ orderId: initialOrderId }: TrackingOrde
   }, [order?.status]);
 
   useEffect(() => {
-    (async () => {
+    if (!isOnline) return;
+    let subscriber: Location.LocationSubscription | undefined;
+    let cancelled = false;
+
+    const startLocationTracking = async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== 'granted') return;
       
       let loc = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
+      if (cancelled) return;
       setLocation(loc);
 
       if (loc && !hasInitialZoom) {
@@ -149,16 +153,27 @@ export default function TrackingScreen({ orderId: initialOrderId }: TrackingOrde
         setHasInitialZoom(true);
       }
 
-      const subscriber = await Location.watchPositionAsync(
-        { accuracy: Location.Accuracy.High, distanceInterval: 10 },
+      subscriber = await Location.watchPositionAsync(
+        { accuracy: Location.Accuracy.Balanced, distanceInterval: 20, timeInterval: 10000 },
         (newLocation) => {
           setLocation(newLocation);
+          if (order?.status === "shipping") {
+            updateLocation({
+              orderId,
+              latitude: newLocation.coords.latitude,
+              longitude: newLocation.coords.longitude,
+            });
+          }
         }
       );
+    };
 
-      return () => subscriber.remove();
-    })();
-  }, []);
+    startLocationTracking();
+    return () => {
+      cancelled = true;
+      subscriber?.remove();
+    };
+  }, [isOnline, order?.status, orderId, updateLocation]);
 
   useEffect(() => {
     const getCustomerLocationAndRoute = async () => {
@@ -207,20 +222,16 @@ export default function TrackingScreen({ orderId: initialOrderId }: TrackingOrde
     }
   }, [routeCoordinates, hasInitialZoom, isCancelledState]);
 
-  const handleNextStep = () => {
-    if (!isOnline) {
-      Alert.alert("Thông báo", "Bạn cần trực tuyến để thực hiện hành động này");
-      return;
-    }
-    if (!order || !statusConfig.next || isCancelledState) return;
-
-    updateStatus({ orderId: order._id, nextStatus: statusConfig.next }, {
+  const performStatusUpdate = () => {
+    if (!order || !statusConfig.next) return;
+    const nextStatus = statusConfig.next;
+    updateStatus({ orderId: order._id, nextStatus }, {
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ['order-detail', orderId] });
+        queryClient.invalidateQueries({ queryKey: ['get-my-orders-detail', orderId] });
         refetch();
 
-        if (statusConfig.next === 'delivered') {
-          Alert.alert("Thành công", "Đơn hàng đã hoàn tất!");
+        if (nextStatus === 'delivered') {
+          Alert.alert("Hoàn tất", "Đơn hàng đã được ghi nhận giao thành công.");
           router.back();
         }
       },
@@ -228,6 +239,27 @@ export default function TrackingScreen({ orderId: initialOrderId }: TrackingOrde
         Alert.alert("Lỗi", err?.response?.data?.message || "Cập nhật thất bại");
       }
     });
+  };
+
+  const handleNextStep = () => {
+    if (!isOnline) {
+      Alert.alert("Thông báo", "Bạn cần trực tuyến để thực hiện hành động này");
+      return;
+    }
+    if (!order || !statusConfig.next || isCancelledState) return;
+
+    const isCod = order.paymentMethod === "cod" || order.paymentMethod === "cash";
+    const title = statusConfig.next === "delivered"
+      ? (isCod ? "Xác nhận đã thu tiền COD" : "Xác nhận giao thành công")
+      : "Cập nhật trạng thái đơn";
+    const message = statusConfig.next === "delivered" && isCod
+      ? `Bạn đã thu đủ tiền của khách cho đơn #${order._id.slice(-5).toUpperCase()}?`
+      : `Bạn có chắc muốn chuyển đơn sang “${statusConfig.label}”?`;
+
+    Alert.alert(title, message, [
+      { text: "Chưa", style: "cancel" },
+      { text: "Xác nhận", onPress: performStatusUpdate },
+    ]);
   };
 
   const centerToUserLocation = () => {

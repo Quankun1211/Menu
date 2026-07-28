@@ -38,3 +38,18 @@ export const onUpdateShipperLocation = async (orderId: string, latitude: number,
   const { data } = await api.put("/shipper/update-location", { orderId, latitude, longitude })
   return data
 }
+
+export type ShipperStats = {
+  total: number;
+  active: number;
+  delivered: number;
+  cancelled: number;
+  pendingCancel: number;
+  codCollected: number;
+  averageDeliveryMinutes: number;
+};
+
+export const onGetShipperStatsApi = async (): Promise<BackendResponse<ShipperStats>> => {
+  const { data } = await api.get("/shipper/stats");
+  return data;
+};

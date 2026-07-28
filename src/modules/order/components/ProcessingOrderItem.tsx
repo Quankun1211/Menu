@@ -51,7 +51,10 @@ const ProcessingOrderItem = ({ order }: Props) => {
           </View>
         </View>
 
-        <Image source={{uri: order.thumbnail}} style={styles.productImage} />
+        <Image
+          source={order.thumbnail ? { uri: order.thumbnail } : require('../../../assets/images/logo.png')}
+          style={styles.productImage}
+        />
       </View>
     </LinearGradient>
   );

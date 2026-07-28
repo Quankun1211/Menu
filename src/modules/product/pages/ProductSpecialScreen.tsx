@@ -3,7 +3,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useState, useEffect } from "react";
 import { ProductSpecialStyles } from "../css/ProductSpecialStyles";
-import useGetProductDetail from "../hooks/useGetProductDetail";
+import useGetSpecialDetail from "../hooks/useGetSpecialDetail";
 import { formatVND } from "@/utils/helper";
 import useTrackView from "../hooks/useTrackView";
 import useGetMe from "@/hooks/useGetMe";
@@ -12,12 +12,14 @@ import Toast from "react-native-toast-message";
 import { router } from "expo-router";
 import ModalLogin from "../components/ModalLogin";
 import { ProductDetailStyles } from "../css/ProductDetailStyles";
+import { useCheckoutStore } from "@/store/useCheckoutStore";
 interface ProductDetailProps {
   id: string;
 }
 
 export default function ProductSpecialScreen({ id }: ProductDetailProps) {
-  const { data: getProductDetail, isPending } = useGetProductDetail(id);
+  const setCheckoutDraft = useCheckoutStore((state) => state.setCheckoutDraft);
+  const { data: getProductDetail, isPending } = useGetSpecialDetail(id);
   const { data: meData } = useGetMe();
   const { mutate: trackView } = useTrackView();
   const { mutate: addToCart, isPending: cartPending } = useAddToCart();
@@ -64,11 +66,12 @@ export default function ProductSpecialScreen({ id }: ProductDetailProps) {
       productId: id,
       quantity: quantity,
     }];
+    setCheckoutDraft("buy_now", itemsToCheckout);
     
     router.push({
       pathname: "/(details)/checkoutTabs/CheckOutTabs",
       params: {
-        source: "cart",
+        source: "buy_now",
         items: JSON.stringify(itemsToCheckout),
       },
     });

@@ -1,12 +1,12 @@
 import { BackendResponse } from "@/libs/shared/types/backend-response";
 import { AddAddressRequest, UpdateAddressRequest, PreviewCheckoutRequest, ApplyCouponRequest, CheckoutRequest } from "../types/api-request";
-import { AddAddressResponse, AddressModel, GetAddressesResponse, UpdateAddressResponse, PreviewCheckoutResponse, ApplyCouponResponse } from "../types/api-response";
+import { AddressModel, GetAddressesResponse, UpdateAddressResponse, PreviewCheckoutResponse, ApplyCouponResponse } from "../types/api-response";
 import api from "@/services/axios";
 import { OrderResponse } from "@/modules/order/types/api-response";
 
 export const onAddAddressApi = async (
     payload: AddAddressRequest
-) : Promise<BackendResponse<AddAddressResponse>> => {
+) : Promise<BackendResponse<AddressModel>> => {
     const { data } = await api.post("/address/add", payload);
     return data
 }

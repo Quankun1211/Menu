@@ -7,7 +7,7 @@ export const ExploreStyles = StyleSheet.create({
   container: {
     paddingTop: 15,
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#FFFDF9',
   },
   favouriteButton: {
     position: "absolute",
@@ -23,7 +23,7 @@ export const ExploreStyles = StyleSheet.create({
     marginTop: 5,
   },
   chipList: {
-    paddingBottom: 5,
+    paddingBottom: 2,
   },
   chip: {
     flexDirection: 'row',
@@ -32,17 +32,15 @@ export const ExploreStyles = StyleSheet.create({
     paddingHorizontal: 20,
     borderRadius: 25,
     marginRight: 10,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
+    borderWidth: 1,
   },
   activeChip: {
-    backgroundColor: '#F26522',
+    backgroundColor: '#D16D2F',
+    borderColor: '#D16D2F',
   },
   inactiveChip: {
     backgroundColor: '#fff',
+    borderColor: '#EEDCCF',
   },
   chipText: {
     fontSize: 14,
@@ -61,14 +59,21 @@ export const ExploreStyles = StyleSheet.create({
   productCard: {
     width: columnWidth,
     marginBottom: 20,
-    backgroundColor: '#fffefd',
+    backgroundColor: '#fff',
     borderRadius: 20,
-    boxShadow: '4px 8px 5px 0px rgba(0, 0, 0, 0.12)',
+    borderWidth: 1,
+    borderColor: '#EEDCCF',
+    shadowColor: '#5C4033',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.09,
+    shadowRadius: 12,
+    elevation: 3,
   },
   imageContainer: {
     width: '100%',
     aspectRatio: 1,
-    borderRadius: 28,
+    borderTopLeftRadius: 19,
+    borderTopRightRadius: 19,
     overflow: 'hidden',
     position: 'relative',
     backgroundColor: '#fff',
@@ -81,7 +86,7 @@ export const ExploreStyles = StyleSheet.create({
     position: 'absolute',
     right: 10,
     bottom: 10,
-    backgroundColor: '#F26522',
+    backgroundColor: '#D16D2F',
     borderRadius: 100,
     padding: 6,
     elevation: 4,
@@ -99,7 +104,7 @@ export const ExploreStyles = StyleSheet.create({
   productName: {
     fontSize: 15,
     fontWeight: 'bold',
-    color: '#1A1A1A',
+    color: '#5C4033',
     lineHeight: 20,
   },
   priceRow: {
@@ -110,7 +115,7 @@ export const ExploreStyles = StyleSheet.create({
   productPrice: {
     fontSize: 15,
     fontWeight: 'bold',
-    color: '#F26522',
+    color: '#D16D2F',
   },
   productUnit: {
     fontSize: 13,

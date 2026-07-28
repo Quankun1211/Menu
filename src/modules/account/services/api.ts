@@ -11,7 +11,8 @@ export const onLoginApi = async (
     const {username, password} = payload
     const data = await api.post("auth/login", {
         username,
-        password
+        password,
+        clientType: "mobile"
     })
     return data.data
 }

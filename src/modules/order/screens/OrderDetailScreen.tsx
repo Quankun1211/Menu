@@ -1,4 +1,4 @@
-import { ScrollView, View, Text, ActivityIndicator, TouchableOpacity, StyleSheet } from "react-native";
+import { ScrollView, View, Text, ActivityIndicator, TouchableOpacity, StyleSheet, Modal, Linking } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 import * as Location from "expo-location";
 import { useEffect, useRef, useState } from "react";
@@ -23,6 +23,9 @@ export default function OrderDetailScreen({ orderId }: OrderProps) {
   const [isModalVisible, setModalVisible] = useState(false);
   const [mapRegion, setMapRegion] = useState<any>(null);
   const [loadingMap, setLoadingMap] = useState(true);
+  const [locationPermissionRequired, setLocationPermissionRequired] = useState(false);
+  const [showMapPermissionModal, setShowMapPermissionModal] = useState(false);
+  const [canAskLocationPermission, setCanAskLocationPermission] = useState(true);
   const [shipperCoords, setShipperCoords] = useState<any>(null);
 
   const { mutate: cancelOrder, isPending: cancelPending } = useCancelOrder();
@@ -39,33 +42,48 @@ export default function OrderDetailScreen({ orderId }: OrderProps) {
     }
   }, [order]);
 
-  useEffect(() => {
-    const geocodeAddress = async () => {
-      const address = order?.address?.address;
-      if (address) {
-        try {
-          const result = await Location.geocodeAsync(address);
-          if (result && result.length > 0) {
-            setMapRegion({
-              latitude: result[0].latitude,
-              longitude: result[0].longitude,
-              latitudeDelta: 0.005,
-              longitudeDelta: 0.005,
-            });
-          }
-        } catch (error) {
-          console.error(error);
-        } finally {
-          setLoadingMap(false);
-        }
-      } else {
-        setLoadingMap(false);
-      }
-    };
-    if (order) {
-      geocodeAddress();
+  const geocodeAddress = async (requestPermission = false) => {
+    const address = order?.address?.address;
+    if (!address) {
+      setLoadingMap(false);
+      return;
     }
-  }, [order]);
+
+    try {
+      const permission = requestPermission
+        ? await Location.requestForegroundPermissionsAsync()
+        : await Location.getForegroundPermissionsAsync();
+
+      if (permission.status !== Location.PermissionStatus.GRANTED) {
+        setLocationPermissionRequired(true);
+        setCanAskLocationPermission(permission.canAskAgain);
+        setLoadingMap(false);
+        return;
+      }
+
+      setLocationPermissionRequired(false);
+      setLoadingMap(true);
+      const result = await Location.geocodeAsync(address);
+      if (result.length > 0) {
+        setMapRegion({
+          latitude: result[0].latitude,
+          longitude: result[0].longitude,
+          latitudeDelta: 0.005,
+          longitudeDelta: 0.005,
+        });
+      }
+    } catch {
+      setMapRegion(null);
+    } finally {
+      setLoadingMap(false);
+    }
+  };
+
+  useEffect(() => {
+    if (order) geocodeAddress();
+    // Only rerun when the loaded order changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [order?._id]);
 
   useEffect(() => {
     if (isMapReady && mapRef.current && mapRegion && status === "shipping" && shipperCoords) {
@@ -216,6 +234,18 @@ export default function OrderDetailScreen({ orderId }: OrderProps) {
                 </View>
               </View>
             </View>
+          ) : locationPermissionRequired ? (
+            <TouchableOpacity
+              activeOpacity={0.82}
+              onPress={() => setShowMapPermissionModal(true)}
+              style={[OrderItemStyles.mapSnippet, styles.locationPermissionCard]}
+            >
+              <Ionicons name="map-outline" size={27} color="#D16D2F" />
+              <Text style={styles.locationPermissionTitle}>Xem vị trí trên bản đồ</Text>
+              <Text style={styles.locationPermissionText}>
+                Chỉ bật quyền vị trí khi bạn muốn hiển thị bản đồ giao hàng.
+              </Text>
+            </TouchableOpacity>
           ) : (
             <View style={[OrderItemStyles.mapSnippet, { justifyContent: 'center', alignItems: 'center', backgroundColor: '#f0f0f0' }]}>
                 <Text>Không tải được bản đồ</Text>
@@ -300,6 +330,158 @@ export default function OrderDetailScreen({ orderId }: OrderProps) {
       </ScrollView>
 
       <CancelOrderModal isVisible={isModalVisible} onClose={() => setModalVisible(false)} onConfirm={handleConfirmCancel} />
+      <Modal
+        visible={showMapPermissionModal}
+        transparent
+        animationType="fade"
+        statusBarTranslucent
+        onRequestClose={() => setShowMapPermissionModal(false)}
+      >
+        <View style={styles.permissionOverlay}>
+          <View style={styles.permissionModal}>
+            <View style={styles.permissionIcon}>
+              <Ionicons name="navigate-outline" size={30} color="#D16D2F" />
+            </View>
+            <Text style={styles.permissionTitle}>Hiển thị bản đồ giao hàng?</Text>
+            <Text style={styles.permissionDescription}>
+              Bếp Việt cần quyền vị trí để chuyển địa chỉ giao hàng thành tọa độ trên bản đồ. Vị trí của bạn không được dùng để thay đổi đơn hàng.
+            </Text>
+            <View style={styles.permissionNote}>
+              <Ionicons name="shield-checkmark-outline" size={18} color="#3F7D58" />
+              <Text style={styles.permissionNoteText}>Bạn có thể tắt quyền bất cứ lúc nào trong Cài đặt.</Text>
+            </View>
+            <View style={styles.permissionActions}>
+              <TouchableOpacity
+                style={styles.permissionLaterButton}
+                onPress={() => setShowMapPermissionModal(false)}
+              >
+                <Text style={styles.permissionLaterText}>Để sau</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.permissionContinueButton}
+                onPress={() => {
+                  setShowMapPermissionModal(false);
+                  if (canAskLocationPermission) {
+                    geocodeAddress(true);
+                  } else {
+                    Linking.openSettings();
+                  }
+                }}
+              >
+                <Text style={styles.permissionContinueText}>
+                  {canAskLocationPermission ? 'Tiếp tục' : 'Mở cài đặt'}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  locationPermissionCard: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#FAECE1',
+    borderWidth: 1,
+    borderColor: '#E8C5A8',
+    paddingHorizontal: 20,
+  },
+  locationPermissionTitle: {
+    color: '#5C4033',
+    fontSize: 14,
+    fontWeight: '800',
+    marginTop: 7,
+  },
+  locationPermissionText: {
+    color: '#806D63',
+    fontSize: 11,
+    lineHeight: 16,
+    textAlign: 'center',
+    marginTop: 3,
+  },
+  permissionOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(46, 33, 27, 0.55)',
+    justifyContent: 'center',
+    paddingHorizontal: 22,
+  },
+  permissionModal: {
+    backgroundColor: '#FFFDF9',
+    borderRadius: 28,
+    padding: 24,
+    alignItems: 'center',
+  },
+  permissionIcon: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: '#FAECE1',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16,
+  },
+  permissionTitle: {
+    color: '#5C4033',
+    fontSize: 20,
+    fontWeight: '900',
+    textAlign: 'center',
+  },
+  permissionDescription: {
+    color: '#806D63',
+    fontSize: 13,
+    lineHeight: 20,
+    textAlign: 'center',
+    marginTop: 10,
+  },
+  permissionNote: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#EEF7F0',
+    borderRadius: 14,
+    padding: 12,
+    marginTop: 18,
+  },
+  permissionNoteText: {
+    flex: 1,
+    color: '#476552',
+    fontSize: 11,
+    lineHeight: 16,
+    marginLeft: 8,
+  },
+  permissionActions: {
+    width: '100%',
+    flexDirection: 'row',
+    gap: 10,
+    marginTop: 22,
+  },
+  permissionLaterButton: {
+    flex: 1,
+    minHeight: 48,
+    borderRadius: 24,
+    borderWidth: 1,
+    borderColor: '#E8C5A8',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  permissionLaterText: {
+    color: '#765746',
+    fontSize: 14,
+    fontWeight: '800',
+  },
+  permissionContinueButton: {
+    flex: 1.35,
+    minHeight: 48,
+    borderRadius: 24,
+    backgroundColor: '#D16D2F',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  permissionContinueText: {
+    color: '#FFF',
+    fontSize: 14,
+    fontWeight: '900',
+  },
+});

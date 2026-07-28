@@ -101,7 +101,7 @@ export default function OrderHistoryScreen() {
 
     return (
         <SafeAreaView style={OrderHistoryStyles.container}>
-            <StatusBar barStyle="light-content" />
+            <StatusBar barStyle="dark-content" backgroundColor="#FFFDF9" />
             
             <Text style={OrderHistoryStyles.headerTitle}>Lịch sử giao hàng</Text>
             
@@ -136,7 +136,7 @@ export default function OrderHistoryScreen() {
                 data={filteredData}
                 renderItem={renderItem}
                 keyExtractor={(item) => item._id}
-                contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 20 }}
+                contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 24 }}
                 ListEmptyComponent={
                     <Text style={{ color: '#888', textAlign: 'center', marginTop: 20 }}>
                         Không có đơn hàng nào

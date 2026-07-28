@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import { 
     View, 
     Text, 
@@ -11,39 +11,24 @@ import {
 } from 'react-native';
 import { router } from "expo-router"
 import { AccountStyles } from '../css/AccountStyles';
-import useGetAllOrderShipper from '../hooks/useGetAllOrderShipper';
 import useGetMe from '@/hooks/useGetMe';
 import useLogout from '@/hooks/useLogOut';
+import useGetShipperStats from '../hooks/useGetShipperStats';
+import { formatVND } from '@/utils/helper';
 
 export default function AccountScreen() {
     const [logoutModal, setLogoutModal] = useState(false);
     const { data: meData } = useGetMe();
-    const { data: orderShipper } = useGetAllOrderShipper();
+    const { data: statsResponse } = useGetShipperStats();
     const { mutate: logoutMutation } = useLogout();
 
-    const actualData = orderShipper?.data || [];
-
-    const stats = useMemo(() => {
-        const total = actualData.length;
-        const delivered = actualData.filter(o => o.status === 'delivered').length;
-        const cancelled = actualData.filter(o => o.status === 'cancelled').length;
-        const successRate = total > 0 ? ((delivered / total) * 100).toFixed(1) : 0;
-        
-        const totalProcessingTime = actualData
-            .filter(o => o.status === 'delivered' && o.deliveredAt && o.shippedAt)
-            .reduce((sum, o) => sum + (new Date(o.deliveredAt).getTime() - new Date(o.shippedAt).getTime()), 0);
-        
-        const avgTimeHours = delivered > 0 ? (totalProcessingTime / delivered / (1000 * 60 * 60)).toFixed(1) : 0;
-
-        return { 
-            total, 
-            delivered, 
-            cancelled,
-            successRate, 
-            avgTimeHours,
-            activeHours: 8 
-        };
-    }, [actualData]);
+    const stats = statsResponse?.data ?? {
+        total: 0, active: 0, delivered: 0, cancelled: 0,
+        pendingCancel: 0, codCollected: 0, averageDeliveryMinutes: 0
+    };
+    const successRate = stats.total > 0
+        ? Math.round((stats.delivered / stats.total) * 100)
+        : 0;
 
     const handleConfirmLogout = () => {
         logoutMutation(undefined, {
@@ -56,7 +41,7 @@ export default function AccountScreen() {
 
     return (
         <SafeAreaView style={AccountStyles.container}>
-            <StatusBar barStyle="light-content" />
+            <StatusBar barStyle="dark-content" backgroundColor="#FFFDF9" />
             <ScrollView contentContainerStyle={AccountStyles.scrollContent}>
                 
                 <View style={AccountStyles.profileHeader}>
@@ -65,23 +50,23 @@ export default function AccountScreen() {
                         style={{width: 80, height: 80, borderRadius: 40, backgroundColor: '#333', marginBottom: 15}} 
                     />
                     <Text style={AccountStyles.userName}>{meData?.data.name}</Text>
-                    <Text style={AccountStyles.userRole}>Shipper</Text>
+                    <Text style={AccountStyles.userRole}>Đối tác giao hàng</Text>
                 </View>
 
                 <View style={AccountStyles.section}>
                     <Text style={AccountStyles.sectionTitle}>Hiệu suất làm việc</Text>
                     <View style={AccountStyles.kpiGrid}>
                         <View style={AccountStyles.kpiBox}>
-                            <Text style={AccountStyles.kpiValue}>{stats.successRate}%</Text>
+                            <Text style={AccountStyles.kpiValue}>{successRate}%</Text>
                             <Text style={AccountStyles.kpiLabel}>Tỉ lệ giao</Text>
                         </View>
                         <View style={AccountStyles.kpiBox}>
-                            <Text style={AccountStyles.kpiValue}>{stats.avgTimeHours}h</Text>
-                            <Text style={AccountStyles.kpiLabel}>T.gian TB/đơn</Text>
+                            <Text style={AccountStyles.kpiValue}>{stats.averageDeliveryMinutes}p</Text>
+                            <Text style={AccountStyles.kpiLabel}>TB giao/đơn</Text>
                         </View>
                         <View style={AccountStyles.kpiBox}>
-                            <Text style={AccountStyles.kpiValue}>{stats.activeHours}h</Text>
-                            <Text style={AccountStyles.kpiLabel}>Giờ hoạt động</Text>
+                            <Text style={AccountStyles.kpiValue}>{formatVND(stats.codCollected)}</Text>
+                            <Text style={AccountStyles.kpiLabel}>COD đã thu</Text>
                         </View>
                     </View>
                 </View>
@@ -92,11 +77,11 @@ export default function AccountScreen() {
                         <Text style={AccountStyles.statLabel}>Tổng đơn</Text>
                     </View>
                     <View style={AccountStyles.statCard}>
-                        <Text style={[AccountStyles.statValue, { color: '#4cd964' }]}>{stats.delivered}</Text>
+                        <Text style={[AccountStyles.statValue, { color: '#2F8F5B' }]}>{stats.delivered}</Text>
                         <Text style={AccountStyles.statLabel}>Thành công</Text>
                     </View>
                     <View style={AccountStyles.statCard}>
-                        <Text style={[AccountStyles.statValue, { color: '#ff4444' }]}>{stats.cancelled}</Text>
+                        <Text style={[AccountStyles.statValue, { color: '#C84B45' }]}>{stats.cancelled}</Text>
                         <Text style={AccountStyles.statLabel}>Đã hủy</Text>
                     </View>
                 </View>

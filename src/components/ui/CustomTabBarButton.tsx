@@ -1,10 +1,15 @@
 import { TouchableOpacity, View, StyleSheet } from 'react-native';
+import * as Haptics from 'expo-haptics';
+import { AppTheme } from '@/constants/theme';
 
 const CustomTabBarButton = ({ children, onPress }: any) => (
   <View style={styles.container}>
     <TouchableOpacity
       style={styles.customButtonInner}
-      onPress={onPress}
+      onPress={(event) => {
+        Haptics.selectionAsync();
+        onPress?.(event);
+      }}
       activeOpacity={0.9}
     >
       <View style={{ justifyContent: 'center', alignItems: 'center', marginBottom: 3 }}>
@@ -21,20 +26,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   customButtonInner: {
-    top: -20, 
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    backgroundColor: '#F26522',
+    top: -17,
+    width: 58,
+    height: 58,
+    borderRadius: 29,
+    backgroundColor: AppTheme.colors.primary,
     borderWidth: 4,
-    borderColor: '#fff',
+    borderColor: AppTheme.colors.surface,
     justifyContent: 'center',
     alignItems: 'center',
     elevation: 8,
-    shadowColor: '#000',
+    shadowColor: AppTheme.colors.brown,
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
+    shadowOpacity: 0.22,
+    shadowRadius: 7,
   },
 });
 

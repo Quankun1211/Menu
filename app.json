@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "frontend",
-    "slug": "frontend",
+    "name": "Bếp Việt",
+    "slug": "bep-viet",
     "version": "1.0.0",
     "extra": {
-      "API_BASE_URL": "http://192.168.1.4:5000/api",
-      "API_LOCAL": "192.168.1.4:5000",
+      "API_BASE_URL": "http://192.168.100.188:5000/api",
+      "API_LOCAL": "192.168.100.188:5000",
       "TOKEN_KEY": "token",
       "REFRESH_TOKEN_KEY": "refresh_token",
       "LOCALE_KEY": "locale",
@@ -36,6 +36,12 @@
     },
     "plugins": [
       "expo-router",
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Bếp Việt dùng vị trí gần đúng để gợi ý công thức phù hợp với thời tiết tại khu vực của bạn."
+        }
+      ],
       [
         "expo-splash-screen",
         {

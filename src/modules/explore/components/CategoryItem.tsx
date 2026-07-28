@@ -1,5 +1,4 @@
 import { TouchableOpacity, Text } from "react-native"
-import { Ionicons } from "@expo/vector-icons"
 import { ExploreStyles } from "../css/ExploreStyles"
 
 interface CategoryItemProps {
@@ -19,7 +18,7 @@ export default function CategoryItem({ item, isActive, onPress }: CategoryItemPr
         ExploreStyles.chip,
         isActive ? ExploreStyles.activeChip : ExploreStyles.inactiveChip
       ]}
-      activeOpacity={0.7}
+      activeOpacity={0.85}
     >
       <Text style={[
         ExploreStyles.chipText,
