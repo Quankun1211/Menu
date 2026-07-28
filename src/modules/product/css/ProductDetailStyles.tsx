@@ -15,11 +15,15 @@ export const ProductDetailStyles = StyleSheet.create({
     },
     headerTitle: { fontSize: 18, fontWeight: 'bold', color: '#1A1A1A' },
     contentPadding: { paddingHorizontal: 20 },
+    imageWrapper: { position: 'relative', marginBottom: 20 },
     mainImage: {
         width: '100%',
         height: 280,
         borderRadius: 25,
-        marginBottom: 20,
+    },
+    favoriteButton: {
+        position: 'absolute', top: 14, right: 14,
+        width: 46, height: 46, borderRadius: 23,
     },
     productName: { fontSize: 28, fontWeight: '900', color: '#1A1A1A' },
     priceRow: { flexDirection: 'row', alignItems: 'center', marginVertical: 8 },

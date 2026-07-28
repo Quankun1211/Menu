@@ -1,9 +1,9 @@
 import { TouchableOpacity, Text, View, Image } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 import { ProductItemStyles } from "../css/ProductItemStyles";
 import { ProductResponse } from "../types/api-response";
 import { formatVND } from "@/utils/helper";
 import { router } from "expo-router"
+import FavoriteButton from "@/modules/wishlist/components/FavoriteButton";
 type PopularProductProps = {
   products: ProductResponse
 }
@@ -18,6 +18,11 @@ export default function ProductItem ({ products }: PopularProductProps) {
         })}>
         <Image source={{uri: products.images}} style={ProductItemStyles.productImg} />
       </TouchableOpacity>
+      <FavoriteButton
+        productId={products._id}
+        size={18}
+        style={ProductItemStyles.favoriteButton}
+      />
       <View style={ProductItemStyles.productInfo}>
           <TouchableOpacity 
             onPress={() => router.push({

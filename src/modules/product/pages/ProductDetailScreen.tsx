@@ -12,6 +12,7 @@ import Toast from "react-native-toast-message";
 import { router } from "expo-router"
 import ModalLogin from "../components/ModalLogin";
 import { useCheckoutStore } from "@/store/useCheckoutStore";
+import FavoriteButton from "@/modules/wishlist/components/FavoriteButton";
 interface ProductDetailProps {
   id: string
 }
@@ -95,10 +96,19 @@ export default function ProductDetailScreen({ id }: ProductDetailProps) {
     >
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={ProductDetailStyles.contentPadding}>
-          <Image
-            source={{ uri: productData?.images }}
-            style={ProductDetailStyles.mainImage}
-          />
+          <View style={ProductDetailStyles.imageWrapper}>
+            <Image
+              source={{ uri: productData?.images }}
+              style={ProductDetailStyles.mainImage}
+            />
+            {productData?._id && (
+              <FavoriteButton
+                productId={productData._id}
+                size={23}
+                style={ProductDetailStyles.favoriteButton}
+              />
+            )}
+          </View>
 
           <Text style={ProductDetailStyles.productName}>{productData?.name}</Text>
           <View style={ProductDetailStyles.priceRow}>

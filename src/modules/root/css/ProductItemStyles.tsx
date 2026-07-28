@@ -9,6 +9,10 @@ export const ProductItemStyles = StyleSheet.create({
     shadowOpacity: 0.08, shadowRadius: 10, elevation: 3,
   },
   productImg: { width: '100%', height: 120 },
+  favoriteButton: {
+    position: 'absolute', top: 8, right: 8,
+    width: 36, height: 36, borderRadius: 18,
+  },
   productInfo: { padding: 12 },
   productCat: { fontSize: 12, color: '#888' },
   productName: { fontSize: 14, fontWeight: 'bold', marginVertical: 4, color: '#5C4033' },
