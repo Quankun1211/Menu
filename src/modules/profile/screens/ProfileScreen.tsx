@@ -326,11 +326,15 @@ export default function ProfileScreen() {
                   <Text style={ProfileStyles.rewardText}>🎁 Voucher giảm {wallet?.milestoneReward?.bonusBalance.toLocaleString()}đ</Text>
                 </View>
                 <TouchableOpacity 
-                  style={[ProfileStyles.confirmButton, isConfirming && { opacity: 0.7 }]} 
+                  style={[ProfileStyles.rewardConfirmButton, isConfirming && { opacity: 0.7 }]}
                   onPress={handleClaimReward}
                   disabled={isConfirming}
                 >
-                  {isConfirming ? <ActivityIndicator color="#FFF" /> : <Text style={ProfileStyles.confirmButtonText}>Nhận voucher ngay</Text>}
+                  {isConfirming ? (
+                    <ActivityIndicator color="#FFF" />
+                  ) : (
+                    <Text style={ProfileStyles.rewardConfirmButtonText}>Nhận voucher ngay</Text>
+                  )}
                 </TouchableOpacity>
               </>
             ) : (
@@ -345,8 +349,8 @@ export default function ProfileScreen() {
                     <Ionicons name="copy-outline" size={20} color="#E25822" style={{ marginTop: 5 }} />
                   </TouchableOpacity>
                 </View>
-                <TouchableOpacity style={ProfileStyles.confirmButton} onPress={() => { setShowRewardModal(false); setClaimedCode(null); }}>
-                  <Text style={ProfileStyles.confirmButtonText}>Tuyệt vời</Text>
+                <TouchableOpacity style={ProfileStyles.rewardConfirmButton} onPress={() => { setShowRewardModal(false); setClaimedCode(null); }}>
+                  <Text style={ProfileStyles.rewardConfirmButtonText}>Tuyệt vời</Text>
                 </TouchableOpacity>
               </>
             )}
