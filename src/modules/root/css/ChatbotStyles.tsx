@@ -87,16 +87,23 @@ export const ChatbotStyles = StyleSheet.create({
         borderTopColor: '#E8DFCA',
         backgroundColor: '#FFF'
     },
+    inputAreaFocused: {
+        borderTopColor: '#D16D2F',
+    },
     textInput: { 
         flex: 1, 
-        backgroundColor: '#F5F5F5', 
+        backgroundColor: '#FFFFFF',
         borderRadius: 20, 
         paddingHorizontal: 15, 
         paddingVertical: 8, 
         marginRight: 10, 
         maxHeight: 80,
-        color: '#3E2723',
+        color: '#2C1810',
         borderWidth: 1,
-        borderColor: '#EDE7F6'
+        borderColor: '#CFA98B'
+    },
+    textInputFocused: {
+        borderWidth: 2,
+        borderColor: '#D16D2F',
     }
 });

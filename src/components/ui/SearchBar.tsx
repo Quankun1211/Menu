@@ -30,7 +30,10 @@ export default function SearchBar() {
       paddingBottom: 10,
     }}>
       <View style={{ position: 'relative' }}>
-        <View style={HomePageStyles.searchWrapper}>
+        <View style={[
+          HomePageStyles.searchWrapper,
+          isFocused && HomePageStyles.searchWrapperFocused,
+        ]}>
           <Ionicons
             name="search-outline"
             size={20}
@@ -40,8 +43,12 @@ export default function SearchBar() {
 
           <TextInput
             placeholder="Tìm kiếm đặc sản Việt..."
-            style={HomePageStyles.searchInput}
-            placeholderTextColor="#9A8172"
+            style={[HomePageStyles.searchInput, { color: "#2C1810", backgroundColor: "#FFFFFF" }]}
+            placeholderTextColor="#806A5C"
+            selectionColor="#F3B48E"
+            cursorColor="#D16D2F"
+            underlineColorAndroid="transparent"
+            keyboardAppearance="light"
             returnKeyType="search"
             clearButtonMode="while-editing"
             accessibilityLabel="Tìm kiếm đặc sản Việt"

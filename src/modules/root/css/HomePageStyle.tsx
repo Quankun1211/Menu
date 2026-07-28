@@ -61,7 +61,16 @@ export const HomePageStyles = StyleSheet.create({
     paddingHorizontal: 12,
     height: 46,
     borderWidth: 1,
-    borderColor: "#E8C5A8"
+    borderColor: "#CFA98B"
+  },
+  searchWrapperFocused: {
+    borderWidth: 2,
+    borderColor: "#D16D2F",
+    shadowColor: "#D16D2F",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.16,
+    shadowRadius: 6,
+    elevation: 4,
   },
   searchDropdown: {
     position: "absolute",
@@ -111,7 +120,9 @@ export const HomePageStyles = StyleSheet.create({
   searchInput: {
     flex: 1,
     fontSize: 14,
-    color: '#333',
+    color: '#2C1810',
+    backgroundColor: '#FFFFFF',
+    paddingVertical: 0,
   },
   iconButton: {
     width: 48,

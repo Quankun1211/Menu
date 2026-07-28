@@ -32,6 +32,7 @@ export default function ChatBotModal({ visible, onClose }: { visible: boolean; o
     };
     const [messages, setMessages] = useState<ChatMessage[]>([INITIAL_MESSAGE]);
     const [input, setInput] = useState('');
+    const [isInputFocused, setIsInputFocused] = useState(false);
     const flatListRef = useRef<FlatList>(null);
     const { mutate: sendMessage, isPending } = useChatbot();
 
@@ -159,13 +160,27 @@ export default function ChatBotModal({ visible, onClose }: { visible: boolean; o
                             keyboardShouldPersistTaps="handled"
                         />
 
-                        <View style={ChatbotStyles.inputArea}>
+                        <View style={[
+                            ChatbotStyles.inputArea,
+                            isInputFocused && ChatbotStyles.inputAreaFocused,
+                        ]}>
                             <TextInput 
                                 value={input} 
                                 onChangeText={setInput} 
-                                style={ChatbotStyles.textInput} 
+                                style={[
+                                    ChatbotStyles.textInput,
+                                    isInputFocused && ChatbotStyles.textInputFocused,
+                                    { color: "#2C1810", backgroundColor: "#FFFFFF" },
+                                ]}
                                 placeholder="Hỏi Bếp trưởng..."
+                                placeholderTextColor="#806A5C"
+                                selectionColor="#F3B48E"
+                                cursorColor="#E25822"
+                                underlineColorAndroid="transparent"
+                                keyboardAppearance="light"
                                 multiline
+                                onFocus={() => setIsInputFocused(true)}
+                                onBlur={() => setIsInputFocused(false)}
                                 onSubmitEditing={handleSend}
                             />
                             <TouchableOpacity onPress={handleSend} disabled={isPending || !input.trim()}>
