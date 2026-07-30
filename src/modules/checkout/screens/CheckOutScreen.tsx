@@ -13,6 +13,7 @@ import PaymentOption from '../components/PaymentOption';
 import useCheckout from '../hooks/useCheckout';
 import Toast from 'react-native-toast-message';
 import useGetMyCoupons from "../../profile/hooks/useGetMyCoupons";
+import { AsyncStorageUtils } from "@/utils/AsyncStorageUtils";
 
 type CheckoutScreenProps = {
   source?: "cart" | "buy_now" | "menu" | "recipe";
@@ -26,6 +27,19 @@ export default function CheckoutScreen({
   source = "cart",
   items,
 }: CheckoutScreenProps) {
+  const checkoutSessionId = useRef(
+    "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (character) => {
+      const random = Math.floor(Math.random() * 16);
+      const value = character === "x" ? random : (random & 0x3) | 0x8;
+      return value.toString(16);
+    }),
+  );
+  useEffect(() => {
+    AsyncStorageUtils.get("checkout_session_id").then((stored) => {
+      if (stored) checkoutSessionId.current = stored;
+      else AsyncStorageUtils.save("checkout_session_id", checkoutSessionId.current);
+    });
+  }, []);
   const memoizedItems = useMemo(() => items.map(i => ({
     productId: i.productId,
     quantity: i.quantity
@@ -91,15 +105,17 @@ export default function CheckoutScreen({
       couponCode: appliedCode,
       source,
       paymentMethod: paymentMethod,
-      shippingFee: shippingFee
+      platform: "mobile",
+      checkoutSessionId: checkoutSessionId.current,
     }, {
       onSuccess: (response) => {
+        AsyncStorageUtils.remove("checkout_session_id");
         const paymentUrl = response?.data?.paymentUrl;
 
         if (paymentUrl) {
           router.push({
             pathname: "/(details)/checkoutTabs/PaymentWebView",
-            params: { url: paymentUrl }
+            params: { url: paymentUrl, orderId: response?.data?.orderId }
           });
         } else {
           Toast.show({ type: 'success', text1: 'Đặt hàng thành công' });
@@ -108,6 +124,17 @@ export default function CheckoutScreen({
         }
       },
       onError: (error: any) => {
+        if (error?.code === "INSUFFICIENT_STOCK") {
+          const details = error.details;
+          Toast.show({
+            type: "info",
+            text1: "Số lượng sản phẩm vừa thay đổi",
+            text2: details?.availableQuantity !== undefined
+              ? `${details.productName} chỉ còn ${details.availableQuantity} sản phẩm`
+              : error.message,
+          });
+          return;
+        }
         Toast.show({ type: 'error', text1: 'Lỗi', text2: error.message });
       }
     });

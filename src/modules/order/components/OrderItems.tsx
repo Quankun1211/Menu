@@ -13,6 +13,8 @@ interface OrderItemProps {
 const OrderItem = ({ order }: OrderItemProps) => {
   const getStatusColor = () => {
     switch (order.status) {
+      case 'payment_failed':
+        return ["Thanh toán lỗi", "#D97706"];
       case 'confirmed':
         return ["Đã xác nhận", '#1890FF'];
       case 'shipping':
@@ -54,9 +56,14 @@ const OrderItem = ({ order }: OrderItemProps) => {
           <Text style={OrderStyles.orderCode}>Đơn hàng #VN-{order._id.slice(-5).toUpperCase()}</Text>
           <Text style={OrderStyles.subInfo}>{formatDate(order.createdAt)} • {formatStepTime(order.createdAt)}</Text>
           <Text style={OrderStyles.subInfoChild}>{formatVND(order.totalPrice)}</Text>
+          <Text style={OrderStyles.subInfo}>
+            {order.paymentMethod === "vnpay"
+              ? "Thanh toán VNPay"
+              : "Thanh toán khi nhận hàng"}
+          </Text>
 
           <View style={OrderStyles.buttonGroup}>
-            {(order.status === 'pending' || order.status === 'confirmed') && (
+            {(['pending', 'confirmed', 'assigned', 'processing', 'pending_cancel', 'payment_failed', 'completed'] as string[]).includes(order.status) && (
               <TouchableOpacity onPress={() =>
                 router.push({
                   pathname: "/(details)/orderTabs/OrderTabs",

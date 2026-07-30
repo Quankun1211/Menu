@@ -10,7 +10,7 @@ const useLogout = () => {
     return useMutation({
         mutationKey: ["logout"],
         mutationFn: onLogoutApi,
-        onSuccess: async () => {
+        onSettled: async () => {
             await logout();
             await removeRefreshToken();
             queryClient.clear();

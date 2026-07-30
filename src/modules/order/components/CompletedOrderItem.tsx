@@ -46,6 +46,15 @@ const CompletedOrderItem = ({ order }: Props) => {
       </View>
 
       <View style={styles.footer}>
+        <TouchableOpacity
+          style={styles.detailButton}
+          onPress={() => router.push({
+            pathname: "/(details)/orderTabs/OrderTabs",
+            params: { orderId: order._id },
+          })}
+        >
+          <Text style={styles.detailText}>Chi tiết</Text>
+        </TouchableOpacity>
         <TouchableOpacity style={styles.reorderButton} onPress={handleCheckout}>
           <Text style={styles.reorderText}>Mua lại</Text>
         </TouchableOpacity>
@@ -134,6 +143,18 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderRadius: 8,
     alignItems: 'center',
+  },
+  detailButton: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: "#AAA",
+    paddingVertical: 10,
+    borderRadius: 8,
+    alignItems: "center",
+  },
+  detailText: {
+    color: "#555",
+    fontWeight: "bold",
   },
   reorderText: {
     color: '#F26522',

@@ -54,6 +54,15 @@ const CancelledOrderItem = ({ order }: Props) => {
         </Text>
 
         <View style={styles.footer}>
+          <TouchableOpacity
+            onPress={() => router.push({
+              pathname: "/(details)/orderTabs/OrderTabs",
+              params: { orderId: order._id },
+            })}
+            style={styles.detailBtn}
+          >
+            <Text style={styles.detailBtnText}>Chi tiết</Text>
+          </TouchableOpacity>
           <TouchableOpacity 
             onPress={handleCheckout}
             style={styles.reorderBtn}>
@@ -131,7 +140,20 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   footer: {
+    flexDirection: "row",
+    gap: 10,
     alignItems: 'flex-end',
+  },
+  detailBtn: {
+    borderWidth: 1,
+    borderColor: "#999",
+    paddingHorizontal: 22,
+    paddingVertical: 10,
+    borderRadius: 25,
+  },
+  detailBtnText: {
+    color: "#555",
+    fontWeight: "bold",
   },
   reorderBtn: {
     backgroundColor: '#D3764C',

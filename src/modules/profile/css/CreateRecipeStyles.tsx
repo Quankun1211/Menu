@@ -4,6 +4,7 @@ export const CreateRecipeStyles = StyleSheet.create({
     label: { fontWeight: 'bold', fontSize: 16, marginVertical: 10, color: '#333' },
   input: {
     backgroundColor: '#fff',
+    color: '#2C1810',
     borderRadius: 20,
     paddingHorizontal: 15,
     paddingVertical: 10,
@@ -31,7 +32,12 @@ export const CreateRecipeStyles = StyleSheet.create({
     marginBottom: 15,
   },
   stepLabel: { color: '#F26522', fontWeight: 'bold', marginBottom: 5 },
-  textArea: { height: 80, textAlignVertical: 'top' },
+  textArea: {
+    height: 80,
+    textAlignVertical: 'top',
+    color: '#2C1810',
+    backgroundColor: '#fff',
+  },
   submitBtn: {
     backgroundColor: '#F26522',
     padding: 15,

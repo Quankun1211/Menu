@@ -72,6 +72,9 @@ export default function OrdersScreen() {
         <Tab.Screen name="Đã hủy">
           {() => <CancelledOrders orders={orders.filter(o => o.status === 'cancelled')} />}
         </Tab.Screen>
+        <Tab.Screen name="Thanh toán lỗi">
+          {() => <AllOrders orders={orders.filter(o => o.status === 'payment_failed')} />}
+        </Tab.Screen>
       </Tab.Navigator>
     </View>
   );

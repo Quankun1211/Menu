@@ -1,16 +1,20 @@
-import { View, TextInput, Text, TouchableOpacity, Image, Keyboard } from "react-native";
+import { View, TextInput, Text, TouchableOpacity, Image, Keyboard, ScrollView } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { HomePageStyles } from "@/modules/root/css/HomePageStyle";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import useSearchProducts from "@/hooks/useSearchProducts";
 import { router } from "expo-router";
-import { ScrollView } from 'react-native-gesture-handler';
 
 export default function SearchBar() {
   const [keyword, setKeyword] = useState("");
-  const [isFocused, setIsFocused] = useState(false);
+  const [debouncedKeyword, setDebouncedKeyword] = useState("");
 
-  const { data } = useSearchProducts(keyword);
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedKeyword(keyword.trim()), 300);
+    return () => clearTimeout(timer);
+  }, [keyword]);
+
+  const { data } = useSearchProducts(debouncedKeyword);
   const products = data?.data || [];
 
   const handleSelectItem = (productId: string) => {
@@ -20,7 +24,6 @@ export default function SearchBar() {
       params: { id: productId }
     });
     setKeyword("");
-    setIsFocused(false);
   };
 
   return (
@@ -29,11 +32,8 @@ export default function SearchBar() {
       elevation: 10,
       paddingBottom: 10,
     }}>
-      <View style={{ position: 'relative' }}>
-        <View style={[
-          HomePageStyles.searchWrapper,
-          isFocused && HomePageStyles.searchWrapperFocused,
-        ]}>
+      <View style={{ position: 'relative' }} pointerEvents="box-none">
+        <View style={HomePageStyles.searchWrapper}>
           <Ionicons
             name="search-outline"
             size={20}
@@ -50,18 +50,14 @@ export default function SearchBar() {
             underlineColorAndroid="transparent"
             keyboardAppearance="light"
             returnKeyType="search"
-            clearButtonMode="while-editing"
+            showSoftInputOnFocus
             accessibilityLabel="Tìm kiếm đặc sản Việt"
             value={keyword}
             onChangeText={setKeyword}
-            onFocus={() => setIsFocused(true)}
-            onBlur={() => {
-              setTimeout(() => setIsFocused(false), 300);
-            }}
           />
         </View>
 
-        {isFocused && keyword.length > 0 && products.length > 0 && (
+        {keyword.length > 0 && products.length > 0 && (
           <View 
             style={[HomePageStyles.searchDropdown, { 
               maxHeight: 280,
@@ -70,10 +66,10 @@ export default function SearchBar() {
           >
             <ScrollView
               style={{ flex: 1 }}
-              nestedScrollEnabled={true} 
+              nestedScrollEnabled
               keyboardShouldPersistTaps="always"
-              overScrollMode="never" 
-              shouldCancelWhenOutside={false}
+              keyboardDismissMode="none"
+              overScrollMode="never"
             >
               {products.map((item: any) => (
                 <TouchableOpacity

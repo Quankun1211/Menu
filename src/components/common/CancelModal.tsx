@@ -12,8 +12,8 @@ export const CancelOrderModal = ({ isVisible, onClose, onConfirm }: CancelOrderM
   const [reason, setReason] = useState('');
 
   const handleConfirm = () => {
-    if (reason.trim()) {
-      onConfirm(reason);
+    if (reason.trim().length >= 5) {
+      onConfirm(reason.trim());
       setReason('');
     }
   };
@@ -68,11 +68,11 @@ export const CancelOrderModal = ({ isVisible, onClose, onConfirm }: CancelOrderM
               style={[
                 styles.button, 
                 styles.primaryButton,
-                !reason.trim() && { backgroundColor: '#FFA39E' }
+                reason.trim().length < 5 && { backgroundColor: '#FFA39E' }
               ]} 
               onPress={handleConfirm}
               activeOpacity={0.8}
-              disabled={!reason.trim()}
+              disabled={reason.trim().length < 5}
             >
               <Text style={styles.primaryButtonText}>Xác nhận hủy</Text>
             </TouchableOpacity>

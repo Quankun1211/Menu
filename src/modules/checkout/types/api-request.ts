@@ -47,5 +47,6 @@ export type CheckoutRequest = {
   couponCode?: string;
   source: CheckoutSource;
   paymentMethod: string;
-  shippingFee: number
+  platform: "mobile";
+  checkoutSessionId: string;
 };

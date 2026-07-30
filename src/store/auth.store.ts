@@ -8,6 +8,7 @@ type AuthState = {
 
   initAuth: () => Promise<void>
   setAuth: (token: string, role: string) => Promise<void>
+  refreshAccessToken: (token: string) => Promise<void>
   logout: () => Promise<void>
 }
 
@@ -36,10 +37,16 @@ export const useAuthStore = create<AuthState>((set) => ({
     set({ token, role });
   },
 
+  refreshAccessToken: async (token) => {
+    await AsyncStorageUtils.save("token", token);
+    set({ token });
+  },
+
   logout: async () => {
     await Promise.all([
       AsyncStorageUtils.remove("token"),
-      AsyncStorageUtils.remove("role")
+      AsyncStorageUtils.remove("role"),
+      AsyncStorageUtils.remove("refresh_token")
     ]);
     set({ token: null, role: null, loading: false });
   },

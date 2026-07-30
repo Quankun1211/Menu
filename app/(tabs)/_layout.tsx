@@ -31,7 +31,7 @@ export default function TabsLayout() {
           headerTitleStyle: styles.headerTitle,
           tabBarActiveTintColor: AppTheme.colors.primary,
           tabBarInactiveTintColor: AppTheme.colors.textMuted,
-          tabBarHideOnKeyboard: true,
+          tabBarHideOnKeyboard: false,
           tabBarLabelStyle: styles.tabLabel,
           tabBarItemStyle: styles.tabItem,
           tabBarStyle: styles.tabBar,

@@ -1,12 +1,8 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
 import { ApiUrls } from "../config/url";
 import {
-  getToken,
   getRefreshToken,
-  setToken,
   setRefreshToken,
-  removeToken,
-  removeRefreshToken,
 } from "../utils/token";
 import { useAuthStore } from "@/store/auth.store";
 import { router } from "expo-router";
@@ -17,6 +13,35 @@ const api = axios.create({
     "Content-Type": "application/json",
   },
 });
+
+type RefreshedTokens = {
+  access_token: string;
+  refresh_token: string;
+};
+
+let refreshRequest: Promise<RefreshedTokens> | null = null;
+
+const refreshSession = async (refreshToken: string): Promise<RefreshedTokens> => {
+  if (!refreshRequest) {
+    refreshRequest = axios
+      .post(
+        `${ApiUrls.apiBaseUrl}${ApiUrls.auth.refreshToken}`,
+        { token: refreshToken, clientType: "mobile" }
+      )
+      .then(async (res) => {
+        const tokens = res.data.data as RefreshedTokens;
+        await Promise.all([
+          useAuthStore.getState().refreshAccessToken(tokens.access_token),
+          setRefreshToken(tokens.refresh_token),
+        ]);
+        return tokens;
+      })
+      .finally(() => {
+        refreshRequest = null;
+      });
+  }
+  return refreshRequest;
+};
 
 api.interceptors.request.use(
   async (config: InternalAxiosRequestConfig) => {
@@ -42,28 +67,18 @@ api.interceptors.response.use(
       const refreshToken = await getRefreshToken();
 
       if (!refreshToken) {
-        await removeToken();
-        await removeRefreshToken();
+        await useAuthStore.getState().logout();
         router.replace("/(auth)/login");
         return Promise.reject(error);
       }
 
       try {
-        const res = await axios.post(
-          `${ApiUrls.apiBaseUrl}${ApiUrls.auth.refreshToken}`,
-          { token: refreshToken }
-        );
-
-        const { access_token, refresh_token } = res.data.data;
-
-        await setToken(access_token);
-        await setRefreshToken(refresh_token);
+        const { access_token } = await refreshSession(refreshToken);
 
         originalRequest.headers.Authorization = `Bearer ${access_token}`;
         return api(originalRequest);
       } catch (refreshError) {
-        await removeToken();
-        await removeRefreshToken();
+        await useAuthStore.getState().logout();
         router.replace("/(auth)/login");
         return Promise.reject(refreshError);
       }

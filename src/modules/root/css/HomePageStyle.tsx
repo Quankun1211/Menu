@@ -60,11 +60,10 @@ export const HomePageStyles = StyleSheet.create({
     borderRadius: 22,
     paddingHorizontal: 12,
     height: 46,
-    borderWidth: 1,
+    borderWidth: 2,
     borderColor: "#CFA98B"
   },
   searchWrapperFocused: {
-    borderWidth: 2,
     borderColor: "#D16D2F",
     shadowColor: "#D16D2F",
     shadowOffset: { width: 0, height: 2 },

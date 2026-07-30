@@ -11,6 +11,9 @@ import { formatVND } from "@/utils/helper";
 import { CancelOrderModal } from "@/components/common/CancelModal";
 import useCancelOrder from "../hooks/useCancelOrder";
 import { DashboardStyles } from "@/modules_shipper/root/css/DashboardStyles";
+import { onResumeVnpayPayment } from "../services/api";
+import { router } from "expo-router";
+import Toast from "react-native-toast-message";
 
 type OrderProps = {
   orderId?: string;
@@ -27,6 +30,8 @@ export default function OrderDetailScreen({ orderId }: OrderProps) {
   const [showMapPermissionModal, setShowMapPermissionModal] = useState(false);
   const [canAskLocationPermission, setCanAskLocationPermission] = useState(true);
   const [shipperCoords, setShipperCoords] = useState<any>(null);
+  const [resumePending, setResumePending] = useState(false);
+  const [paymentRemaining, setPaymentRemaining] = useState(0);
 
   const { mutate: cancelOrder, isPending: cancelPending } = useCancelOrder();
 
@@ -41,6 +46,18 @@ export default function OrderDetailScreen({ orderId }: OrderProps) {
       });
     }
   }, [order]);
+
+  useEffect(() => {
+    const updateRemaining = () => {
+      const expiresAt = order?.paymentExpiresAt
+        ? new Date(order.paymentExpiresAt).getTime()
+        : 0;
+      setPaymentRemaining(Math.max(0, Math.ceil((expiresAt - Date.now()) / 1000)));
+    };
+    updateRemaining();
+    const timer = setInterval(updateRemaining, 1000);
+    return () => clearInterval(timer);
+  }, [order?.paymentExpiresAt]);
 
   const geocodeAddress = async (requestPermission = false) => {
     const address = order?.address?.address;
@@ -101,6 +118,14 @@ export default function OrderDetailScreen({ orderId }: OrderProps) {
   }, [isMapReady, shipperCoords, mapRegion, status]);
 
   const getBannerInfo = (status: string, paymentStatus?: string) => {
+    if (status === "payment_failed") {
+      return {
+        title: "Thanh toán không thành công",
+        sub: "Đơn hàng không bị tính là đã hủy",
+        icon: "alert-circle",
+        color: "#D97706",
+      };
+    }
     if (paymentStatus === "refunded") {
       return {
         title: "Đã hoàn tiền",
@@ -127,6 +152,35 @@ export default function OrderDetailScreen({ orderId }: OrderProps) {
       reason: reason,
     });
     setModalVisible(false);
+  };
+
+  const handleResumePayment = async () => {
+    if (!order?._id) return;
+    try {
+      setResumePending(true);
+      const response = await onResumeVnpayPayment(order._id);
+      if (response?.data?.paymentStatus === "paid") {
+        Toast.show({
+          type: "success",
+          text1: "Đơn hàng đã được thanh toán",
+        });
+        return;
+      }
+      const paymentUrl = response?.data?.paymentUrl;
+      if (!paymentUrl) throw new Error("Không nhận được đường dẫn thanh toán");
+      router.push({
+        pathname: "/(details)/checkoutTabs/PaymentWebView",
+        params: { url: paymentUrl, orderId: order._id },
+      });
+    } catch (error: any) {
+      Toast.show({
+        type: "error",
+        text1: "Không thể tiếp tục thanh toán",
+        text2: error?.response?.data?.message || error?.message,
+      });
+    } finally {
+      setResumePending(false);
+    }
   };
 
   if (isPending) {
@@ -287,13 +341,41 @@ export default function OrderDetailScreen({ orderId }: OrderProps) {
             </Text>
             <Text style={[OrderItemStyles.paidText, order.paymentStatus === "refunded" && { color: "#52C41A" }]}>
               {order.paymentStatus === "refunded" && "ĐÃ HOÀN TIỀN"}
+              {order.paymentStatus === "cancelled" && "ĐÃ HỦY THANH TOÁN"}
               {order.paymentStatus === "pending" && "CHƯA THANH TOÁN"}
               {order.paymentStatus === "paid" && "ĐÃ THANH TOÁN"}
+              {order.paymentStatus === "checking" && "ĐANG ĐỐI SOÁT"}
+              {order.paymentStatus === "failed" && "THANH TOÁN THẤT BẠI"}
             </Text>
+            {["pending", "checking"].includes(order.paymentStatus) && paymentRemaining > 0 && (
+              <Text style={{ color: "#D97706", fontSize: 11, fontWeight: "700", marginLeft: 8 }}>
+                Giữ hàng còn {Math.floor(paymentRemaining / 60)}:{String(paymentRemaining % 60).padStart(2, "0")}
+              </Text>
+            )}
           </View>
         </View>
 
         <View style={{ paddingHorizontal: 16, marginBottom: 40, marginTop: 10 }}>
+          {order.paymentMethod === "vnpay" &&
+            ["pending", "checking", "failed", "cancelled"].includes(order.paymentStatus) &&
+            status !== "cancelled" && (
+              <TouchableOpacity
+                style={styles.resumePaymentButton}
+                onPress={handleResumePayment}
+                disabled={resumePending}
+              >
+                {resumePending ? (
+                  <ActivityIndicator size="small" color="#FFF" />
+                ) : (
+                  <>
+                    <Ionicons name="card-outline" size={20} color="#FFF" />
+                    <Text style={styles.resumePaymentText}>
+                      Tiếp tục thanh toán
+                    </Text>
+                  </>
+                )}
+              </TouchableOpacity>
+            )}
           {["pending", "confirmed", "processing"].includes(status) ? (
             <TouchableOpacity
               style={{
@@ -381,6 +463,21 @@ export default function OrderDetailScreen({ orderId }: OrderProps) {
 }
 
 const styles = StyleSheet.create({
+  resumePaymentButton: {
+    minHeight: 50,
+    borderRadius: 12,
+    backgroundColor: "#F26522",
+    alignItems: "center",
+    justifyContent: "center",
+    flexDirection: "row",
+    gap: 8,
+    marginBottom: 10,
+  },
+  resumePaymentText: {
+    color: "#FFF",
+    fontSize: 16,
+    fontWeight: "800",
+  },
   locationPermissionCard: {
     justifyContent: 'center',
     alignItems: 'center',

@@ -23,3 +23,10 @@ export const onCancelOrder = async(
   })
   return data.data
 }
+
+export const onResumeVnpayPayment = async (orderId: string) => {
+  const { data } = await api.post(`/order/vnpay-resume/${orderId}`, {
+    platform: "mobile",
+  });
+  return data;
+};
