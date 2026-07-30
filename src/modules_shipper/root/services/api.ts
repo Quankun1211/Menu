@@ -6,14 +6,14 @@ import type { ShipperNextStatus } from "../utils/orderWorkflow";
 export const onGetOrderShipperApi = async (): Promise<
   BackendResponse<OrderResponse[]>
 > => {
-  const { data } = await api.get("/shipper/orders");
+  const { data } = await api.get("/shippers/orders");
   return data;
 };
 
 export const onGetAllOrderShipperApi = async (): Promise<
   BackendResponse<OrderResponse[]>
 > => {
-  const { data } = await api.get("/shipper/all-orders");
+  const { data } = await api.get("/shippers/all-orders");
   return data;
 };
 
@@ -21,22 +21,22 @@ export const onUpdateStatusOrderApi = async (
   orderId: string, 
   nextStatus: ShipperNextStatus
 ): Promise<BackendResponse<OrderResponse>> => {
-  const { data } = await api.patch("/shipper/update", { orderId, nextStatus });
+  const { data } = await api.patch("/shippers/orders/status", { orderId, nextStatus });
   return data;
 }
 
 export const onCancelOrderApi = async (orderId: string, reason: string): Promise<BackendResponse<OrderResponse>> => {
-  const { data } = await api.post("/shipper/request-cancel", { orderId, reason });
+  const { data } = await api.post("/shippers/orders/cancellation-requests", { orderId, reason });
   return data;
 }
 
 export const onUpdateShipperStatus = async (isOnline: boolean) => {
-  const { data } = await api.put("/shipper/update-online", {isOnline})
+  const { data } = await api.put("/shippers/me/availability", {isOnline})
   return data
 }
 
 export const onUpdateShipperLocation = async (orderId: string, latitude: number, longitude: number) => {
-  const { data } = await api.put("/shipper/update-location", { orderId, latitude, longitude })
+  const { data } = await api.put("/shippers/orders/location", { orderId, latitude, longitude })
   return data
 }
 
@@ -51,6 +51,6 @@ export type ShipperStats = {
 };
 
 export const onGetShipperStatsApi = async (): Promise<BackendResponse<ShipperStats>> => {
-  const { data } = await api.get("/shipper/stats");
+  const { data } = await api.get("/shippers/stats");
   return data;
 };

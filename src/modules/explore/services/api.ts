@@ -10,7 +10,7 @@ type GetProductByCategoryParams = {
 export const onGetProductByCategory = async (
   params?: GetProductByCategoryParams
 ): Promise<BackendResponse<ProductResponse[]>> => {
-  const { data } = await api.get("/product/get-by-category", {
+  const { data } = await api.get("/products/by-category", {
     params: {
       categoryId: params?.categoryId,
       sort: params?.sort,
@@ -22,13 +22,13 @@ export const onGetProductByCategory = async (
 
 export const onGetCategoryMenuApi = async (
 ): Promise<BackendResponse<CategoryMenuResponse[]>> => {
-  const res = await api.get("/menu/category/get")
+  const res = await api.get("/menu-categories")
   return res.data;
 };
 
 export const onGetCategoryRecipeApi = async (
 ): Promise<BackendResponse<CategoryRecipeResponse[]>> => {
-  const res = await api.get("/menu/recipe/category/get")
+  const res = await api.get("/recipes/categories")
   return res.data;
 };
 
@@ -36,9 +36,9 @@ export const onGetMenuApi = async (
   categoryId: string
 ): Promise<BackendResponse<MenuResponse[]>> => {
   const isAll = !categoryId || categoryId === 'all';
-  const url = isAll 
-    ? "/menu/my-menu/get" 
-    : `/menu/my-menu/get?categoryId=${categoryId}`;
+  const url = isAll
+    ? "/menus"
+    : `/menus?categoryId=${categoryId}`;
     
   const res = await api.get(url);
   return res.data;
@@ -48,9 +48,9 @@ export const onGetRecipeApi = async (
   categoryId: string
 ): Promise<BackendResponse<RecipeDetailResponse[]>> => {
   const isAll = !categoryId || categoryId === 'all';
-  const url = isAll 
-    ? "/menu/recipe/get-by-category" 
-    : `/menu/recipe/get-by-category?categoryId=${categoryId}`;
+  const url = isAll
+    ? "/recipes/by-category"
+    : `/recipes/by-category?categoryId=${categoryId}`;
     
   const res = await api.get(url);
   return res.data;
@@ -59,20 +59,20 @@ export const onGetRecipeApi = async (
 export const onGetMenuDetailApi = async (
   id: string
 ): Promise<BackendResponse<MenuResponse>> => {
-  const res = await api.get(`/menu/my-menu/get-detail/${id}`);
+  const res = await api.get(`/menus/${id}`);
   return res.data;
 };
 
 export const onGetRecipeDetailApi = async (
   id: string
 ): Promise<BackendResponse<RecipeDetailResponse>> => {
-  const res = await api.get(`/menu/recipe/get-detail/${id}`);
+  const res = await api.get(`/recipes/${id}`);
   return res.data;
 };
 
 export const onSaveRecipeApi = async (
   recipeId: string
 ): Promise<BackendResponse<RecipeResponse>> => {
-  const res = await api.post(`/menu/recipe/save/${recipeId}`);
+  const res = await api.post(`/recipes/${recipeId}/saved-state`);
   return res.data;
 };

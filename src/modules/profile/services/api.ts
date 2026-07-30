@@ -7,27 +7,27 @@ import { RecipeResponse } from "@/modules/explore/types/api-response";
 
 export const onGetWallet = async (
 ): Promise<BackendResponse<WalletResponse>> => {
-  const res = await api.get("/order/wallet");
+  const res = await api.get("/wallets/me");
 
   return res.data;
 };
 
 export const onConfirm = async (
 ): Promise<BackendResponse<WalletResponse>> => {
-  const res = await api.post("/order/claim-reward");
+  const res = await api.post("/wallets/me/rewards");
   return res.data;
 };
 
 export const onGetCoupon = async (
 ): Promise<BackendResponse<MyCouponResponse>> => {
-  const res = await api.get("/order/my-coupon");
+  const res = await api.get("/users/me/coupons");
   return res.data;
 };
 
 export const onCreateMyRecipe = async (
   formData: FormData
 ): Promise<BackendResponse<MyRecipeResponse>> => {
-  const res = await api.post("/menu/recipe/create-my-recipes", formData, {
+  const res = await api.post("/recipes/mine", formData, {
     headers: {
       "Content-Type": "multipart/form-data",
     },
@@ -37,14 +37,14 @@ export const onCreateMyRecipe = async (
 
 export const onGetMyRecipes = async (
 ): Promise<BackendResponse<MyRecipeResponse[]>> => {
-  const res = await api.get("/menu/recipe/get-my-recipes");
+  const res = await api.get("/recipes/mine");
   return res.data;
 };
 
 export const onGetMyRecipesDetail = async (
   recipeId: string
 ): Promise<BackendResponse<MyRecipeDetailResponse>> => {
-  const res = await api.get(`/menu/recipe/get-my-recipe-detail/${recipeId}`);
+  const res = await api.get(`/recipes/mine/${recipeId}`);
   return res.data;
 };
 
@@ -52,7 +52,7 @@ export const onUpdateMyRecipe = async (
   recipeId: string, 
   formData: FormData 
 ): Promise<BackendResponse<MyRecipeResponse>> => {
-  const res = await api.put(`/menu/recipe/update-my-recipe/${recipeId}`, formData, {
+  const res = await api.put(`/recipes/mine/${recipeId}`, formData, {
     headers: {
       "Content-Type": "multipart/form-data",
     },
@@ -63,12 +63,12 @@ export const onUpdateMyRecipe = async (
 export const onDeleteMyRecipe = async (
   recipeId: string
 ): Promise<BackendResponse<MyRecipeResponse>> => {
-  const res = await api.delete(`/menu/recipe/delete-my-recipe/${recipeId}`);
+  const res = await api.delete(`/recipes/mine/${recipeId}`);
   return res.data;
 };
 
 export const onGetMySavedRecipes = async (
 ): Promise<BackendResponse<RecipeResponse[]>> => {
-  const res = await api.get("/menu/recipe/saved-list");
+  const res = await api.get("/recipes/saved");
   return res.data;
 };

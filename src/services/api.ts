@@ -6,7 +6,7 @@ import { SearchProductResponse } from "@/types/api-response";
 import { getRefreshToken } from "../utils/token";
 
 export const onGetMeApi = async (): Promise<BackendResponse<UserRecord>> => {
-    const data = await api.get("/user/me")
+    const data = await api.get("/users/me")
     return data.data
 }
 
@@ -16,7 +16,7 @@ export const onLogoutApi = async (): Promise<BackendResponse<{message: string}>>
 }
 
 export const onGetProductByFilter = async (sort: string) : Promise<BackendResponse<ProductResponse>> => {
-    const data = await api.get("/product/get-by-filter", {
+    const data = await api.get("/products", {
         params: {sort}
     })
     return data.data
@@ -25,7 +25,7 @@ export const onGetProductByFilter = async (sort: string) : Promise<BackendRespon
 export const onSearchProducts = async (
   keyword: string, sort?: string
 ): Promise<BackendResponse<SearchProductResponse[]>> => {
-  const { data } = await api.get('/product/search', {
+  const { data } = await api.get('/products/search', {
     params: { q: keyword, sort: sort },
   });
   return data;

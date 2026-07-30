@@ -7,7 +7,7 @@ const SocketContext = createContext<Socket | null>(null);
 
 export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
   const token = useAuthStore((state) => state.token);
-  const socketUrl = ApiUrls.apiBaseUrl.replace(/\/api\/?$/, '');
+  const socketUrl = ApiUrls.apiBaseUrl.replace(/\/api\/v1\/?$/, '');
   const socket = useMemo(() => io(socketUrl, {
     autoConnect: false,
     transports: ['websocket'],

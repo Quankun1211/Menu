@@ -7,7 +7,7 @@ interface Configuration {
 }
 
 const env: Configuration = {
-  apiBaseUrl: process.env.EXPO_PUBLIC_API_BASE_URL ?? "",
+  apiBaseUrl: `${(process.env.EXPO_PUBLIC_API_BASE_URL ?? "").replace(/\/$/, "")}/v1`,
   tokenKey: process.env.EXPO_PUBLIC_TOKEN_KEY ?? "token",
   refreshTokenKey: process.env.EXPO_PUBLIC_REFRESH_TOKEN_KEY ?? "refresh_token",
   storageLocaleKey: process.env.EXPO_PUBLIC_LOCALE_KEY ?? "locale",

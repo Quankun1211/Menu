@@ -41,7 +41,7 @@ const PaymentPreview = () => {
     const isCancelled = callbackParams.vnp_ResponseCode === "24";
 
     try {
-      const response = await api.get("/order/vnpay-confirm", {
+      const response = await api.get("/orders/payments/vnpay/confirmation", {
         params: callbackParams,
       });
       if (response.data?.data?.paymentStatus !== "paid") {
@@ -57,7 +57,7 @@ const PaymentPreview = () => {
       if (isSuccess && actualOrderId) {
         try {
           const reconciliation = await api.post(
-            `/order/vnpay-reconcile/${actualOrderId}`,
+            `/orders/${actualOrderId}/payments/vnpay/reconciliation`,
           );
           if (reconciliation.data?.data?.paymentStatus === "paid") {
             showSuccess("Giao dịch đã được VNPay đối soát");

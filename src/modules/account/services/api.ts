@@ -9,7 +9,7 @@ export const onLoginApi = async (
 ) : Promise<BackendResponse<LoginResponse>> => {
     console.log("api: ",ApiUrls.apiBaseUrl);
     const {username, password} = payload
-    const data = await api.post("auth/login", {
+    const data = await api.post("/auth/login", {
         username,
         password,
         clientType: "mobile"

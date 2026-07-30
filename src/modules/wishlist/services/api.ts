@@ -5,19 +5,19 @@ import { AddToFavouriteRequest, RemoveFavouriteItemsRequest } from "../types/api
 export const onGetWishListApi = async (): Promise<
   BackendResponse<WishListResponse>
 > => {
-  const { data } = await api.get("/favourite/get-favourite");
+  const { data } = await api.get("/favourites");
   return data;
 };
 export const onRemoveWishListApi = async (
   payload: RemoveFavouriteItemsRequest
 ): Promise<RemoveFavouriteItemsResponse> => {
-  const { data } = await api.post("/favourite/remove-favourite", payload);
+  const { data } = await api.delete("/favourites/items", { data: payload });
   return data;
 };
 
 export const onAddToFavouriteApi = async (
   payload: AddToFavouriteRequest
 ) : Promise<BackendResponse<WishListResponse>> => {
-  const { data } = await api.post("/favourite/add-to-favourite", payload);
+  const { data } = await api.post("/favourites/items", payload);
   return data
 }
