@@ -11,7 +11,7 @@ export const onGetMeApi = async (): Promise<BackendResponse<UserRecord>> => {
 }
 
 export const onLogoutApi = async (): Promise<BackendResponse<{message: string}>> => {
-    const data = await api.post("/auth/logout", { token: await getRefreshToken() })
+    const data = await api.delete("/auth/sessions", { data: { token: await getRefreshToken() } })
     return data.data
 }
 
@@ -25,7 +25,7 @@ export const onGetProductByFilter = async (sort: string) : Promise<BackendRespon
 export const onSearchProducts = async (
   keyword: string, sort?: string
 ): Promise<BackendResponse<SearchProductResponse[]>> => {
-  const { data } = await api.get('/products/search', {
+  const { data } = await api.get('/products', {
     params: { q: keyword, sort: sort },
   });
   return data;

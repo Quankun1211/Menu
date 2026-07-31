@@ -25,7 +25,7 @@ export const onCancelOrder = async(
 }
 
 export const onResumeVnpayPayment = async (orderId: string) => {
-  const { data } = await api.post(`/orders/${orderId}/payments/vnpay/resumption`, {
+  const { data } = await api.post(`/orders/${orderId}/payment-attempts`, {
     platform: "mobile",
   });
   return data;

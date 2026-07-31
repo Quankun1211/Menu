@@ -9,7 +9,7 @@ export const onLoginApi = async (
 ) : Promise<BackendResponse<LoginResponse>> => {
     console.log("api: ",ApiUrls.apiBaseUrl);
     const {username, password} = payload
-    const data = await api.post("/auth/login", {
+    const data = await api.post("/auth/sessions", {
         username,
         password,
         clientType: "mobile"
@@ -20,7 +20,7 @@ export const onRegisterApi = async(
     payload: RegisterRequest
 ) : Promise<BackendResponse<RegisterResponse>> => {
     const {email, name, password, username, confirmPassword: confirmPassword} = payload
-    const data = await api.post("/auth/register", {
+    const data = await api.post("/auth/registrations", {
         email,
         name, 
         password,
@@ -34,7 +34,7 @@ export const onVerifyApi = async (
     payload: { email: string; otp: string, type: string }
 ) : Promise<BackendResponse<any>> => {
     const { email, otp, type } = payload;
-    const data = await api.post("/auth/verify-otp", {
+    const data = await api.post("/auth/email-verifications", {
         email,
         otp,
         type
@@ -46,7 +46,7 @@ export const onResendOTPApi = async (
     payload: { email: string; type?: "verify" | "reset" }
 ) : Promise<BackendResponse<any>> => {
     const { email, type = "verify" } = payload;
-    const data = await api.post("/auth/resend-otp", {
+    const data = await api.post("/auth/email-verification-deliveries", {
         email,
         type
     });
@@ -57,7 +57,7 @@ export const onForgotPasswordApi = async (
     payload: { email: string }
 ) : Promise<BackendResponse<any>> => {
     const { email } = payload;
-    const data = await api.post("/auth/forgot-password", {
+    const data = await api.post("/auth/password-reset-requests", {
         email
     });
     return data.data;
@@ -67,7 +67,7 @@ export const onResetPasswordApi = async (
     payload: { email: string; otp: string; newPassword: string }
 ) : Promise<BackendResponse<any>> => {
     const { email, otp, newPassword } = payload;
-    const data = await api.post("/auth/reset-password", {
+    const data = await api.put("/auth/password-resets", {
         email,
         otp,
         newPassword

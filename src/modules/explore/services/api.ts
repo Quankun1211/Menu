@@ -10,7 +10,7 @@ type GetProductByCategoryParams = {
 export const onGetProductByCategory = async (
   params?: GetProductByCategoryParams
 ): Promise<BackendResponse<ProductResponse[]>> => {
-  const { data } = await api.get("/products/by-category", {
+  const { data } = await api.get("/products", {
     params: {
       categoryId: params?.categoryId,
       sort: params?.sort,
@@ -49,8 +49,8 @@ export const onGetRecipeApi = async (
 ): Promise<BackendResponse<RecipeDetailResponse[]>> => {
   const isAll = !categoryId || categoryId === 'all';
   const url = isAll
-    ? "/recipes/by-category"
-    : `/recipes/by-category?categoryId=${categoryId}`;
+    ? "/recipes"
+    : `/recipes?categoryId=${categoryId}`;
     
   const res = await api.get(url);
   return res.data;
@@ -73,6 +73,6 @@ export const onGetRecipeDetailApi = async (
 export const onSaveRecipeApi = async (
   recipeId: string
 ): Promise<BackendResponse<RecipeResponse>> => {
-  const res = await api.post(`/recipes/${recipeId}/saved-state`);
+  const res = await api.patch(`/users/me/saved-recipes/${recipeId}`);
   return res.data;
 };

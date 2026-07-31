@@ -16,7 +16,7 @@ type GetProductSpecialByRegionParams = {
 export const onGetProductByRegion = async (
   params?: GetProductByRegionParams
 ): Promise<BackendResponse<ProductResponse[]>> => {
-  const res = await api.get("/products/by-region", {
+  const res = await api.get("/products", {
     params: {
       region: params?.region,
       categoryId: params?.categoryId,

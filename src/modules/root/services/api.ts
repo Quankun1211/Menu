@@ -15,8 +15,8 @@ export const onGetCategoriesApi = async (
 export const ongetPopularProducts = async (
   limit?: number
 ): Promise<BackendResponse<ProductResponse[]>> => {
-  const res = await api.get("/products/popular", {
-    params: limit ? { limit } : {}
+  const res = await api.get("/products", {
+    params: { view: "popular", ...(limit ? { limit } : {}) }
   });
   return res.data;
 };
@@ -24,8 +24,9 @@ export const ongetPopularProducts = async (
 export const onGetShockDealProducts = async (
   params?: PaginationRequest
 ): Promise<BackendResponse<ShockDealProducts[]>> => {
-  const data = await api.get("/products/deals", {
+  const data = await api.get("/products", {
     params: {
+      view: "deals",
       ...(params?.page && { page: params.page }),
       ...(params?.limit && { limit: params.limit }),
     },
@@ -35,12 +36,12 @@ export const onGetShockDealProducts = async (
 }
 
 export const onGetSuggestionProducts = async() : Promise<BackendResponse<ProductResponse[]>> => {
-  const data = await api.get("/products/suggestions")
+  const data = await api.get("/products", { params: { view: "suggested" } })
   return data.data
 }
 
 export const onGetRecipeLastest = async() : Promise<BackendResponse<RecipeDetailResponse>> => {
-  const data = await api.get("/recipes/latest")
+  const data = await api.get("/recipes", { params: { view: "latest" } })
   return data.data
 }
 
@@ -50,6 +51,6 @@ export const onAskChatbot = async (payload: { message: string, history: any[] })
 }
 
 export const onGetSpecialLatestProduct = async() : Promise<BackendResponse<ProductResponse>> => {
-  const data = await api.get("/specials/latest")
+  const data = await api.get("/specials", { params: { view: "latest" } })
   return data.data
 }
