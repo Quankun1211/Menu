@@ -1,5 +1,5 @@
 import { BackendResponse } from "@/libs/shared/types/backend-response";
-import { CategoryMenuResponse, CategoryRecipeResponse, CategoryResponse, MenuResponse, ProductResponse, RecipeDetailResponse, RecipeResponse } from "../types/api-response";
+import { CategoryMenuResponse, CategoryRecipeResponse, MenuResponse, ProductResponse, RecipeDetailResponse, RecipeResponse } from "../types/api-response";
 import api from "@/services/axios";
 
 type GetProductByCategoryParams = {
@@ -33,26 +33,20 @@ export const onGetCategoryRecipeApi = async (
 };
 
 export const onGetMenuApi = async (
-  categoryId: string
+  categoryId: string,
+  page = 1,
+  limit = 12,
 ): Promise<BackendResponse<MenuResponse[]>> => {
-  const isAll = !categoryId || categoryId === 'all';
-  const url = isAll
-    ? "/menus"
-    : `/menus?categoryId=${categoryId}`;
-    
-  const res = await api.get(url);
+  const res = await api.get("/menus", { params: { categoryId: categoryId === "all" ? undefined : categoryId, page, limit } });
   return res.data;
 };
 
 export const onGetRecipeApi = async (
-  categoryId: string
+  categoryId: string,
+  page = 1,
+  limit = 12,
 ): Promise<BackendResponse<RecipeDetailResponse[]>> => {
-  const isAll = !categoryId || categoryId === 'all';
-  const url = isAll
-    ? "/recipes"
-    : `/recipes?categoryId=${categoryId}`;
-    
-  const res = await api.get(url);
+  const res = await api.get("/recipes", { params: { categoryId: categoryId === "all" ? undefined : categoryId, page, limit } });
   return res.data;
 };
 

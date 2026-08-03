@@ -1,6 +1,5 @@
 import React from 'react';
-import { View, Text, Pressable, TouchableOpacity, Image, KeyboardAvoidingView, Platform, ScrollView, TouchableWithoutFeedback, Keyboard } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { View, Text, Pressable, Image, KeyboardAvoidingView, Platform, ScrollView, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import { LoginStyle } from '../css/LoginStyles';
 import { router } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient"
@@ -9,6 +8,7 @@ import useLogin from '../hooks/useLogin';
 import { LogInRequest } from '../types/api-request';
 import AuthHomeButton from '../components/AuthHomeButton';
 import Toast from 'react-native-toast-message';
+import SocialLoginButtons from '../components/SocialLoginButtons';
 
 export default function LoginPage() {
   const { mutate: onLogin, isPending } = useLogin()
@@ -71,17 +71,7 @@ export default function LoginPage() {
                   <View style={LoginStyle.line} />
                 </View>
                 
-                <View style={LoginStyle.socialIconsRow}>
-                  <TouchableOpacity style={LoginStyle.socialCircle}>
-                    <Ionicons name="logo-google" size={24} color="red" />
-                  </TouchableOpacity>
-                  <TouchableOpacity style={LoginStyle.socialCircle}>
-                    <Ionicons name="logo-facebook" size={24} color="#1877F2" />
-                  </TouchableOpacity>
-                  <TouchableOpacity style={LoginStyle.socialCircle}>
-                    <Ionicons name="logo-apple" size={24} color="black" />
-                  </TouchableOpacity>
-                </View>
+                <SocialLoginButtons />
               </View>
 
               <View style={LoginStyle.signUpContainer}>

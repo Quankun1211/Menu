@@ -20,6 +20,7 @@ import useUpdateLocation from '../hooks/useUpdateLocation';
 import { useSocket } from '@/context/SocketContext';
 import useGetMe from '@/hooks/useGetMe';
 import { getShipperStatusConfig } from '../utils/orderWorkflow';
+import Toast from 'react-native-toast-message';
 
 const GOONG_API_KEY = Constants.expoConfig?.extra?.apiGetMapKey;
 
@@ -37,8 +38,10 @@ export default function TrackingScreen({ orderId: initialOrderId }: TrackingOrde
   const isOnline = !!meData?.data?.isOnline;
 
   const [location, setLocation] = useState<Location.LocationObject | null>(null);
+  const [locationError, setLocationError] = useState<string | null>(null);
   const [customerCoords, setCustomerCoords] = useState<{ latitude: number, longitude: number } | null>(null);
   const [routeCoordinates, setRouteCoordinates] = useState<{ latitude: number, longitude: number }[]>([]);
+  const [deliveryCode, setDeliveryCode] = useState("");
   const [hasInitialZoom, setHasInitialZoom] = useState(false);
   const [showOrderModal, setShowOrderModal] = useState(false);
   
@@ -120,12 +123,22 @@ export default function TrackingScreen({ orderId: initialOrderId }: TrackingOrde
     let cancelled = false;
 
     const startLocationTracking = async () => {
-      let { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') return;
-      
-      let loc = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
-      if (cancelled) return;
-      setLocation(loc);
+      try {
+        const servicesEnabled = await Location.hasServicesEnabledAsync();
+        if (!servicesEnabled) throw new Error("Vui lòng bật dịch vụ vị trí (GPS) trên thiết bị.");
+
+        const permission = await Location.requestForegroundPermissionsAsync();
+        if (permission.status !== 'granted') {
+          throw new Error("Bếp Việt chưa được cấp quyền vị trí. Hãy bật quyền trong Cài đặt ứng dụng.");
+        }
+
+        const cachedLocation = await Location.getLastKnownPositionAsync({ maxAge: 120000, requiredAccuracy: 500 });
+        if (cachedLocation && !cancelled) setLocation(cachedLocation);
+
+        const loc = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High });
+        if (cancelled) return;
+        setLocationError(null);
+        setLocation(loc);
 
       if (loc && !hasInitialZoom) {
         mapRef.current?.animateToRegion({
@@ -137,8 +150,8 @@ export default function TrackingScreen({ orderId: initialOrderId }: TrackingOrde
         setHasInitialZoom(true);
       }
 
-      subscriber = await Location.watchPositionAsync(
-        { accuracy: Location.Accuracy.Balanced, distanceInterval: 20, timeInterval: 10000 },
+        subscriber = await Location.watchPositionAsync(
+        { accuracy: Location.Accuracy.High, distanceInterval: 10, timeInterval: 5000 },
         (newLocation) => {
           setLocation(newLocation);
           if (order?.status === "shipping") {
@@ -149,7 +162,13 @@ export default function TrackingScreen({ orderId: initialOrderId }: TrackingOrde
             });
           }
         }
-      );
+        );
+      } catch (error: any) {
+        if (cancelled) return;
+        const message = error?.message || "Không thể lấy vị trí hiện tại.";
+        setLocationError(message);
+        Toast.show({ type: 'error', text1: 'Không lấy được vị trí', text2: message, visibilityTime: 5000 });
+      }
     };
 
     startLocationTracking();
@@ -209,7 +228,7 @@ export default function TrackingScreen({ orderId: initialOrderId }: TrackingOrde
   const performStatusUpdate = () => {
     if (!order || !statusConfig.next) return;
     const nextStatus = statusConfig.next;
-    updateStatus({ orderId: order._id, nextStatus }, {
+    updateStatus({ orderId: order._id, nextStatus, deliveryCode: nextStatus === "delivered" ? deliveryCode : undefined }, {
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ['get-my-orders-detail', orderId] });
         refetch();
@@ -231,6 +250,10 @@ export default function TrackingScreen({ orderId: initialOrderId }: TrackingOrde
       return;
     }
     if (!order || !statusConfig.next || isCancelledState) return;
+    if (statusConfig.next === "delivered" && deliveryCode.length !== 6) {
+      Alert.alert("Thiếu mã nhận hàng", "Vui lòng nhập mã 6 số do khách hàng cung cấp.");
+      return;
+    }
 
     const isCod = order.paymentMethod === "cod" || order.paymentMethod === "cash";
     const title = statusConfig.next === "delivered"
@@ -255,7 +278,7 @@ export default function TrackingScreen({ orderId: initialOrderId }: TrackingOrde
         longitudeDelta: 0.005,
       }, 1000);
     } else {
-      Alert.alert("Thông báo", "Đang xác định vị trí của bạn...");
+      Alert.alert("Thông báo", locationError || "Đang xác định vị trí của bạn...");
     }
   };
 
@@ -268,7 +291,8 @@ export default function TrackingScreen({ orderId: initialOrderId }: TrackingOrde
           ref={mapRef}
           style={TrackingStyles.map}
           provider={PROVIDER_GOOGLE}
-          showsUserLocation={false}
+          showsUserLocation
+          showsMyLocationButton={false}
           initialRegion={{
             latitude: 10.762622,
             longitude: 106.660172,
@@ -380,6 +404,8 @@ export default function TrackingScreen({ orderId: initialOrderId }: TrackingOrde
             setShowOrderModal={setShowOrderModal}
             onOpenCancel={openCancelModal}
             statusConfig={statusConfig} 
+            deliveryCode={deliveryCode}
+            setDeliveryCode={setDeliveryCode}
           />
       )}
 

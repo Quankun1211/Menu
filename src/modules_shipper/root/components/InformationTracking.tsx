@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, ActivityIndicator, Alert, Linking } from "react-native"
+import { View, Text, TouchableOpacity, ActivityIndicator, Alert, Linking, TextInput } from "react-native"
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons"
 import { TrackingStyles } from "../css/TrackingStyles"
 import { DashboardStyles } from "../css/DashboardStyles"
@@ -18,6 +18,8 @@ interface InformationTrackingProps {
     handleNextStep: () => void, 
     isUpdating: boolean,
     onOpenCancel: () => void,
+    deliveryCode: string,
+    setDeliveryCode: (value: string) => void,
 }
 
 const InformationTracking = ({ 
@@ -28,7 +30,9 @@ const InformationTracking = ({
     isInactive, 
     handleNextStep, 
     isUpdating,
-    onOpenCancel 
+    onOpenCancel,
+    deliveryCode,
+    setDeliveryCode,
 } : InformationTrackingProps) => {
 
     const handleCall = (phoneNumber?: string) => {
@@ -50,6 +54,18 @@ const InformationTracking = ({
 
     return (
     <View style={{ position: 'absolute', bottom: 30, left: 20, right: 20, backgroundColor: 'white', borderRadius: 20, padding: 20, elevation: 5, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 10 }}>
+          {statusConfig.next === "delivered" && (
+            <TextInput
+              value={deliveryCode}
+              onChangeText={(value) => setDeliveryCode(value.replace(/\D/g, "").slice(0, 6))}
+              placeholder="Mã nhận hàng 6 số"
+              placeholderTextColor="#806A5C"
+              selectionColor="#D16D2F"
+              keyboardType="number-pad"
+              maxLength={6}
+              style={{ backgroundColor: '#FFF', color: '#2C1810', borderWidth: 1, borderColor: "#CFA98B", borderRadius: 12, padding: 12, marginBottom: 12, textAlign: "center", fontSize: 18, letterSpacing: 5 }}
+            />
+          )}
           <View style={TrackingStyles.userInfo}>
             <View style={{ flex: 1 }}>
               <Text style={TrackingStyles.userName}>{order?.address?.name || 'Đang tải...'}</Text>

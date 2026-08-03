@@ -1,6 +1,15 @@
 export type BackendResponse<T> = {
-    code: T;
+    code: number;
+    message?: string;
+    success?: boolean;
     data: T;
+    pagination?: {
+        totalItems: number;
+        totalPages: number;
+        currentPage: number;
+        pageSize: number;
+        hasNextPage: boolean;
+    };
 }
 export type Pagination = {
     meta: {

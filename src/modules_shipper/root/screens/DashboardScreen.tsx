@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, Image, Switch, Alert, ActivityIndicator, TouchableOpacity } from 'react-native';
-import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
+import { View, Text, Image, Switch, Alert, ActivityIndicator, TouchableOpacity } from 'react-native';
 import * as Location from 'expo-location';
 import { DashboardStyles } from "../css/DashboardStyles"
 import { FlatList } from 'react-native-gesture-handler';
@@ -18,6 +17,8 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useQueryClient } from '@tanstack/react-query';
 import { useSocket } from '@/context/SocketContext';
 import { useIsFocused } from '@react-navigation/native';
+import ShipperMap, { type ShipperMapHandle } from '../components/ShipperMap';
+import Toast from 'react-native-toast-message';
 
 export default function DashboardScreen() {
   const queryClient = useQueryClient();
@@ -31,13 +32,14 @@ export default function DashboardScreen() {
   const [isOnline, setIsOnline] = useState(meData?.data.isOnline);
   
   const [location, setLocation] = useState<Location.LocationObject | null>(null);
-  const mapRef = useRef<MapView>(null);
+  const mapRef = useRef<ShipperMapHandle>(null);
   
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [reason, setReason] = useState('');
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
 
   const [isConfirmModalVisible, setIsConfirmModalVisible] = useState(false);
+  const [deliveryCode, setDeliveryCode] = useState("");
   const [confirmData, setConfirmData] = useState<{
     id: string;
     nextStatus: ShipperNextStatus;
@@ -102,13 +104,18 @@ export default function DashboardScreen() {
     if (!isOnline || !isFocused) return;
     let locationSubscription: Location.LocationSubscription;
     (async () => {
-      let { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') return;
+      try {
+        const servicesEnabled = await Location.hasServicesEnabledAsync();
+        if (!servicesEnabled) throw new Error("Vui lòng bật dịch vụ vị trí (GPS) trên thiết bị.");
+        const { status } = await Location.requestForegroundPermissionsAsync();
+        if (status !== 'granted') throw new Error("Hãy cấp quyền vị trí cho Bếp Việt trong Cài đặt ứng dụng.");
+
+        const cachedLocation = await Location.getLastKnownPositionAsync({ maxAge: 120000, requiredAccuracy: 500 });
+        if (cachedLocation) setLocation(cachedLocation);
+        const initialLocation = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High });
+        setLocation(initialLocation);
       
-      let initialLocation = await Location.getCurrentPositionAsync({});
-      setLocation(initialLocation);
-      
-      locationSubscription = await Location.watchPositionAsync(
+        locationSubscription = await Location.watchPositionAsync(
         { accuracy: Location.Accuracy.High, distanceInterval: 10 },
         (newLocation) => {
           setLocation(newLocation);
@@ -121,7 +128,10 @@ export default function DashboardScreen() {
             }, 1000);
           }
         }
-      );
+        );
+      } catch (error: any) {
+        Toast.show({ type: 'error', text1: 'Không lấy được vị trí', text2: error?.message || "Vui lòng kiểm tra GPS và quyền vị trí.", visibilityTime: 5000 });
+      }
     })();
     return () => { if (locationSubscription) locationSubscription.remove(); };
   }, [isOnline, isFocused]);
@@ -169,13 +179,18 @@ export default function DashboardScreen() {
   const onConfirmUpdate = () => {
     if (!isOnline) return;
     if (!confirmData) return;
+    if (confirmData.nextStatus === "delivered" && deliveryCode.length !== 6) {
+      Alert.alert("Thiếu mã nhận hàng", "Vui lòng nhập đúng mã 6 số do khách hàng cung cấp.");
+      return;
+    }
 
     updateStatusOrder(
-      { orderId: confirmData.id, nextStatus: confirmData.nextStatus },
+      { orderId: confirmData.id, nextStatus: confirmData.nextStatus, deliveryCode: confirmData.nextStatus === "delivered" ? deliveryCode : undefined },
       {
         onSuccess: () => {
           setIsConfirmModalVisible(false);
           setConfirmData(undefined);
+          setDeliveryCode("");
         },
         onError: (err: any) => {
           setIsConfirmModalVisible(false);
@@ -269,25 +284,12 @@ export default function DashboardScreen() {
       </View>
 
       <View style={DashboardStyles.mapContainer}>
-        {isFocused && <MapView
+        <ShipperMap
           ref={mapRef}
-          style={StyleSheet.absoluteFill}
-          provider={PROVIDER_GOOGLE}
-          initialRegion={{
-            latitude: location?.coords.latitude || 10.762622,
-            longitude: location?.coords.longitude || 106.660172,
-            latitudeDelta: 0.01,
-            longitudeDelta: 0.01,
-          }}
-        >
-          {location && (
-            <Marker coordinate={{ latitude: location.coords.latitude, longitude: location.coords.longitude }}>
-              <View style={DashboardStyles.shipperMarker}>
-                <View style={DashboardStyles.shipperDot} />
-              </View>
-            </Marker>
-          )}
-        </MapView>}
+          visible={isFocused}
+          latitude={location?.coords.latitude}
+          longitude={location?.coords.longitude}
+        />
 
         <TouchableOpacity
           style={{
@@ -347,7 +349,7 @@ export default function DashboardScreen() {
           )}
       </View>
 
-      <ConfirmModal isConfirmModalVisible={isConfirmModalVisible} setIsConfirmModalVisible={setIsConfirmModalVisible} confirmData={confirmData} onConfirmUpdate={onConfirmUpdate} />
+      <ConfirmModal isConfirmModalVisible={isConfirmModalVisible} setIsConfirmModalVisible={setIsConfirmModalVisible} confirmData={confirmData} onConfirmUpdate={onConfirmUpdate} deliveryCode={deliveryCode} setDeliveryCode={setDeliveryCode} />
 
       <CancelModal isModalVisible={isModalVisible} setIsModalVisible={setIsModalVisible} reason={reason} setReason={setReason} submitCancelRequest={submitCancelRequest} />
     </View>

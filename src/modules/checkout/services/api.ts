@@ -52,5 +52,11 @@ export const onCheckoutApi = async(
   payload: CheckoutRequest
 ): Promise<BackendResponse<OrderResponse>> => {
   const { data } = await api.post("/orders", payload)
+  if (!data?.success || !data?.data?.orderId) {
+    const error = new Error(data?.message || "Không thể xác nhận đơn hàng") as Error & { code?: string; details?: unknown };
+    error.code = data?.code;
+    error.details = data?.details;
+    throw error;
+  }
   return data
 }

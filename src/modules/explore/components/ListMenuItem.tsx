@@ -1,4 +1,6 @@
-import { View, Image, Text, TouchableOpacity } from "react-native"
+import React, { memo } from "react"
+import { View, Text, TouchableOpacity } from "react-native"
+import { Image } from "expo-image"
 import { ExploreMenuStyle } from "../css/ExploreMenuStyle"
 import { Ionicons } from "@expo/vector-icons"
 import { router } from "expo-router"
@@ -8,10 +10,20 @@ import { formatVND } from "@/utils/helper"
 type MenuProps = {
   item: MenuResponse
 }
+const FALLBACK_IMAGE = require("../../../assets/banner/gao-card.jpg");
+
 const ListMenuItem = ({ item }: MenuProps) => (
     <View style={ExploreMenuStyle.card}>
       <View style={ExploreMenuStyle.imageContainer}>
-        <Image source={require("../../../assets/banner/gao.png")} style={ExploreMenuStyle.mainImage} />
+        <Image
+          source={item.image ? { uri: item.image } : FALLBACK_IMAGE}
+          placeholder={FALLBACK_IMAGE}
+          style={ExploreMenuStyle.mainImage}
+          contentFit="cover"
+          cachePolicy="memory-disk"
+          recyclingKey={item._id}
+          transition={180}
+        />
         {/* {item.isPopular && (
           <View style={ExploreMenuStyle.badge}>
             <Text style={ExploreMenuStyle.badgeText}>Phổ biến</Text>
@@ -29,9 +41,9 @@ const ListMenuItem = ({ item }: MenuProps) => (
         </View>
 
         <View style={ExploreMenuStyle.itemsPreview}>
-          {item.recipes.map((food, index) => (
-            <View key={index} style={ExploreMenuStyle.foodItem}>
-              <Image source={{uri: food.image}} style={ExploreMenuStyle.foodCircle} />
+          {item.recipes.slice(0, 4).map((food) => (
+            <View key={food._id} style={ExploreMenuStyle.foodItem}>
+              <Image source={food.image ? { uri: food.image } : FALLBACK_IMAGE} style={ExploreMenuStyle.foodCircle} contentFit="cover" cachePolicy="memory-disk" recyclingKey={food._id} />
               <Text style={ExploreMenuStyle.foodName}>{food.name}</Text>
             </View>
           ))}
@@ -60,4 +72,4 @@ const ListMenuItem = ({ item }: MenuProps) => (
     </View>
 )
 
-export default ListMenuItem
+export default memo(ListMenuItem)

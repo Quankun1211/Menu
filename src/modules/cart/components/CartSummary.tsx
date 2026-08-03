@@ -11,10 +11,13 @@ import Animated, {
 } from 'react-native-reanimated';
 import { formatVND } from '@/utils/helper';
 import {router} from "expo-router"
+import useShippingFee from '@/hooks/useShippingFee';
 
 const DETAIL_SECTION_HEIGHT = 100; 
 
 export default function CartSummary({totalAmount, onCheckout}: {totalAmount: number, onCheckout:() => void}) {
+  const { data: shippingFee, isPending: shippingFeePending, isError: shippingFeeError } = useShippingFee();
+  const grandTotal = shippingFee === undefined ? totalAmount : totalAmount + shippingFee;
   const translateY = useSharedValue(DETAIL_SECTION_HEIGHT);
   const context = useSharedValue({ y: DETAIL_SECTION_HEIGHT });
 
@@ -65,7 +68,9 @@ export default function CartSummary({totalAmount, onCheckout}: {totalAmount: num
                 <Text style={styles.label}>Phí vận chuyển </Text>
                 <Ionicons name="information-circle-outline" size={14} color="#999" />
               </View>
-              <Text style={styles.value}>25.000đ</Text>
+              <Text style={styles.value}>
+                {shippingFeePending ? 'Đang tải...' : shippingFeeError ? '--' : formatVND(shippingFee)}
+              </Text>
             </View>
             <View style={styles.divider} />
           </Animated.View>
@@ -76,10 +81,15 @@ export default function CartSummary({totalAmount, onCheckout}: {totalAmount: num
                 <Text style={styles.totalLabel}>Tổng cộng</Text>
                 <Ionicons name="chevron-up" size={16} color="#999" style={{ marginLeft: 4 }} />
               </View>
-              <Text style={styles.totalValue}>{formatVND(totalAmount)}</Text>
+              <Text style={styles.totalValue}>{formatVND(grandTotal)}</Text>
             </View>
 
-            <TouchableOpacity onPress={() => onCheckout()} style={styles.checkoutBtn} activeOpacity={0.8}>
+            <TouchableOpacity
+              onPress={() => onCheckout()}
+              style={[styles.checkoutBtn, (shippingFeePending || shippingFeeError) && styles.checkoutBtnDisabled]}
+              activeOpacity={0.8}
+              disabled={shippingFeePending || shippingFeeError}
+            >
               <Ionicons name="cart-outline" size={22} color="#fff" style={{ marginRight: 8 }} />
               <Text style={styles.checkoutText}>Tiến hành thanh toán</Text>
             </TouchableOpacity>
@@ -153,4 +163,5 @@ const styles = StyleSheet.create({
     marginTop: 8, 
   },
   checkoutText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
+  checkoutBtnDisabled: { opacity: 0.5 },
 });

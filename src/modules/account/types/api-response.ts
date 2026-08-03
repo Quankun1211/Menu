@@ -9,3 +9,4 @@ export type RegisterResponse = {
     name: string;
     role: string;
 }
+export type SocialProvider = "google" | "facebook";

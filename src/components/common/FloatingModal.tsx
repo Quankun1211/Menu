@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { StyleSheet, View, TouchableOpacity, Dimensions, Platform, Image } from 'react-native';
+import { StyleSheet, View, TouchableOpacity, Dimensions, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { GestureDetector, Gesture } from 'react-native-gesture-handler';
 import Animated, { 
@@ -18,7 +18,7 @@ const SIDE_PADDING = 20;
 const SAFE_TOP = Platform.OS === 'ios' ? 60 : 40; 
 const SAFE_BOTTOM = 100; 
 
-export default function FloatingChatbot({ onPress }: { onPress: () => void }) {
+export default function FloatingChatbot({ onPress, hasUnread = false }: { onPress: () => void; hasUnread?: boolean }) {
   const translateX = useSharedValue(0);
   const translateY = useSharedValue(0);
   const context = useSharedValue({ x: 0, y: 0 });
@@ -79,7 +79,7 @@ export default function FloatingChatbot({ onPress }: { onPress: () => void }) {
           activeOpacity={0.8}
         >
           <Ionicons name="chatbubble-ellipses" size={30} color="white" />
-          <View style={styles.onlineBadge} />
+          <View style={[styles.onlineBadge, hasUnread && styles.unreadBadge]} />
         </TouchableOpacity>
       </Animated.View>
     </GestureDetector>
@@ -127,5 +127,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#4CAF50',
     borderWidth: 2,
     borderColor: 'white',
-  }
+  },
+  unreadBadge: { backgroundColor: '#EF4444' },
 });

@@ -110,7 +110,7 @@ const RecipeDetail = () => {
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={RecipeStyle.videoContainer}>
           <Image 
-            source={recipe?.image ? { uri: recipe.image } : require("../../../assets/banner/gao.png")} 
+            source={recipe?.image ? { uri: recipe.image } : require("../../../assets/banner/gao-card.jpg")} 
             style={RecipeStyle.mainVideoImage} 
           />
         </View>

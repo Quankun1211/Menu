@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, Image, GestureResponderEvent, TouchableOpacity } from 'react-native';
 import { RecipeStyle } from '../css/RecipeStyle';
 import { router } from "expo-router"
-import { RecipeDetailResponse, RecipeResponse } from '../types/api-response';
+import { RecipeDetailResponse } from '../types/api-response';
 import { Ionicons } from '@expo/vector-icons';
 import useSaveRecipe from '../hooks/useSaveRecipe';
 type RecipeProps = {
@@ -73,4 +73,4 @@ const RecipeGridItem = ({ item }: RecipeProps) => {
   );
 };
 
-export default RecipeGridItem;
+export default React.memo(RecipeGridItem);

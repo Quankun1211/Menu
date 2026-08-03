@@ -19,9 +19,10 @@ export const onGetAllOrderShipperApi = async (): Promise<
 
 export const onUpdateStatusOrderApi = async (
   orderId: string, 
-  nextStatus: ShipperNextStatus
+  nextStatus: ShipperNextStatus,
+  deliveryCode?: string,
 ): Promise<BackendResponse<OrderResponse>> => {
-  const { data } = await api.patch(`/shippers/orders/${orderId}/status`, { nextStatus });
+  const { data } = await api.patch(`/shippers/orders/${orderId}/status`, { nextStatus, deliveryCode });
   return data;
 }
 

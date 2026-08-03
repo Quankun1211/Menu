@@ -11,7 +11,8 @@ const CancelModal = ({ isModalVisible, setIsModalVisible, reason, setReason, sub
             <TextInput
                 style={DashboardStyles.textInput}
                 placeholder="Nhập lý do tại đây..."
-                placeholderTextColor="#999"
+                placeholderTextColor="#806A5C"
+                selectionColor="#D16D2F"
                 multiline
                 value={reason}
                 onChangeText={setReason}

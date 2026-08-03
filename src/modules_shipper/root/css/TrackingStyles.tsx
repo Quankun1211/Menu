@@ -47,7 +47,7 @@ export const TrackingStyles = StyleSheet.create({
   stepper: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 30, paddingHorizontal: 10 },
   stepCircle: { width: 36, height: 36, borderRadius: 18, backgroundColor: '#1a1a1a', justifyContent: 'center', alignItems: 'center' },
   stepActive: { backgroundColor: '#4cd964' },
-  stepLabel: { fontSize: 8, color: '#555', marginTop: 5, fontWeight: 'bold', textAlign: 'center' },
+  stepLabel: { fontSize: 8, color: '#C7B8AE', marginTop: 5, fontWeight: 'bold', textAlign: 'center' },
   line: { height: 2, flex: 1, marginBottom: 15, marginHorizontal: -15 },
   lineActive: { backgroundColor: '#4cd964' },
   lineInactive: { backgroundColor: '#222' },

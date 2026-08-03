@@ -2,7 +2,7 @@ import { View, Text, FlatList, ActivityIndicator } from 'react-native';
 import CategoryItem from '../components/CategoryItem';
 import { ExploreStyles } from '../css/ExploreStyles';
 import { ExploreMenuStyle } from '../css/ExploreMenuStyle';
-import { useRef, useState, useMemo } from 'react';
+import { useCallback, useRef, useState, useMemo } from 'react';
 import ListMenuItem from '../components/ListMenuItem';
 import useGetCategoryMenu from '../hooks/useGetCategoryMenu';
 import useGetMenu from '../hooks/useGetMenu';
@@ -12,7 +12,7 @@ export default function MenuExploreTabs() {
   const horizontalFlatListRef = useRef<FlatList>(null);
   
   const { data: getCategoryMenu } = useGetCategoryMenu();
-  const { data: menuResponse, isPending: pendingMenu } = useGetMenu(activeTab);
+  const { data: menuResponse, isPending: pendingMenu, fetchNextPage, hasNextPage, isFetchingNextPage } = useGetMenu(activeTab);
 
   const categoriesWithAll = useMemo(() => {
     const allTab = { 
@@ -26,7 +26,7 @@ export default function MenuExploreTabs() {
   }, [getCategoryMenu?.data]);
 
   const listMenus = useMemo(() => {
-    return menuResponse?.data || [];
+    return menuResponse?.pages.flatMap((page) => page.data) || [];
   }, [menuResponse]);
 
   const activeCategoryInfo = useMemo(() => {
@@ -36,14 +36,25 @@ export default function MenuExploreTabs() {
   const handleChangeCategory = (id: string) => {
     setActiveTab(id);
   };
+  const renderMenu = useCallback(({ item }: { item: (typeof listMenus)[number] }) => <ListMenuItem item={item} />, []);
+  const loadMore = useCallback(() => {
+    if (hasNextPage && !isFetchingNextPage) fetchNextPage();
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   return (
     <FlatList
       data={listMenus}
       keyExtractor={(item) => item._id} 
-      renderItem={({ item }) => <ListMenuItem item={item} />}
+      renderItem={renderMenu}
       contentContainerStyle={ExploreMenuStyle.listContent}
       showsVerticalScrollIndicator={false}
+      initialNumToRender={4}
+      maxToRenderPerBatch={5}
+      windowSize={5}
+      removeClippedSubviews
+      onEndReached={loadMore}
+      onEndReachedThreshold={0.35}
+      ListFooterComponent={isFetchingNextPage ? <ActivityIndicator size="small" color="#E25822" style={{ marginVertical: 20 }} /> : null}
       ListEmptyComponent={() => (
         pendingMenu ? (
           <ActivityIndicator size="large" color="#FF6347" style={{ marginTop: 50 }} />

@@ -23,10 +23,10 @@ export const onGetProductByFilter = async (sort: string) : Promise<BackendRespon
 }
 
 export const onSearchProducts = async (
-  keyword: string, sort?: string
+  keyword: string, sort?: string, page = 1, limit = 10
 ): Promise<BackendResponse<SearchProductResponse[]>> => {
   const { data } = await api.get('/products', {
-    params: { q: keyword, sort: sort },
+    params: { q: keyword, sort, page, limit },
   });
   return data;
 };

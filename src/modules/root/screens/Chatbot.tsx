@@ -1,195 +1,100 @@
-import React, { useState, useRef, useEffect } from "react";
-import {
-    View,
-    FlatList,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    KeyboardAvoidingView,
-    Platform,
-    Modal,
-    Keyboard,
-    Image,
-} from "react-native";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { FlatList, Image, Keyboard, KeyboardAvoidingView, Modal, Platform, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { router } from "expo-router";
 import useChatbot from "../hooks/useChatbot";
-import { ChatbotStyles } from "../css/ChatbotStyles";
+import { ChatbotStyles as styles } from "../css/ChatbotStyles";
 import useGetMe from "@/hooks/useGetMe";
+import { useAuthStore } from "@/store/auth.store";
+import { useSocket } from "@/context/SocketContext";
+import api from "@/services/axios";
 
-interface ChatMessage {
-    role: 'user' | 'model';
-    parts: [{ text: string }];
-}
+type BotMessage = { role: "user" | "model"; parts: [{ text: string }] };
+type SupportMessage = { _id: string; senderRole: "user" | "admin"; content: string; createdAt: string };
+type Tab = "bot" | "admin";
+const BOT_AVATAR = require("../../../assets/chatbot/chatavt-256.png");
+const WELCOME: BotMessage = { role: "model", parts: [{ text: "Chào bạn! Tôi là Bếp trưởng AI. Tôi có thể giúp gì cho bạn hôm nay?" }] };
 
-const BOT_AVATAR = require("../../../assets/chatbot/chatavt.png"); 
+export default function ChatBotModal({ visible, onClose, onUnreadChange }: { visible: boolean; onClose: () => void; onUnreadChange?: React.Dispatch<React.SetStateAction<number>> }) {
+  const [tab, setTab] = useState<Tab>("bot");
+  const [botMessages, setBotMessages] = useState<BotMessage[]>([WELCOME]);
+  const [supportMessages, setSupportMessages] = useState<SupportMessage[]>([]);
+  const [input, setInput] = useState("");
+  const [supportPending, setSupportPending] = useState(false);
+  const [focused, setFocused] = useState(false);
+  const listRef = useRef<FlatList>(null);
+  const { data: meData } = useGetMe();
+  const token = useAuthStore((state) => state.token);
+  const socket = useSocket();
+  const { mutate: askBot, isPending } = useChatbot();
 
-export default function ChatBotModal({ visible, onClose }: { visible: boolean; onClose: () => void }) {
-    const {data: meData, isPending: mePending} = useGetMe()
+  const loadSupport = useCallback(async () => {
+    if (!token) return;
+    const response = await api.get("/support-chats/me");
+    setSupportMessages(response.data.data?.messages || []);
+    onUnreadChange?.(response.data.data?.unreadByCustomer || 0);
+  }, [token, onUnreadChange]);
 
-    const INITIAL_MESSAGE: ChatMessage = {
-        role: 'model',
-        parts: [{ text: "Chào bạn! Tôi là Bếp trưởng của Bếp Việt. Tôi có thể giúp gì cho thực đơn của bạn hôm nay?" }]
+  useEffect(() => { loadSupport().catch(() => undefined); }, [loadSupport]);
+  useEffect(() => {
+    if (!socket) return;
+    const receive = ({ message }: { message?: SupportMessage }) => {
+      if (!message || message.senderRole !== "admin") return;
+      setSupportMessages((current) => current.some((item) => item._id === message._id) ? current : [...current, message]);
+      if (visible && tab === "admin") api.patch("/support-chats/me/read").then(() => onUnreadChange?.(0));
+      else onUnreadChange?.((count) => count + 1);
     };
-    const [messages, setMessages] = useState<ChatMessage[]>([INITIAL_MESSAGE]);
-    const [input, setInput] = useState('');
-    const [isInputFocused, setIsInputFocused] = useState(false);
-    const flatListRef = useRef<FlatList>(null);
-    const { mutate: sendMessage, isPending } = useChatbot();
+    socket.on("support_message", receive);
+    return () => { socket.off("support_message", receive); };
+  }, [socket, visible, tab, onUnreadChange]);
+  useEffect(() => {
+    if (visible && tab === "admin" && token) api.patch("/support-chats/me/read").then(() => onUnreadChange?.(0));
+  }, [visible, tab, token, onUnreadChange]);
 
-    useEffect(() => {
-        if (visible && messages.length === 0) {
-            setMessages([INITIAL_MESSAGE]);
-        }
-    }, [visible]);
+  const chooseAdmin = () => {
+    if (!token) { onClose(); router.push("/(auth)/login"); return; }
+    setTab("admin");
+  };
 
-    const handleSend = () => {
-        if (!input.trim() || isPending) return;
-        Keyboard.dismiss();
-        const userMsg: ChatMessage = { role: 'user', parts: [{ text: input.trim() }] };
-        setMessages(prev => [...prev, userMsg]);
-        const currentInput = input;
-        setInput('');
+  const send = async () => {
+    const content = input.trim();
+    if (!content || isPending || supportPending) return;
+    Keyboard.dismiss(); setInput("");
+    if (tab === "bot") {
+      const message: BotMessage = { role: "user", parts: [{ text: content }] };
+      setBotMessages((current) => [...current, message]);
+      askBot({ message: content, history: botMessages }, { onSuccess: (data) => setBotMessages((current) => [...current, { role: "model", parts: [{ text: data.reply }] }]) });
+      return;
+    }
+    setSupportPending(true);
+    try {
+      const response = await api.post("/support-chats/me/messages", { content });
+      setSupportMessages((current) => [...current, response.data.data]);
+    } finally { setSupportPending(false); }
+  };
 
-        sendMessage({ message: currentInput, history: messages }, {
-            onSuccess: (data) => {
-                const botMsg: ChatMessage = { role: 'model', parts: [{ text: data.reply }] };
-                setMessages(prev => [...prev, botMsg]);
-            }
-        });
-    };
+  const data = tab === "bot" ? botMessages : supportMessages;
+  const renderItem = ({ item }: { item: BotMessage | SupportMessage }) => {
+    const bot = "role" in item;
+    const mine = bot ? item.role === "user" : item.senderRole === "user";
+    const content = bot ? item.parts[0].text.replace(/\*\*/g, "") : item.content;
+    return <View style={[styles.bubbleContainer, mine ? styles.userAlign : styles.botAlign]}>
+      {!mine && <Image source={BOT_AVATAR} style={styles.avatarSmall}/>} 
+      <View style={[styles.msgBubble, mine ? styles.userBubble : styles.botBubble]}><Text style={mine ? styles.userText : styles.botText}>{content}</Text></View>
+      {mine && <Image source={meData?.data?.avatar ? { uri: meData.data.avatar } : BOT_AVATAR} style={styles.avatarSmall}/>} 
+    </View>;
+  };
 
-    const renderMessageContent = (text: string, isUser: boolean) => {
-        if (isUser) return <Text style={ChatbotStyles.userText}>{text}</Text>;
-
-        let cleanText = text
-            .replace(/\*\*/g, '')         
-            .replace(/^\s*\*\s/gm, '- ');  
-
-        const steps = cleanText.split(/(?=Bước \d+:|Step \d+:|\n\d+\.)/g);
-
-        if (steps.length > 1) {
-            return (
-                <View style={{ width: '100%' }}>
-                    {steps.map((step, index) => {
-                        let trimmed = step.trim();
-                        if (!trimmed) return null;
-
-                        const colonIndex = trimmed.indexOf(':');
-                        let title = "";
-                        let content = trimmed;
-
-                        if (colonIndex !== -1 && colonIndex < 30) {
-                            title = trimmed.substring(0, colonIndex + 1);
-                            content = trimmed.substring(colonIndex + 1).trim();
-                        }
-
-                        return (
-                            <View key={index} style={ChatbotStyles.recipeStepCard}>
-                                {title ? (
-                                    <>
-                                        <Text style={[ChatbotStyles.botText, { fontWeight: 'bold', color: '#E25822', marginBottom: 4 }]}>
-                                            {title}
-                                        </Text>
-                                        <Text style={ChatbotStyles.botText}>{content}</Text>
-                                    </>
-                                ) : (
-                                    <Text style={ChatbotStyles.botText}>{trimmed}</Text>
-                                )}
-                            </View>
-                        );
-                    })}
-                </View>
-            );
-        }
-
-        return <Text style={ChatbotStyles.botText}>{cleanText}</Text>;
-    };
-    const renderItem = ({ item }: { item: ChatMessage }) => {
-        const isUser = item.role === 'user';
-        const isRecipe = !isUser && (item.parts[0].text.includes("Bước") || item.parts[0].text.includes("1."));
-
-        return (
-            <View style={[ChatbotStyles.bubbleContainer, isUser ? ChatbotStyles.userAlign : ChatbotStyles.botAlign]}>
-                {!isUser && <Image source={BOT_AVATAR} style={ChatbotStyles.avatarSmall} />}
-                
-                <View style={[
-                    ChatbotStyles.msgBubble, 
-                    isUser ? ChatbotStyles.userBubble : ChatbotStyles.botBubble,
-                    isRecipe && { backgroundColor: 'transparent', padding: 0, maxWidth: '85%' }
-                ]}>
-                    {renderMessageContent(item.parts[0].text, isUser)}
-                </View>
-
-                {isUser && <Image source={{uri: meData?.data.avatar}} style={ChatbotStyles.avatarSmall} />}
-            </View>
-        );
-    };
-    // Thêm useEffect này vào trong Component
-    useEffect(() => {
-        if (visible && messages.length > 0) {
-            // Khoảng trễ 100ms để FlatList kịp render dữ liệu trước khi scroll
-            const timer = setTimeout(() => {
-                flatListRef.current?.scrollToEnd({ animated: false });
-            }, 100);
-            return () => clearTimeout(timer);
-        }
-    }, [visible]);
-
-    return (
-        <Modal visible={visible} animationType="slide" transparent statusBarTranslucent onRequestClose={onClose}>
-            <View style={ChatbotStyles.modalOverlay}>
-                <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined} style={ChatbotStyles.modalContainer}>
-                    <View style={ChatbotStyles.innerContainer}>
-                        <View style={ChatbotStyles.header}>
-                            <View style={ChatbotStyles.headerTitleRow}>
-                                <View style={ChatbotStyles.statusDot} />
-                                <Text style={ChatbotStyles.headerTitle}>Bếp trưởng</Text>
-                            </View>
-                            <TouchableOpacity onPress={() => { Keyboard.dismiss(); onClose(); }}>
-                                <Ionicons name="close" size={24} color="#333" />
-                            </TouchableOpacity>
-                        </View>
-
-                        <FlatList
-                            ref={flatListRef}
-                            data={messages}
-                            keyExtractor={(_, index) => index.toString()}
-                            renderItem={renderItem}
-                            contentContainerStyle={{ padding: 15, paddingBottom: 20 }}
-                            onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
-                            keyboardShouldPersistTaps="handled"
-                        />
-
-                        <View style={[
-                            ChatbotStyles.inputArea,
-                            isInputFocused && ChatbotStyles.inputAreaFocused,
-                        ]}>
-                            <TextInput 
-                                value={input} 
-                                onChangeText={setInput} 
-                                style={[
-                                    ChatbotStyles.textInput,
-                                    isInputFocused && ChatbotStyles.textInputFocused,
-                                    { color: "#2C1810", backgroundColor: "#FFFFFF" },
-                                ]}
-                                placeholder="Hỏi Bếp trưởng..."
-                                placeholderTextColor="#806A5C"
-                                selectionColor="#F3B48E"
-                                cursorColor="#E25822"
-                                underlineColorAndroid="transparent"
-                                keyboardAppearance="light"
-                                multiline
-                                onFocus={() => setIsInputFocused(true)}
-                                onBlur={() => setIsInputFocused(false)}
-                                onSubmitEditing={handleSend}
-                            />
-                            <TouchableOpacity onPress={handleSend} disabled={isPending || !input.trim()}>
-                                <Ionicons name="send" size={24} color={isPending || !input.trim() ? "#CCC" : "#E25822"} />
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-                </KeyboardAvoidingView>
-            </View>
-        </Modal>
-    );
+  return <Modal visible={visible} animationType="slide" transparent statusBarTranslucent onRequestClose={onClose}>
+    <View style={styles.modalOverlay}><KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined} style={styles.modalContainer}><View style={styles.innerContainer}>
+      <View style={styles.header}><View><Text style={styles.headerTitle}>Trò chuyện cùng Bếp Việt</Text><Text style={styles.headerSubtitle}>Chúng tôi luôn sẵn sàng hỗ trợ</Text></View><TouchableOpacity onPress={onClose}><Ionicons name="close" size={25} color="#333"/></TouchableOpacity></View>
+      <View style={styles.tabs}>
+        <TouchableOpacity style={[styles.tab, tab === "bot" && styles.activeTab]} onPress={() => setTab("bot")}><Ionicons name="sparkles-outline" size={18} color={tab === "bot" ? "#E25822" : "#777"}/><Text style={[styles.tabText, tab === "bot" && styles.activeTabText]}>Chatbot</Text></TouchableOpacity>
+        <TouchableOpacity style={[styles.tab, tab === "admin" && styles.activeTab]} onPress={chooseAdmin}><Ionicons name="headset-outline" size={18} color={tab === "admin" ? "#E25822" : "#777"}/><Text style={[styles.tabText, tab === "admin" && styles.activeTabText]}>Quản trị viên</Text></TouchableOpacity>
+      </View>
+      {tab === "admin" && supportMessages.length === 0 ? <View style={styles.emptySupport}><Ionicons name="headset-outline" size={46} color="#E25822"/><Text style={styles.emptyTitle}>Bạn cần Bếp Việt hỗ trợ?</Text><Text style={styles.emptyText}>Hãy gửi tin nhắn, quản trị viên sẽ phản hồi sớm nhất.</Text></View> : <FlatList ref={listRef} data={data as any[]} keyExtractor={(item, index) => item._id || String(index)} renderItem={renderItem as any} contentContainerStyle={styles.messageList} onContentSizeChange={() => listRef.current?.scrollToEnd({ animated: true })} keyboardShouldPersistTaps="handled"/>}
+      {(isPending || supportPending) && <Text style={styles.pendingText}>Đang gửi...</Text>}
+      <View style={[styles.inputArea, focused && styles.inputAreaFocused]}><TextInput value={input} onChangeText={setInput} style={[styles.textInput, focused && styles.textInputFocused]} placeholder={tab === "bot" ? "Hỏi Bếp trưởng AI..." : "Nhắn tin cho quản trị viên..."} placeholderTextColor="#806A5C" selectionColor="#E25822" cursorColor="#E25822" maxLength={2000} multiline onFocus={() => setFocused(true)} onBlur={() => setFocused(false)}/><TouchableOpacity onPress={send} disabled={!input.trim() || isPending || supportPending}><Ionicons name="send" size={24} color={!input.trim() || isPending || supportPending ? "#CCC" : "#E25822"}/></TouchableOpacity></View>
+    </View></KeyboardAvoidingView></View>
+  </Modal>;
 }

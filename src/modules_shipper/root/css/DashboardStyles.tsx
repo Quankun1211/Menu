@@ -48,7 +48,7 @@ export const DashboardStyles = StyleSheet.create({
   addressLabel: { color: '#D16D2F', fontSize: 10, fontWeight: 'bold' },
   addressValue: { color: '#5C4033', fontSize: 14 },
   statusRow: { marginBottom: 10 },
-  statusText: { color: '#ccc', fontSize: 12 },
+  statusText: { color: '#74645C', fontSize: 12 },
   actionRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -61,7 +61,7 @@ export const DashboardStyles = StyleSheet.create({
     alignItems: 'center',
     flex: 2
   },
-  acceptText: { color: '#000', fontWeight: 'bold' },
+  acceptText: { color: '#FFF', fontWeight: 'bold' },
   cancelBtn: {
     backgroundColor: '#222',
     padding: 12,
@@ -113,22 +113,24 @@ export const DashboardStyles = StyleSheet.create({
   },
   modalContent: {
     width: '100%',
-    backgroundColor: '#1A1A1A',
+    backgroundColor: '#FFFDF9',
     borderRadius: 20,
     padding: 20,
     borderWidth: 1,
-    borderColor: '#333'
+    borderColor: '#E8C5A8'
   },
   modalTitle: {
-    color: '#FFF',
+    color: '#5C4033',
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 15,
     textAlign: 'center'
   },
   textInput: {
-    backgroundColor: '#000',
-    color: '#FFF',
+    backgroundColor: '#FFF',
+    color: '#2C1810',
+    borderWidth: 1,
+    borderColor: '#CFA98B',
     borderRadius: 10,
     padding: 15,
     height: 100,

@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { View, Text, Image, FlatList, TouchableOpacity, ActivityIndicator, GestureResponderEvent, Linking } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { RecipeStyle } from '../css/RecipeStyle';
@@ -25,7 +25,7 @@ export default function RecipeExploreTabs() {
   } = useWeather();
   
   const { data: getCategoryRecipe } = useGetCategoryRecipe();
-  const { data: recipeResponse, isPending: pendingRecipe } = useGetRecipe(activeTab);
+  const { data: recipeResponse, isPending: pendingRecipe, fetchNextPage, hasNextPage, isFetchingNextPage } = useGetRecipe(activeTab);
 
   const weatherMood = useMemo(() => {
     if (temperature > 30) return 'hot'; 
@@ -43,7 +43,7 @@ export default function RecipeExploreTabs() {
     return [allTab, ...getCategoryRecipe.data];
   }, [getCategoryRecipe?.data]);
 
-  const listRecipes = useMemo(() => recipeResponse?.data || [], [recipeResponse]);
+  const listRecipes = useMemo(() => recipeResponse?.pages.flatMap((page) => page.data) || [], [recipeResponse]);
 
   const featuredRecipe = useMemo(() => {
     if (listRecipes.length === 0) return null;
@@ -54,6 +54,10 @@ export default function RecipeExploreTabs() {
   const handleChangeCategory = (id: string) => {
     setActiveTab(id);
   };
+  const loadMore = useCallback(() => {
+    if (hasNextPage && !isFetchingNextPage) fetchNextPage();
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
+  const renderRecipe = useCallback(({ item }: { item: RecipeDetailResponse }) => <RecipeGridItem item={item} />, []);
 
   const { mutate: saveRecipe } = useSaveRecipe()
   const handleSave = (e: GestureResponderEvent, item: RecipeDetailResponse) => {
@@ -73,6 +77,13 @@ export default function RecipeExploreTabs() {
       columnWrapperStyle={{ justifyContent: 'space-between' }}
       contentContainerStyle={RecipeStyle.scrollContainer}
       showsVerticalScrollIndicator={false}
+      initialNumToRender={6}
+      maxToRenderPerBatch={6}
+      windowSize={5}
+      removeClippedSubviews
+      onEndReached={loadMore}
+      onEndReachedThreshold={0.35}
+      ListFooterComponent={isFetchingNextPage ? <ActivityIndicator size="small" color="#E25822" style={{ marginVertical: 20 }} /> : null}
       ListEmptyComponent={() => (
         pendingRecipe ? (
           <ActivityIndicator size="large" color="#E25822" style={{ marginTop: 50 }} />
@@ -141,7 +152,7 @@ export default function RecipeExploreTabs() {
               style={RecipeStyle.featuredCard}
             >
               <Image 
-                source={featuredRecipe.image ? { uri: featuredRecipe.image } : require("../../../assets/banner/gao.png")} 
+                source={featuredRecipe.image ? { uri: featuredRecipe.image } : require("../../../assets/banner/gao-card.jpg")} 
                 style={RecipeStyle.featuredImage} 
               />
               <TouchableOpacity 
@@ -198,7 +209,7 @@ export default function RecipeExploreTabs() {
           <Text style={[RecipeStyle.sectionTitle, { marginVertical: 20 }]}>Món mới cập nhật</Text>
         </View>
       )}
-      renderItem={({ item }) => <RecipeGridItem item={item} />}
+      renderItem={renderRecipe}
     />
   );
 }

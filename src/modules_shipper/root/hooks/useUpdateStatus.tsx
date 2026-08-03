@@ -5,6 +5,7 @@ import type { ShipperNextStatus } from "../utils/orderWorkflow";
 interface UpdateStatusPayload {
   orderId: string;
   nextStatus: ShipperNextStatus;
+  deliveryCode?: string;
 }
 
 const useUpdateStatusShipper = () => {
@@ -12,8 +13,8 @@ const useUpdateStatusShipper = () => {
     
     const { mutate, isPending, error, isError } = useMutation({
         mutationKey: ["update-status-shipper"],
-        mutationFn: ({ orderId, nextStatus }: UpdateStatusPayload) => {
-            return onUpdateStatusOrderApi(orderId, nextStatus);
+        mutationFn: ({ orderId, nextStatus, deliveryCode }: UpdateStatusPayload) => {
+            return onUpdateStatusOrderApi(orderId, nextStatus, deliveryCode);
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["get-order-shipper"] });

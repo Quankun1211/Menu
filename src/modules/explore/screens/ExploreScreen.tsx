@@ -1,4 +1,4 @@
-import { View, FlatList, Text, TouchableOpacity } from 'react-native';
+import { View, FlatList, Text, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useState, useMemo, useRef, useEffect } from 'react';
 import { useLocalSearchParams } from 'expo-router';
 import SearchBar from '@/components/ui/SearchBar';
@@ -41,11 +41,23 @@ export default function ExploreScreen() {
     }
   }, [categoryId]);
 
-  const { data: productsData, isPending } = useGetProductByRegion({
+  const {
+    data: productsData,
+    isPending,
+    isRefetching,
+    refetch,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useGetProductByRegion({
     region: selectedRegion,
     categoryId: activeTab === 'all' ? undefined : activeTab,
     sort
   });
+  const products = useMemo(
+    () => productsData?.pages.flatMap((page) => page.data) ?? [],
+    [productsData]
+  );
 
   const categoriesWithAll = useMemo(() => {
     const allTab = { _id: 'all', name: 'Tất cả' };
@@ -76,13 +88,21 @@ export default function ExploreScreen() {
       </View>
 
       <FlatList
-        data={productsData?.data}
+        data={products}
         keyExtractor={(item) => item._id}
         numColumns={2}
         columnWrapperStyle={ExploreStyles.gridRow}
         showsVerticalScrollIndicator={false}
-        refreshing={isPending}
-        onRefresh={() => {}}
+        refreshing={isRefetching && !isFetchingNextPage}
+        onRefresh={refetch}
+        onEndReached={() => {
+          if (hasNextPage && !isFetchingNextPage) fetchNextPage();
+        }}
+        onEndReachedThreshold={0.35}
+        ListFooterComponent={isFetchingNextPage
+          ? <ActivityIndicator color="#D16D2F" style={{ marginVertical: 20 }} />
+          : <View style={{ height: 24 }} />
+        }
         
         ListHeaderComponent={
           <View>

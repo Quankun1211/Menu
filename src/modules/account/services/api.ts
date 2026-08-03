@@ -1,6 +1,6 @@
 import { BackendResponse } from "@/libs/shared/types/backend-response";
 import { LogInRequest, RegisterRequest } from "../types/api-request";
-import { LoginResponse, RegisterResponse } from "../types/api-response";
+import { LoginResponse, RegisterResponse, SocialProvider } from "../types/api-response";
 import api from "@/services/axios";
 import { ApiUrls } from "@/config/url";
 
@@ -74,3 +74,13 @@ export const onResetPasswordApi = async (
     });
     return data.data;
 }
+export const onSocialLoginApi = async (
+    provider: SocialProvider,
+    token: string,
+): Promise<BackendResponse<LoginResponse>> => {
+    const { data } = await api.post(`/auth/identity-providers/${provider}/sessions`, {
+        token,
+        clientType: "mobile",
+    });
+    return data;
+};

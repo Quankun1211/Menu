@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import { onGetProductByRegion } from "../services/api";
 
 type UseGetProductByRegionProps = {
@@ -12,18 +12,23 @@ const useGetProductByRegion = ({
   categoryId,
   sort,
 }: UseGetProductByRegionProps) => {
-  const { data, isPending, error, isError } = useQuery({
+  return useInfiniteQuery({
     queryKey: ["get-product-by-region", region, categoryId, sort],
-    queryFn: () =>
+    queryFn: ({ pageParam }) =>
       onGetProductByRegion({
         region,
         categoryId,
         sort,
+        page: pageParam,
+        limit: 10,
       }),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) => lastPage.pagination?.hasNextPage
+      ? lastPage.pagination.currentPage + 1
+      : undefined,
     enabled: Boolean(region),
   });
 
-  return { data, isPending, error, isError };
 };
 
 export default useGetProductByRegion;

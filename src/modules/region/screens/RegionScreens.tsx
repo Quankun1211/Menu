@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, FlatList, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, FlatList, Text, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { RegionStyles } from '../css/RegionStyles';
 import { ExploreStyles } from '@/modules/explore/css/ExploreStyles';
 import useGetProductByRegion from '../hooks/useGetProductByRegion';
@@ -28,11 +28,22 @@ export default function RegionScreen({ id }: RegionScreenProps) {
   const [filterVisible, setFilterVisible] = useState(false);
   const [sort, setSortBy] = useState('newest');
   const { data: getAllCategory } = useGetCategory();
-  const { data: getProductByRegion, isPending } = useGetProductByRegion({
+  const {
+    data: getProductByRegion,
+    isRefetching,
+    refetch,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useGetProductByRegion({
       region: selectedId,
       categoryId: activeTab === 'all' ? undefined : activeTab,
       sort
   });
+  const products = useMemo(
+    () => getProductByRegion?.pages.flatMap((page) => page.data) ?? [],
+    [getProductByRegion]
+  );
   const categoriesWithAll = useMemo(() => {
     const allTab = { _id: 'all', name: 'Tất cả' };
     if (!getAllCategory?.data) return [allTab];
@@ -59,14 +70,22 @@ export default function RegionScreen({ id }: RegionScreenProps) {
   return (
   <View style={RegionStyles.container}>
     <FlatList
-      data={getProductByRegion?.data}
+      data={products}
       keyExtractor={(item) => item._id}
       numColumns={2}
       columnWrapperStyle={ExploreStyles.gridRow}
       showsVerticalScrollIndicator={false}
       
-      refreshing={isPending}
-      onRefresh={() => {}} 
+      refreshing={isRefetching && !isFetchingNextPage}
+      onRefresh={refetch}
+      onEndReached={() => {
+        if (hasNextPage && !isFetchingNextPage) fetchNextPage();
+      }}
+      onEndReachedThreshold={0.35}
+      ListFooterComponent={isFetchingNextPage
+        ? <ActivityIndicator color="#D16D2F" style={{ marginVertical: 20 }} />
+        : <View style={{ height: 24 }} />
+      }
 
       ListHeaderComponent={
         <View>

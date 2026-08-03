@@ -13,7 +13,7 @@ import PaymentOption from '../components/PaymentOption';
 import useCheckout from '../hooks/useCheckout';
 import Toast from 'react-native-toast-message';
 import useGetMyCoupons from "../../profile/hooks/useGetMyCoupons";
-import { AsyncStorageUtils } from "@/utils/AsyncStorageUtils";
+import useShippingFee from "@/hooks/useShippingFee";
 
 type CheckoutScreenProps = {
   source?: "cart" | "buy_now" | "menu" | "recipe";
@@ -34,12 +34,6 @@ export default function CheckoutScreen({
       return value.toString(16);
     }),
   );
-  useEffect(() => {
-    AsyncStorageUtils.get("checkout_session_id").then((stored) => {
-      if (stored) checkoutSessionId.current = stored;
-      else AsyncStorageUtils.save("checkout_session_id", checkoutSessionId.current);
-    });
-  }, []);
   const memoizedItems = useMemo(() => items.map(i => ({
     productId: i.productId,
     quantity: i.quantity
@@ -81,7 +75,11 @@ export default function CheckoutScreen({
     setAppliedCode(code);
   };
 
-  const shippingFee = 25000;
+  const {
+    data: shippingFee = 0,
+    isPending: shippingFeePending,
+    isError: shippingFeeError,
+  } = useShippingFee();
   const subTotal = totalAmount;
   const finalTotal = Math.max(subTotal + shippingFee - Math.abs(discountValue), 0);
 
@@ -109,7 +107,14 @@ export default function CheckoutScreen({
       checkoutSessionId: checkoutSessionId.current,
     }, {
       onSuccess: (response) => {
-        AsyncStorageUtils.remove("checkout_session_id");
+        if (!response?.success || !response?.data?.orderId) {
+          Toast.show({
+            type: 'error',
+            text1: 'Không thể xác nhận đơn hàng',
+            text2: response?.message || 'Backend không trả về đơn hàng vừa tạo',
+          });
+          return;
+        }
         const paymentUrl = response?.data?.paymentUrl;
 
         if (paymentUrl) {
@@ -269,11 +274,11 @@ export default function CheckoutScreen({
 
       <View style={CheckoutStyles.footer}>
         <TouchableOpacity
-          style={[CheckoutStyles.submitBtn, checkoutPending && { opacity: 0.7 }]}
+          style={[CheckoutStyles.submitBtn, (checkoutPending || shippingFeePending || shippingFeeError) && { opacity: 0.7 }]}
           onPress={() => setConfirmModalVisible(true)}
-          disabled={checkoutPending}
+          disabled={checkoutPending || shippingFeePending || shippingFeeError}
         >
-          {checkoutPending ? (
+          {checkoutPending || shippingFeePending ? (
             <ActivityIndicator color="#fff" />
           ) : (
             <Text style={CheckoutStyles.submitBtnText}>

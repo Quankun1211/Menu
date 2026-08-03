@@ -85,7 +85,7 @@ export default function ExploreContent() {
           onPress={() => handleNavigation(item.targetTab)}
         >
           <ImageBackground
-            source={require("../../../assets/banner/gao.png")}
+            source={require("../../../assets/banner/gao-card.jpg")}
             style={styles.imageBg}
             imageStyle={styles.imageStyle}
           >

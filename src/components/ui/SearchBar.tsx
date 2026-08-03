@@ -15,7 +15,7 @@ export default function SearchBar() {
   }, [keyword]);
 
   const { data } = useSearchProducts(debouncedKeyword);
-  const products = data?.data || [];
+  const products = data?.pages[0]?.data || [];
 
   const handleSelectItem = (productId: string) => {
     Keyboard.dismiss();

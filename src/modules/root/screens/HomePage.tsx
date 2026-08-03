@@ -16,6 +16,7 @@ import LatestProduct from '../components/LatestProduct';
 
 export default function HomePage() {
   const [chatVisible, setChatVisible] = useState(false);
+  const [chatUnread, setChatUnread] = useState(0);
 
   return (
     <View style={styles.screen}>
@@ -97,8 +98,8 @@ export default function HomePage() {
         <ProductSuggestion />
       </ScrollView>
 
-      <FloatingChatbot onPress={() => setChatVisible(true)} />
-      <ChatBotModal visible={chatVisible} onClose={() => setChatVisible(false)} />
+      <FloatingChatbot onPress={() => setChatVisible(true)} hasUnread={chatUnread > 0} />
+      <ChatBotModal visible={chatVisible} onClose={() => setChatVisible(false)} onUnreadChange={setChatUnread} />
     </View>
   );
 }

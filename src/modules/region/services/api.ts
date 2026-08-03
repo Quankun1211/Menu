@@ -6,11 +6,15 @@ type GetProductByRegionParams = {
   region: string;
   categoryId?: string;
   sort?: string;
+  page?: number;
+  limit?: number;
 };
 
 type GetProductSpecialByRegionParams = {
   region: string;
   sort?: string;
+  page?: number;
+  limit?: number;
 };
 
 export const onGetProductByRegion = async (
@@ -21,6 +25,8 @@ export const onGetProductByRegion = async (
       region: params?.region,
       categoryId: params?.categoryId,
       sort: params?.sort,
+      page: params?.page,
+      limit: params?.limit,
     },
   });
 
@@ -34,6 +40,8 @@ export const onGetProductSpecialByRegion = async (
     params: {
       region: params?.region,
       sort: params?.sort,
+      page: params?.page,
+      limit: params?.limit,
     },
   });
 

@@ -4,8 +4,8 @@
     "slug": "bep-viet",
     "version": "1.0.0",
     "extra": {
-      "API_BASE_URL": "http://192.168.100.188:5000/api",
-      "API_LOCAL": "192.168.100.188:5000",
+      "API_BASE_URL": "http://192.168.100.188:8081/api",
+      "API_LOCAL": "192.168.100.188:8081",
       "TOKEN_KEY": "token",
       "REFRESH_TOKEN_KEY": "refresh_token",
       "LOCALE_KEY": "locale",
@@ -22,10 +22,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
-        // "foregroundImage": "./assets/images/android-icon-foreground.png",
-        // "backgroundImage": "./assets/images/android-icon-background.png",
-        // "monochromeImage": "./assets/images/android-icon-monochrome.png"
+        "backgroundColor": "#E6F4FE"
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false
@@ -39,7 +36,7 @@
       [
         "expo-location",
         {
-          "locationWhenInUsePermission": "Bếp Việt dùng vị trí gần đúng để gợi ý công thức phù hợp với thời tiết tại khu vực của bạn."
+          "locationWhenInUsePermission": "Bếp Việt dùng vị trí của shipper để hiển thị lộ trình, cập nhật vị trí giao hàng và dẫn đường đến khách hàng."
         }
       ],
       [
@@ -53,7 +50,9 @@
             "backgroundColor": "#000000"
           }
         }
-      ]
+      ],
+      "expo-font",
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true,
